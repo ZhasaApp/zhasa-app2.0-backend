@@ -1,0 +1,52 @@
+package entities
+
+import "time"
+
+/*
+	Period responsible for store time period in useful format and converts it into
+	standard go time periods
+*/
+type Period interface {
+	ConvertToTime() (time.Time, time.Time)
+}
+
+// MonthPeriod Period implementation for monthly period
+type MonthPeriod struct {
+	MonthNumber int
+	Year        int
+}
+
+func (m *MonthPeriod) ConvertToTime() (time.Time, time.Time) {
+	from := time.Date(m.Year, time.Month(m.MonthNumber), 1, 0, 0, 0, 0, time.UTC)
+	to := from.AddDate(0, 1, -1)
+	return from, to
+}
+
+/*
+	WeekPeriod Period implementation for weekly related period
+	Precondition: WeekNumber should be from 1 to 53
+*/
+type WeekPeriod struct {
+	WeekNumber int
+	Year       int
+}
+
+func (w *WeekPeriod) getMondayDate() time.Time {
+	januaryFirst := time.Date(w.Year, 1, 1, 0, 0, 0, 0, time.UTC)
+	_, januaryFirstWeek := januaryFirst.ISOWeek()
+
+	if januaryFirstWeek > 1 {
+		// January 1st is in the previous year's last ISO week
+		januaryFirst = time.Date(w.Year, 1, 4, 0, 0, 0, 0, time.UTC)
+	}
+
+	daysToAdd := (w.WeekNumber-1)*7 - int(januaryFirst.Weekday()-time.Monday)
+	mondayDate := januaryFirst.AddDate(0, 0, daysToAdd)
+	return mondayDate
+}
+
+func (w *WeekPeriod) ConvertToTime() (time.Time, time.Time) {
+	from := w.getMondayDate()
+	to := from.AddDate(0, 0, 6)
+	return from, to
+}
