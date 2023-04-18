@@ -6,6 +6,7 @@ package generated
 
 import (
 	"context"
+	"time"
 )
 
 type Querier interface {
@@ -18,6 +19,8 @@ type Querier interface {
 	// get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
 	GetRankedSalesManagers(ctx context.Context, arg GetRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
+	GetSalesByDate(ctx context.Context, date time.Time) ([]Sale, error)
+	GetSalesManagerRankById(ctx context.Context, salesManagerID int32) (RankedSalesManager, error)
 	// get the sales sums for a specific sales manager and each sale type within the given period.
 	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) ([]GetSalesManagerSumsByTypeRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)

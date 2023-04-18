@@ -1,6 +1,13 @@
 package entities
 
+import (
+	"time"
+)
+
 type Sale struct {
-	salesType   SaleType
-	salesAmount SaleAmount
+	SalesType   SaleType
+	SalesAmount SaleAmount
+	SaleDate    time.Time
 }
+
+type SalesBySaleType map[SaleType]Sale

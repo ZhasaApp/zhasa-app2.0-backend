@@ -20,6 +20,15 @@ type BranchSalesManager struct {
 	BranchID       sql.NullInt32 `json:"branch_id"`
 }
 
+type RankedSalesManager struct {
+	SalesManagerID int32          `json:"sales_manager_id"`
+	FirstName      sql.NullString `json:"first_name"`
+	LastName       sql.NullString `json:"last_name"`
+	AvatarUrl      sql.NullString `json:"avatar_url"`
+	Ratio          float64        `json:"ratio"`
+	Position       int64          `json:"position"`
+}
+
 type Sale struct {
 	ID             int32     `json:"id"`
 	SalesManagerID int32     `json:"sales_manager_id"`

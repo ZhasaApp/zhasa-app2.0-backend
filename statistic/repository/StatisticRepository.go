@@ -6,5 +6,5 @@ import (
 )
 
 type StatisticRepository interface {
-	provideSums(from time.Time, to time.Time) (*statistic.SaleSumByType, error)
+	ProvideSums(from time.Time, to time.Time) (*statistic.SaleSumByType, error)
 }

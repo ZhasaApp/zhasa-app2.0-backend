@@ -53,3 +53,18 @@ VALUES ($1, $2, $3, $4) ON CONFLICT (sales_manager_id, date, sale_type_id)
 DO
 UPDATE SET
     amount = EXCLUDED.amount;
+
+-- name: GetSalesByDate :many
+SELECT *
+from sales s
+WHERE s.date = $1;
+
+-- name: GetSalesManagerRankById :one
+SELECT sales_manager_id,
+       first_name,
+       last_name,
+       avatar_url,
+       ratio,
+       position
+FROM ranked_sales_managers
+WHERE sales_manager_id = $1;

@@ -117,6 +117,66 @@ func (q *Queries) GetRankedSalesManagers(ctx context.Context, arg GetRankedSales
 	return items, nil
 }
 
+const getSalesByDate = `-- name: GetSalesByDate :many
+SELECT id, sales_manager_id, date, amount, sale_type_id
+from sales s
+WHERE s.date = $1
+`
+
+func (q *Queries) GetSalesByDate(ctx context.Context, date time.Time) ([]Sale, error) {
+	rows, err := q.db.QueryContext(ctx, getSalesByDate, date)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Sale
+	for rows.Next() {
+		var i Sale
+		if err := rows.Scan(
+			&i.ID,
+			&i.SalesManagerID,
+			&i.Date,
+			&i.Amount,
+			&i.SaleTypeID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSalesManagerRankById = `-- name: GetSalesManagerRankById :one
+SELECT sales_manager_id,
+       first_name,
+       last_name,
+       avatar_url,
+       ratio,
+       position
+FROM ranked_sales_managers
+WHERE sales_manager_id = $1
+`
+
+func (q *Queries) GetSalesManagerRankById(ctx context.Context, salesManagerID int32) (RankedSalesManager, error) {
+	row := q.db.QueryRowContext(ctx, getSalesManagerRankById, salesManagerID)
+	var i RankedSalesManager
+	err := row.Scan(
+		&i.SalesManagerID,
+		&i.FirstName,
+		&i.LastName,
+		&i.AvatarUrl,
+		&i.Ratio,
+		&i.Position,
+	)
+	return i, err
+}
+
 const getSalesManagerSumsByType = `-- name: GetSalesManagerSumsByType :many
 WITH sales_by_manager_type AS (SELECT sm.id         AS sales_manager_id,
                                       st.id         AS sale_type_id,

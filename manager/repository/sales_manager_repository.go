@@ -7,6 +7,7 @@ import (
 	"zhasa2.0/manager/entities"
 	sale "zhasa2.0/sale/entities"
 	"zhasa2.0/statistic"
+	"zhasa2.0/statistic/repository"
 )
 
 /*
@@ -15,7 +16,7 @@ import (
 */
 type SalesManagerRepository interface {
 	SaveSale(salesDate time.Time, amount sale.SaleAmount, saleTypeId sale.SaleTypeId) error
-	statistic.Statistic
+	repository.StatisticRepository
 }
 
 /*

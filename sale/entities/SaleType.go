@@ -8,9 +8,9 @@ import (
 type SaleTypeId int32
 
 type SaleType struct {
-	id          SaleTypeId
-	title       string
-	description string
+	Id          SaleTypeId
+	Title       string
+	Description string
 }
 
 type SaleTypeMap map[SaleTypeId]*SaleType
@@ -38,9 +38,9 @@ func (str DBSaleTypeRepository) GetSaleType(id SaleTypeId) (*SaleType, error) {
 	}
 
 	newSaleType := &SaleType{
-		id:          SaleTypeId(saleTypeDb.ID),
-		title:       saleTypeDb.Title,
-		description: saleTypeDb.Description.String,
+		Id:          SaleTypeId(saleTypeDb.ID),
+		Title:       saleTypeDb.Title,
+		Description: saleTypeDb.Description.String,
 	}
 
 	return newSaleType, nil
