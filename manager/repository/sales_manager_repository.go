@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"time"
+	entities2 "zhasa2.0/branch/entities"
 	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/manager/entities"
 	sale "zhasa2.0/sale/entities"
@@ -17,6 +18,8 @@ import (
 type SalesManagerRepository interface {
 	SaveSale(salesDate time.Time, amount sale.SaleAmount, saleTypeId sale.SaleTypeId) error
 	repository.StatisticRepository
+	ProvideRankedSalesManagersList(from time.Time, to time.Time, size int32, page int32) (*entities.SalesManagers, error)
+	ProvideBranchSalesManagers(id entities2.BranchId) (*entities.SalesManagers, error)
 }
 
 /*
@@ -69,4 +72,28 @@ func (p *PostgresSalesManagerRepository) mapSalesSumsByType(rows []generated.Get
 	}
 
 	return saleSumsByType
+}
+
+func (p *PostgresSalesManagerRepository) ProvideRankedSalesManagersList(from time.Time, to time.Time, size int32, page int32) (*entities.SalesManagers, error) {
+	params := generated.GetRankedSalesManagersParams{
+		Date:   from,
+		Date_2: to,
+		Limit:  size,
+		Offset: page,
+	}
+	data, err := p.querier.GetRankedSalesManagers(p.ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	var managers entities.SalesManagers
+	for _, row := range data {
+		salesManager := entities.SalesManager{
+			Id:        entities.SalesManageId(row.SalesManagerID),
+			FirstName: row.FirstName,
+			LastName:  row.LastName,
+			AvatarUrl: row.AvatarUrl,
+		}
+		managers = append(managers, salesManager)
+	}
+	return &managers, nil
 }

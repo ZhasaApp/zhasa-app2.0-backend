@@ -12,8 +12,7 @@ const (
 // Email and Password types already provided
 
 type UserRepository interface {
-	GetUserByEmail(email entities.Email) (*entities.User, error)
-	ChangePassword(email entities.Email, password entities.Password) error
+	GetUserByPhone(email entities.Phone) (*entities.User, error)
 }
 
 type PostgresUserRepository struct {

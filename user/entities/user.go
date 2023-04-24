@@ -5,8 +5,7 @@ type Avatar struct {
 }
 
 type User struct {
-	Id       int
-	Email    Email
-	Password Password
-	Avatar   Avatar
+	Id     int
+	Phone  Phone
+	Avatar Avatar
 }

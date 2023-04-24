@@ -3,61 +3,40 @@ package service
 import (
 	"context"
 	"errors"
-	"golang.org/x/crypto/bcrypt"
 	"zhasa2.0/user/entities"
 
 	"zhasa2.0/user/repository"
 )
 
 type AuthorizationService interface {
-	Login(body LoginBody) (*entities.User, error)
-	ChangePassword(body ChangePasswordBody) error
+	Login(phone entities.Phone, code recoveryCode) (*entities.User, error)
 }
 
 type SafeAuthorizationService struct {
-	ctx  context.Context
-	repo repository.UserRepository
-	enc  entities.PasswordEncryptor
+	ctx             context.Context
+	repo            repository.UserRepository
+	recoveryService RecoveryService
 }
 
-type LoginBody struct {
-	Email    string
-	Password string
-}
-
-type ChangePasswordBody struct {
-	Email       string
-	NewPassword string
-}
-
-func (service SafeAuthorizationService) Login(body LoginBody) (*entities.User, error) {
-	email, err := entities.NewEmail(body.Email)
-	if err != nil {
-		return nil, err
-	}
-
-	user, err := service.repo.GetUserByEmail(email)
-	if err != nil {
-		return nil, err
-	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password.Encrypted), []byte(body.Password)); err != nil {
-		return nil, errors.New("password doesn't not match")
-	}
-
-	return user, nil
-}
-
-func (service SafeAuthorizationService) ChangePassword(body ChangePasswordBody) error {
-	email, err := entities.NewEmail(body.Email)
-	if err != nil {
-		return nil
-	}
-
-	password, err := entities.NewPassword(body.NewPassword, service.enc)
+func (service SafeAuthorizationService) SendCode(phone entities.Phone) error {
+	user, err := service.repo.GetUserByPhone(phone)
 	if err != nil {
 		return err
 	}
 
-	err = service.repo.ChangePassword(email, *password)
-	return err
+	return service.recoveryService.SendRecoveryCode(*user)
+}
+
+func (service SafeAuthorizationService) Login(phone entities.Phone, code recoveryCode) (*entities.User, error) {
+
+	user, err := service.repo.GetUserByPhone(phone)
+	if err != nil {
+		return nil, err
+	}
+
+	verified := service.recoveryService.VerifyRecoveryCode(*user, code)
+	if !verified {
+		return nil, errors.New("wrong code")
+	}
+	return user, nil
 }

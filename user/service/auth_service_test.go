@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"github.com/stretchr/testify/require"
 	"testing"
 	"zhasa2.0/user/entities"
@@ -8,73 +9,66 @@ import (
 )
 
 type UserRepositoryStub struct {
-	GetUserByEmailFn func(email entities.Email) (*entities.User, error)
-	ChangePasswordFn func(email entities.Email, password entities.Password) error
+	GetUserByPhoneFn func(phone entities.Phone) (*entities.User, error)
 }
 
-func (s *UserRepositoryStub) GetUserByEmail(email entities.Email) (*entities.User, error) {
-	return s.GetUserByEmailFn(email)
+func (s *UserRepositoryStub) GetUserByPhone(phone entities.Phone) (*entities.User, error) {
+	return s.GetUserByPhoneFn(phone)
 }
 
-func (s *UserRepositoryStub) ChangePassword(email entities.Email, password entities.Password) error {
-	return s.ChangePasswordFn(email, password)
-}
+func TestAuthorizationService(t *testing.T) {
 
-func TestYourFunction(t *testing.T) {
-	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
-
-	pEncryptor := entities.Base64Encryptor{
-		EncKey: encKey,
-	}
-
-	testPassword, err := entities.NewPassword("testPassword", pEncryptor)
-	require.NoError(t, err)
 	testCases := []struct {
 		name           string
 		userRepository *UserRepositoryStub
-		loginBody      LoginBody
+		phone          entities.Phone
+		code           recoveryCode
 		assert         func(user *entities.User, err error)
 		// Add more fields if necessary, depending on your test case
 	}{
 		{
 			name: "Test case user exist",
 			userRepository: &UserRepositoryStub{
-				GetUserByEmailFn: func(email entities.Email) (*entities.User, error) {
+				GetUserByPhoneFn: func(email entities.Phone) (*entities.User, error) {
 					return &entities.User{
-						Email:    "test@gmail.com",
-						Password: *testPassword,
+						Phone: "test@gmail.com",
 					}, nil
 				},
-				ChangePasswordFn: func(email entities.Email, password entities.Password) error {
-					return nil
-				},
 			},
-			loginBody: LoginBody{
-				Email:    "test@gmail.com",
-				Password: "testPassword",
-			},
+			phone: entities.Phone("+77777777"),
 			assert: func(user *entities.User, err error) {
 				require.NoError(t, err)
 				require.NotNil(t, user)
 			},
+			code: 7777,
 		},
 		{
-			name: "Test case password doesnt not match",
+			name: "Test case code doesnt not match",
 			userRepository: &UserRepositoryStub{
-				GetUserByEmailFn: func(email entities.Email) (*entities.User, error) {
+				GetUserByPhoneFn: func(email entities.Phone) (*entities.User, error) {
 					return &entities.User{
-						Email:    "test@gmail.com",
-						Password: *testPassword,
+						Phone: "test@gmail.com",
 					}, nil
 				},
-				ChangePasswordFn: func(email entities.Email, password entities.Password) error {
-					return nil
+			},
+
+			phone: "test@gmail.com",
+			code:  4444,
+			assert: func(user *entities.User, err error) {
+				expected := errors.New("wrong code")
+				require.Equal(t, expected, err)
+			},
+		},
+		{
+			name: "Test case user not found",
+			userRepository: &UserRepositoryStub{
+				GetUserByPhoneFn: func(email entities.Phone) (*entities.User, error) {
+					return nil, errors.New("not found")
 				},
 			},
-			loginBody: LoginBody{
-				Email:    "test@gmail.com",
-				Password: "wrong password",
-			},
+
+			phone: "not_exist@gmail.com",
+			code:  5555,
 			assert: func(user *entities.User, err error) {
 				require.Error(t, err)
 				require.Nil(t, user)
@@ -87,13 +81,14 @@ func TestYourFunction(t *testing.T) {
 			authService := SafeAuthorizationService{
 				ctx:  nil,
 				repo: tc.userRepository,
-				enc:  pEncryptor,
+				recoveryService: RecoveryService{
+					rcs: PhoneCodeSender{},
+					prg: TestPasswordRecoveryCodeGenerator{},
+				},
 			}
+			err := authService.SendCode(tc.phone)
 
-			result, err := authService.Login(LoginBody{
-				Email:    tc.loginBody.Email,
-				Password: tc.loginBody.Password,
-			})
+			result, err := authService.Login(tc.phone, tc.code)
 
 			tc.assert(result, err)
 		})

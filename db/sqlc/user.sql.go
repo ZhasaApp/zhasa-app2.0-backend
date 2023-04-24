@@ -7,56 +7,37 @@ package generated
 
 import (
 	"context"
-	"database/sql"
 )
 
 const createUser = `-- name: CreateUser :exec
-INSERT INTO users (email, password, avatar_url)
+INSERT INTO users (phone, first_name, last_name)
 VALUES ($1, $2, $3)
 `
 
 type CreateUserParams struct {
-	Email     string         `json:"email"`
-	Password  string         `json:"password"`
-	AvatarUrl sql.NullString `json:"avatar_url"`
+	Phone     string `json:"phone"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.db.ExecContext(ctx, createUser, arg.Email, arg.Password, arg.AvatarUrl)
+	_, err := q.db.ExecContext(ctx, createUser, arg.Phone, arg.FirstName, arg.LastName)
 	return err
 }
 
-const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password, first_name, last_name, avatar_url FROM users
-WHERE email = $1
+const getUserByPhone = `-- name: GetUserByPhone :one
+SELECT id, phone, first_name, last_name FROM users
+WHERE phone = $1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
-	row := q.db.QueryRowContext(ctx, getUserByEmail, email)
+func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (User, error) {
+	row := q.db.QueryRowContext(ctx, getUserByPhone, phone)
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
-		&i.Password,
+		&i.Phone,
 		&i.FirstName,
 		&i.LastName,
-		&i.AvatarUrl,
 	)
 	return i, err
-}
-
-const updatePassword = `-- name: UpdatePassword :exec
-UPDATE users
-SET password = $1
-WHERE email = $2
-`
-
-type UpdatePasswordParams struct {
-	Password string `json:"password"`
-	Email    string `json:"email"`
-}
-
-func (q *Queries) UpdatePassword(ctx context.Context, arg UpdatePasswordParams) error {
-	_, err := q.db.ExecContext(ctx, updatePassword, arg.Password, arg.Email)
-	return err
 }

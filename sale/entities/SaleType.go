@@ -40,7 +40,7 @@ func (str DBSaleTypeRepository) GetSaleType(id SaleTypeId) (*SaleType, error) {
 	newSaleType := &SaleType{
 		Id:          SaleTypeId(saleTypeDb.ID),
 		Title:       saleTypeDb.Title,
-		Description: saleTypeDb.Description.String,
+		Description: saleTypeDb.Description,
 	}
 
 	return newSaleType, nil

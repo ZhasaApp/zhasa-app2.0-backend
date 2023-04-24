@@ -7,7 +7,6 @@ package generated
 
 import (
 	"context"
-	"database/sql"
 	"time"
 )
 
@@ -45,7 +44,7 @@ WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
                               u.avatar_url  AS avatar_url
                        FROM sales s
                                 INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
-                                INNER JOIN users u ON sm.user_id = u.id
+                                INNER JOIN user_avatar_view u ON sm.user_id = u.id
                        WHERE s.date BETWEEN $1 AND $2
                        GROUP BY sm.id),
      goal_summary AS (SELECT sm.id     AS sales_manager_id,
@@ -75,11 +74,11 @@ type GetRankedSalesManagersParams struct {
 }
 
 type GetRankedSalesManagersRow struct {
-	SalesManagerID int32          `json:"sales_manager_id"`
-	FirstName      sql.NullString `json:"first_name"`
-	LastName       sql.NullString `json:"last_name"`
-	AvatarUrl      sql.NullString `json:"avatar_url"`
-	Ratio          float64        `json:"ratio"`
+	SalesManagerID int32   `json:"sales_manager_id"`
+	FirstName      string  `json:"first_name"`
+	LastName       string  `json:"last_name"`
+	AvatarUrl      string  `json:"avatar_url"`
+	Ratio          float64 `json:"ratio"`
 }
 
 // get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
@@ -118,7 +117,7 @@ func (q *Queries) GetRankedSalesManagers(ctx context.Context, arg GetRankedSales
 }
 
 const getSalesByDate = `-- name: GetSalesByDate :many
-SELECT id, sales_manager_id, date, amount, sale_type_id
+SELECT id, sales_manager_id, date, amount, sale_type_id, description
 from sales s
 WHERE s.date = $1
 `
@@ -138,6 +137,7 @@ func (q *Queries) GetSalesByDate(ctx context.Context, date time.Time) ([]Sale, e
 			&i.Date,
 			&i.Amount,
 			&i.SaleTypeID,
+			&i.Description,
 		); err != nil {
 			return nil, err
 		}
@@ -150,31 +150,6 @@ func (q *Queries) GetSalesByDate(ctx context.Context, date time.Time) ([]Sale, e
 		return nil, err
 	}
 	return items, nil
-}
-
-const getSalesManagerRankById = `-- name: GetSalesManagerRankById :one
-SELECT sales_manager_id,
-       first_name,
-       last_name,
-       avatar_url,
-       ratio,
-       position
-FROM ranked_sales_managers
-WHERE sales_manager_id = $1
-`
-
-func (q *Queries) GetSalesManagerRankById(ctx context.Context, salesManagerID int32) (RankedSalesManager, error) {
-	row := q.db.QueryRowContext(ctx, getSalesManagerRankById, salesManagerID)
-	var i RankedSalesManager
-	err := row.Scan(
-		&i.SalesManagerID,
-		&i.FirstName,
-		&i.LastName,
-		&i.AvatarUrl,
-		&i.Ratio,
-		&i.Position,
-	)
-	return i, err
 }
 
 const getSalesManagerSumsByType = `-- name: GetSalesManagerSumsByType :many

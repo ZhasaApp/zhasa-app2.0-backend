@@ -7,7 +7,7 @@ WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
                               u.avatar_url  AS avatar_url
                        FROM sales s
                                 INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
-                                INNER JOIN users u ON sm.user_id = u.id
+                                INNER JOIN user_avatar_view u ON sm.user_id = u.id
                        WHERE s.date BETWEEN $1 AND $2
                        GROUP BY sm.id),
      goal_summary AS (SELECT sm.id     AS sales_manager_id,
@@ -58,13 +58,3 @@ UPDATE SET
 SELECT *
 from sales s
 WHERE s.date = $1;
-
--- name: GetSalesManagerRankById :one
-SELECT sales_manager_id,
-       first_name,
-       last_name,
-       avatar_url,
-       ratio,
-       position
-FROM ranked_sales_managers
-WHERE sales_manager_id = $1;

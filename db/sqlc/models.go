@@ -20,27 +20,19 @@ type BranchSalesManager struct {
 	BranchID       sql.NullInt32 `json:"branch_id"`
 }
 
-type RankedSalesManager struct {
-	SalesManagerID int32          `json:"sales_manager_id"`
-	FirstName      sql.NullString `json:"first_name"`
-	LastName       sql.NullString `json:"last_name"`
-	AvatarUrl      sql.NullString `json:"avatar_url"`
-	Ratio          float64        `json:"ratio"`
-	Position       int64          `json:"position"`
-}
-
 type Sale struct {
 	ID             int32     `json:"id"`
 	SalesManagerID int32     `json:"sales_manager_id"`
 	Date           time.Time `json:"date"`
 	Amount         int64     `json:"amount"`
 	SaleTypeID     int32     `json:"sale_type_id"`
+	Description    string    `json:"description"`
 }
 
 type SaleType struct {
-	ID          int32          `json:"id"`
-	Title       string         `json:"title"`
-	Description sql.NullString `json:"description"`
+	ID          int32  `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 type SalesManager struct {
@@ -57,10 +49,21 @@ type SalesManagerGoal struct {
 }
 
 type User struct {
-	ID        int32          `json:"id"`
-	Email     string         `json:"email"`
-	Password  string         `json:"password"`
-	FirstName sql.NullString `json:"first_name"`
-	LastName  sql.NullString `json:"last_name"`
-	AvatarUrl sql.NullString `json:"avatar_url"`
+	ID        int32  `json:"id"`
+	Phone     string `json:"phone"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
+type UserAvatarView struct {
+	ID        int32  `json:"id"`
+	Phone     string `json:"phone"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	AvatarUrl string `json:"avatar_url"`
+}
+
+type UsersAvatar struct {
+	UserID    sql.NullInt32 `json:"user_id"`
+	AvatarUrl string        `json:"avatar_url"`
 }

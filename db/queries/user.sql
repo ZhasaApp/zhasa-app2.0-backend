@@ -1,12 +1,7 @@
 -- name: CreateUser :exec
-INSERT INTO users (email, password, avatar_url)
+INSERT INTO users (phone, first_name, last_name)
 VALUES ($1, $2, $3);
 
--- name: GetUserByEmail :one
+-- name: GetUserByPhone :one
 SELECT * FROM users
-WHERE email = $1;
-
--- name: UpdatePassword :exec
-UPDATE users
-SET password = $1
-WHERE email = $2;
+WHERE phone = $1;

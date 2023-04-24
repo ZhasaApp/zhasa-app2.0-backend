@@ -16,28 +16,28 @@ type recovery struct {
 	Used       bool
 }
 
-type RecoveryCodeSender interface {
+type CodeSender interface {
 	sendRecoveryCode(code recoveryCode) error
 }
 
-type PasswordRecoveryCodeGenerator interface {
+type RecoveryCodeGenerator interface {
 	generateRecoveryCode() (recoveryCode, error)
 }
 
-type EmailPasswordRecoveryCodeGenerator struct{}
+type FourDigitsRecoveryCodeGenerator struct{}
 
 type TestPasswordRecoveryCodeGenerator struct{}
 
-type PasswordRecoveryService struct {
-	rcs RecoveryCodeSender
-	prg PasswordRecoveryCodeGenerator
+type RecoveryService struct {
+	rcs CodeSender
+	prg RecoveryCodeGenerator
 }
 
-type EmailRecoveryCodeSender struct {
-	email entities.Email
+type PhoneCodeSender struct {
+	phone entities.Phone
 }
 
-func (ep EmailPasswordRecoveryCodeGenerator) generateRecoveryCode() (recoveryCode, error) {
+func (ep FourDigitsRecoveryCodeGenerator) generateRecoveryCode() (recoveryCode, error) {
 	code, err := rand.Int(rand.Reader, big.NewInt(9000))
 	if err != nil {
 		return 0, err
@@ -51,14 +51,14 @@ func (t TestPasswordRecoveryCodeGenerator) generateRecoveryCode() (recoveryCode,
 	return 7777, nil
 }
 
-func (e EmailRecoveryCodeSender) sendRecoveryCode(recoveryCode) error {
+func (e PhoneCodeSender) sendRecoveryCode(recoveryCode) error {
 
 	return nil
 }
 
 var recoveryCodes sync.Map
 
-func (p PasswordRecoveryService) SendRecoveryCode(user entities.User) error {
+func (p RecoveryService) SendRecoveryCode(user entities.User) error {
 	recoveryCode, err := p.prg.generateRecoveryCode()
 	if err != nil {
 		return err
@@ -74,16 +74,16 @@ func (p PasswordRecoveryService) SendRecoveryCode(user entities.User) error {
 	return p.rcs.sendRecoveryCode(recoveryCode)
 }
 
-func NewPasswordRecoveryService(email entities.Email) PasswordRecoveryService {
-	return PasswordRecoveryService{
-		rcs: EmailRecoveryCodeSender{
-			email: email,
+func NewPasswordRecoveryService(phone entities.Phone) RecoveryService {
+	return RecoveryService{
+		rcs: PhoneCodeSender{
+			phone: phone,
 		},
 		prg: TestPasswordRecoveryCodeGenerator{},
 	}
 }
 
-func (p PasswordRecoveryService) VerifyRecoveryCode(user entities.User, code recoveryCode) bool {
+func (p RecoveryService) VerifyRecoveryCode(user entities.User, code recoveryCode) bool {
 	value, ok := recoveryCodes.Load(user.Id)
 	if !ok {
 		return false
