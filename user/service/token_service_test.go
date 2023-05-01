@@ -12,10 +12,10 @@ func TestTokenService(t *testing.T) {
 	}
 
 	testUser := &UserTokenData{
-		id:        1,
-		firstName: "Test",
-		lastName:  "Tested",
-		email:     "test@test.com",
+		Id:        1,
+		FirstName: "Test",
+		LastName:  "Tested",
+		Email:     "test@test.com",
 	}
 
 	token, err := tokenService.GenerateToken(testUser)

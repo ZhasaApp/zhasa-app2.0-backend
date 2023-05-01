@@ -1,9 +1,9 @@
 package entities
 
-type SalesManageId int
+type SalesManagerId int
 
 type SalesManager struct {
-	Id        SalesManageId
+	Id        SalesManagerId
 	FirstName string
 	LastName  string
 	AvatarUrl string
@@ -12,5 +12,5 @@ type SalesManager struct {
 type SalesManagers []SalesManager
 
 type SalesManagerResponse struct {
-	Id SalesManageId `json:"id"`
+	Id SalesManagerId `json:"id"`
 }

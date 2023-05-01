@@ -1,5 +1,3 @@
 package entities
 
-type SaleAmount struct {
-	Amount int64
-}
+type SaleAmount int64

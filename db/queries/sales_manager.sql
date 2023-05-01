@@ -1,6 +1,11 @@
+-- name: CreateSalesManager :exec
+INSERT INTO sales_managers (user_id, branch_id)
+VALUES ($1, $2);
+
+
 -- name: GetRankedSalesManagers :many
 -- get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
-WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
+    WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
                               SUM(s.amount) AS total_sales_amount,
                               u.first_name  AS first_name,
                               u.last_name   AS last_name,
@@ -8,7 +13,7 @@ WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
                        FROM sales s
                                 INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
                                 INNER JOIN user_avatar_view u ON sm.user_id = u.id
-                       WHERE s.date BETWEEN $1 AND $2
+                       WHERE s.sale_date BETWEEN $1 AND $2
                        GROUP BY sm.id),
      goal_summary AS (SELECT sm.id     AS sales_manager_id,
                              sg.from_date,
@@ -36,7 +41,7 @@ WITH sales_by_manager_type AS (SELECT sm.id         AS sales_manager_id,
                                FROM sales s
                                         INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
                                         INNER JOIN sale_types st ON s.sale_type_id = st.id
-                               WHERE s.date BETWEEN $1 AND $2
+                               WHERE s.sale_date BETWEEN $1 AND $2
                                  AND sm.id = $3
                                GROUP BY sm.id,
                                         st.id)
@@ -48,7 +53,7 @@ ORDER BY smt.sale_type_id ASC;
 
 -- name: AddSaleOrReplace :exec
 -- add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
-INSERT INTO sales (sales_manager_id, date, amount, sale_type_id)
+INSERT INTO sales (sales_manager_id, sale_date, amount, sale_type_id)
 VALUES ($1, $2, $3, $4) ON CONFLICT (sales_manager_id, date, sale_type_id)
 DO
 UPDATE SET
@@ -57,4 +62,10 @@ UPDATE SET
 -- name: GetSalesByDate :many
 SELECT *
 from sales s
-WHERE s.date = $1;
+WHERE s.sale_date = $1;
+
+
+-- name: GetSalesManagerByUserId :one
+SELECT *
+from sales_managers_view s
+WHERE s.user_id = $1;

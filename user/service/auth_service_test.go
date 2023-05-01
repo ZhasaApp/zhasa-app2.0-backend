@@ -16,13 +16,17 @@ func (s *UserRepositoryStub) GetUserByPhone(phone entities.Phone) (*entities.Use
 	return s.GetUserByPhoneFn(phone)
 }
 
+func (s *UserRepositoryStub) CreateUser(request entities.CreateUserRequest) error {
+	return s.CreateUser(request)
+}
+
 func TestAuthorizationService(t *testing.T) {
 
 	testCases := []struct {
 		name           string
 		userRepository *UserRepositoryStub
 		phone          entities.Phone
-		code           recoveryCode
+		code           OtpCode
 		assert         func(user *entities.User, err error)
 		// Add more fields if necessary, depending on your test case
 	}{
@@ -62,7 +66,7 @@ func TestAuthorizationService(t *testing.T) {
 		{
 			name: "Test case user not found",
 			userRepository: &UserRepositoryStub{
-				GetUserByPhoneFn: func(email entities.Phone) (*entities.User, error) {
+				GetUserByPhoneFn: func(phone entities.Phone) (*entities.User, error) {
 					return nil, errors.New("not found")
 				},
 			},
@@ -79,14 +83,12 @@ func TestAuthorizationService(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			authService := SafeAuthorizationService{
-				ctx:  nil,
-				repo: tc.userRepository,
+				ctx: nil,
 				recoveryService: RecoveryService{
-					rcs: PhoneCodeSender{},
-					prg: TestPasswordRecoveryCodeGenerator{},
+					cg: TestPasswordRecoveryCodeGenerator{},
 				},
 			}
-			err := authService.SendCode(tc.phone)
+			err := authService.RequestCode(tc.phone)
 
 			result, err := authService.Login(tc.phone, tc.code)
 

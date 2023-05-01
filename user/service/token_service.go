@@ -5,36 +5,42 @@ import (
 	"github.com/o1egl/paseto"
 	"strconv"
 	"time"
-	"zhasa2.0/user/entities"
 )
 
 type Token string
 
 type UserTokenData struct {
-	id        int
-	firstName string
-	lastName  string
-	email     string
+	Id        int32
+	FirstName string
+	LastName  string
+	Email     string
 }
 
 // TokenService responsible for conversion sensitive user data into secure view
 type TokenService interface {
-	GenerateToken(user *entities.User) (Token, error)
+	GenerateToken(user *UserTokenData) (Token, error)
+	VerifyToken(token Token) (*UserTokenData, error)
 }
 
-// PasetoTokenService implementats TokenService by using Paseto specification
+// PasetoTokenService implements TokenService by using Paseto specification
 type PasetoTokenService struct {
 	encryptionKey *[]byte
 }
 
-func (ts *PasetoTokenService) GenerateToken(user *UserTokenData) (Token, error) {
+func NewTokenService(encryptionKey *[]byte) TokenService {
+	return PasetoTokenService{
+		encryptionKey: encryptionKey,
+	}
+}
+
+func (ts PasetoTokenService) GenerateToken(user *UserTokenData) (Token, error) {
 	v2 := paseto.NewV2()
 
 	jsonToken := paseto.JSONToken{}
-	jsonToken.Set("id", fmt.Sprintf("%d", user.id))
-	jsonToken.Set("email", user.email)
-	jsonToken.Set("first_name", user.firstName)
-	jsonToken.Set("last_name", user.lastName)
+	jsonToken.Set("Id", fmt.Sprintf("%d", user.Id))
+	jsonToken.Set("Email", user.Email)
+	jsonToken.Set("first_name", user.FirstName)
+	jsonToken.Set("last_name", user.LastName)
 
 	footer := map[string]interface{}{
 		"issued_at": time.Now(),
@@ -47,7 +53,7 @@ func (ts *PasetoTokenService) GenerateToken(user *UserTokenData) (Token, error) 
 	return Token(tokenString), nil
 }
 
-func (ts *PasetoTokenService) VerifyToken(token Token) (*UserTokenData, error) {
+func (ts PasetoTokenService) VerifyToken(token Token) (*UserTokenData, error) {
 	v2 := paseto.NewV2()
 
 	var extractedData map[string]interface{}
@@ -56,14 +62,14 @@ func (ts *PasetoTokenService) VerifyToken(token Token) (*UserTokenData, error) {
 	if err != nil {
 		return nil, err
 	}
-	userId, _ := strconv.Atoi(extractedData["id"].(string))
+	userId, _ := strconv.Atoi(extractedData["Id"].(string))
 
 	// Create a user object from the extracted data
 	user := UserTokenData{
-		id:        userId,
-		email:     extractedData["email"].(string),
-		firstName: extractedData["first_name"].(string),
-		lastName:  extractedData["last_name"].(string),
+		Id:        int32(userId),
+		Email:     extractedData["Email"].(string),
+		FirstName: extractedData["first_name"].(string),
+		LastName:  extractedData["last_name"].(string),
 	}
 
 	return &user, nil

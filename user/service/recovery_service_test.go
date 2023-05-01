@@ -1,10 +1,10 @@
 package service
 
 type TestRecoveryCodeSender struct {
-	codesSent []recoveryCode
+	codesSent []OtpCode
 }
 
-func (t *TestRecoveryCodeSender) sendRecoveryCode(code recoveryCode) error {
+func (t *TestRecoveryCodeSender) sendRecoveryCode(code OtpCode) error {
 	t.codesSent = append(t.codesSent, code)
 	return nil
 }

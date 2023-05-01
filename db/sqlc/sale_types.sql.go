@@ -10,19 +10,24 @@ import (
 )
 
 const getSaleTypeById = `-- name: GetSaleTypeById :one
-SELECT id, title, description FROM sale_types
+SELECT id, title, description, created_at FROM sale_types
 WHERE id = $1
 `
 
 func (q *Queries) GetSaleTypeById(ctx context.Context, id int32) (SaleType, error) {
 	row := q.db.QueryRowContext(ctx, getSaleTypeById, id)
 	var i SaleType
-	err := row.Scan(&i.ID, &i.Title, &i.Description)
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
 const getSalesTypes = `-- name: GetSalesTypes :many
-SELECT id, title, description FROM sale_types
+SELECT id, title, description, created_at FROM sale_types
 `
 
 func (q *Queries) GetSalesTypes(ctx context.Context) ([]SaleType, error) {
@@ -34,7 +39,12 @@ func (q *Queries) GetSalesTypes(ctx context.Context) ([]SaleType, error) {
 	var items []SaleType
 	for rows.Next() {
 		var i SaleType
-		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.CreatedAt,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

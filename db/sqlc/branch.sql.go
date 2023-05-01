@@ -10,15 +10,36 @@ import (
 	"time"
 )
 
+const createBranch = `-- name: CreateBranch :exec
+INSERT INTO branches (title, description)
+VALUES ($1, $2)
+`
+
+type CreateBranchParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) error {
+	_, err := q.db.ExecContext(ctx, createBranch, arg.Title, arg.Description)
+	return err
+}
+
 const getBranchById = `-- name: GetBranchById :one
-SELECT id, title, description FROM branches
+SELECT id, title, description, branch_key, created_at FROM branches
 WHERE id = $1
 `
 
 func (q *Queries) GetBranchById(ctx context.Context, id int32) (Branch, error) {
 	row := q.db.QueryRowContext(ctx, getBranchById, id)
 	var i Branch
-	err := row.Scan(&i.ID, &i.Title, &i.Description)
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Description,
+		&i.BranchKey,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
@@ -30,10 +51,9 @@ WITH sales_summary AS (
     FROM
         sales s
             INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
-            INNER JOIN branch_sales_managers bsm ON sm.id = bsm.sales_manager_id
-            INNER JOIN branches b ON bsm.branch_id = b.id
+            INNER JOIN branches b ON sm.branch_id = b.id
     WHERE
-        s.date BETWEEN $1 AND $2
+        s.sale_date BETWEEN $1 AND $2
     GROUP BY
         b.id
 ),
@@ -44,8 +64,7 @@ WITH sales_summary AS (
          FROM
              sales_manager_goals smg
                  INNER JOIN sales_managers sm ON smg.sales_manager_id = sm.id
-                 INNER JOIN branch_sales_managers bsm ON sm.id = bsm.sales_manager_id
-                 INNER JOIN branches b ON bsm.branch_id = b.id
+                 INNER JOIN branches b ON sm.branch_id = b.id
          WHERE
                  smg.from_date = $1
            AND smg.to_date = $2
@@ -65,8 +84,8 @@ ORDER BY
 `
 
 type GetBranchesByRatingParams struct {
-	Date   time.Time `json:"date"`
-	Date_2 time.Time `json:"date_2"`
+	SaleDate   time.Time `json:"sale_date"`
+	SaleDate_2 time.Time `json:"sale_date_2"`
 }
 
 type GetBranchesByRatingRow struct {
@@ -77,7 +96,7 @@ type GetBranchesByRatingRow struct {
 
 // Get Ranked Branches
 func (q *Queries) GetBranchesByRating(ctx context.Context, arg GetBranchesByRatingParams) ([]GetBranchesByRatingRow, error) {
-	rows, err := q.db.QueryContext(ctx, getBranchesByRating, arg.Date, arg.Date_2)
+	rows, err := q.db.QueryContext(ctx, getBranchesByRating, arg.SaleDate, arg.SaleDate_2)
 	if err != nil {
 		return nil, err
 	}

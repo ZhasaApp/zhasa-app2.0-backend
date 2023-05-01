@@ -5,54 +5,69 @@
 package generated
 
 import (
-	"database/sql"
 	"time"
 )
 
 type Branch struct {
-	ID          int32          `json:"id"`
-	Title       string         `json:"title"`
-	Description sql.NullString `json:"description"`
+	ID          int32     `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	BranchKey   string    `json:"branch_key"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type BranchSalesManager struct {
-	SalesManagerID sql.NullInt32 `json:"sales_manager_id"`
-	BranchID       sql.NullInt32 `json:"branch_id"`
+	SalesManagerID int32 `json:"sales_manager_id"`
+	BranchID       int32 `json:"branch_id"`
 }
 
 type Sale struct {
 	ID             int32     `json:"id"`
 	SalesManagerID int32     `json:"sales_manager_id"`
-	Date           time.Time `json:"date"`
+	SaleDate       time.Time `json:"sale_date"`
 	Amount         int64     `json:"amount"`
 	SaleTypeID     int32     `json:"sale_type_id"`
 	Description    string    `json:"description"`
+	CreatedAt      time.Time `json:"created_at"`
 }
 
 type SaleType struct {
-	ID          int32  `json:"id"`
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	ID          int32     `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type SalesManager struct {
-	ID     int32         `json:"id"`
-	UserID sql.NullInt32 `json:"user_id"`
+	ID        int32     `json:"id"`
+	UserID    int32     `json:"user_id"`
+	BranchID  int32     `json:"branch_id"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type SalesManagerGoal struct {
-	ID             int32         `json:"id"`
-	FromDate       time.Time     `json:"from_date"`
-	ToDate         time.Time     `json:"to_date"`
-	Amount         int64         `json:"amount"`
-	SalesManagerID sql.NullInt32 `json:"sales_manager_id"`
+	ID             int32     `json:"id"`
+	FromDate       time.Time `json:"from_date"`
+	ToDate         time.Time `json:"to_date"`
+	Amount         int64     `json:"amount"`
+	SalesManagerID int32     `json:"sales_manager_id"`
+}
+
+type SalesManagersView struct {
+	UserID         int32  `json:"user_id"`
+	Phone          string `json:"phone"`
+	FirstName      string `json:"first_name"`
+	LastName       string `json:"last_name"`
+	AvatarUrl      string `json:"avatar_url"`
+	SalesManagerID int32  `json:"sales_manager_id"`
 }
 
 type User struct {
-	ID        int32  `json:"id"`
-	Phone     string `json:"phone"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	ID        int32     `json:"id"`
+	Phone     string    `json:"phone"`
+	FirstName string    `json:"first_name"`
+	LastName  string    `json:"last_name"`
+	CreatedAt time.Time `json:"created_at"`
 }
 
 type UserAvatarView struct {
@@ -64,6 +79,13 @@ type UserAvatarView struct {
 }
 
 type UsersAvatar struct {
-	UserID    sql.NullInt32 `json:"user_id"`
-	AvatarUrl string        `json:"avatar_url"`
+	UserID    int32  `json:"user_id"`
+	AvatarUrl string `json:"avatar_url"`
+}
+
+type UsersCode struct {
+	ID        int32     `json:"id"`
+	UserID    int32     `json:"user_id"`
+	Code      int32     `json:"code"`
+	CreatedAt time.Time `json:"created_at"`
 }

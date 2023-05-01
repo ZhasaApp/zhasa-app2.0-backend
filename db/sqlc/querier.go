@@ -12,18 +12,23 @@ import (
 type Querier interface {
 	// add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
 	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) error
+	CreateBranch(ctx context.Context, arg CreateBranchParams) error
+	CreateSalesManager(ctx context.Context, arg CreateSalesManagerParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
+	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
 	// Get Ranked Branches
 	GetBranchesByRating(ctx context.Context, arg GetBranchesByRatingParams) ([]GetBranchesByRatingRow, error)
 	// get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
 	GetRankedSalesManagers(ctx context.Context, arg GetRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
-	GetSalesByDate(ctx context.Context, date time.Time) ([]Sale, error)
+	GetSalesByDate(ctx context.Context, saleDate time.Time) ([]Sale, error)
+	GetSalesManagerByUserId(ctx context.Context, userID int32) (SalesManagersView, error)
 	// get the sales sums for a specific sales manager and each sale type within the given period.
 	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) ([]GetSalesManagerSumsByTypeRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
 	GetUserByPhone(ctx context.Context, phone string) (User, error)
+	GetUserCode(ctx context.Context, userID int32) (UsersCode, error)
 }
 
 var _ Querier = (*Queries)(nil)

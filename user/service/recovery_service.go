@@ -3,109 +3,68 @@ package service
 import (
 	"crypto/rand"
 	"math/big"
-	"sync"
-	"time"
 	"zhasa2.0/user/entities"
 )
 
-type recoveryCode int
-
-type recovery struct {
-	Code       recoveryCode
-	Expiration time.Time
-	Used       bool
-}
-
 type CodeSender interface {
-	sendRecoveryCode(code recoveryCode) error
+	SendRecoveryCode(phone entities.Phone, code entities.OtpCode) error
 }
 
 type RecoveryCodeGenerator interface {
-	generateRecoveryCode() (recoveryCode, error)
+	GenerateRecoveryCode() (entities.OtpCode, error)
 }
 
 type FourDigitsRecoveryCodeGenerator struct{}
 
+func (ep FourDigitsRecoveryCodeGenerator) SendRecoveryCode(phone entities.Phone, code entities.OtpCode) error {
+	return nil
+}
+
 type TestPasswordRecoveryCodeGenerator struct{}
 
 type RecoveryService struct {
-	rcs CodeSender
-	prg RecoveryCodeGenerator
+	CodeSender
+	RecoveryCodeGenerator
+}
+
+func NewRecoveryService() RecoveryService {
+	return RecoveryService{
+		FourDigitsRecoveryCodeGenerator{},
+		TestPasswordRecoveryCodeGenerator{},
+	}
 }
 
 type PhoneCodeSender struct {
 	phone entities.Phone
 }
 
-func (ep FourDigitsRecoveryCodeGenerator) generateRecoveryCode() (recoveryCode, error) {
+func (ep FourDigitsRecoveryCodeGenerator) GenerateRecoveryCode() (entities.OtpCode, error) {
 	code, err := rand.Int(rand.Reader, big.NewInt(9000))
 	if err != nil {
 		return 0, err
 	}
-	codeResult := recoveryCode(code.Int64()) + 1000
+	codeResult := entities.OtpCode(code.Int64()) + 1000
 
 	return codeResult, nil
 }
 
-func (t TestPasswordRecoveryCodeGenerator) generateRecoveryCode() (recoveryCode, error) {
+func (t TestPasswordRecoveryCodeGenerator) GenerateRecoveryCode() (entities.OtpCode, error) {
 	return 7777, nil
 }
 
-func (e PhoneCodeSender) sendRecoveryCode(recoveryCode) error {
-
+func (e PhoneCodeSender) SendRecoveryCode(entities.OtpCode) error {
 	return nil
 }
 
-var recoveryCodes sync.Map
-
-func (p RecoveryService) SendRecoveryCode(user entities.User) error {
-	recoveryCode, err := p.prg.generateRecoveryCode()
+func (p RecoveryService) GenerateSendRecoveryCode(user entities.User) (*entities.OtpCode, error) {
+	recoveryCode, err := p.GenerateRecoveryCode()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	expiration := time.Now().Add(time.Hour)
-
-	recoveryCodes.Store(user.Id, recovery{
-		Code:       recoveryCode,
-		Expiration: expiration,
-		Used:       false,
-	})
-	return p.rcs.sendRecoveryCode(recoveryCode)
-}
-
-func NewPasswordRecoveryService(phone entities.Phone) RecoveryService {
-	return RecoveryService{
-		rcs: PhoneCodeSender{
-			phone: phone,
-		},
-		prg: TestPasswordRecoveryCodeGenerator{},
-	}
-}
-
-func (p RecoveryService) VerifyRecoveryCode(user entities.User, code recoveryCode) bool {
-	value, ok := recoveryCodes.Load(user.Id)
-	if !ok {
-		return false
+	if err != nil {
+		return nil, err
 	}
 
-	recovery := value.(recovery)
-
-	if recovery.Used {
-		return false
-	}
-
-	if time.Now().After(recovery.Expiration) {
-		return false
-	}
-
-	if recovery.Code != code {
-		return false
-	}
-
-	// Mark the recovery code as used
-	recovery.Used = true
-	recoveryCodes.Store(user.Id, recovery)
-
-	return true
+	return &recoveryCode, p.SendRecoveryCode(user.Phone, recoveryCode)
 }

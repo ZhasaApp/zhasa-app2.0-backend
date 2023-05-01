@@ -7,10 +7,9 @@ WITH sales_summary AS (
     FROM
         sales s
             INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
-            INNER JOIN branch_sales_managers bsm ON sm.id = bsm.sales_manager_id
-            INNER JOIN branches b ON bsm.branch_id = b.id
+            INNER JOIN branches b ON sm.branch_id = b.id
     WHERE
-        s.date BETWEEN $1 AND $2
+        s.sale_date BETWEEN $1 AND $2
     GROUP BY
         b.id
 ),
@@ -21,8 +20,7 @@ WITH sales_summary AS (
          FROM
              sales_manager_goals smg
                  INNER JOIN sales_managers sm ON smg.sales_manager_id = sm.id
-                 INNER JOIN branch_sales_managers bsm ON sm.id = bsm.sales_manager_id
-                 INNER JOIN branches b ON bsm.branch_id = b.id
+                 INNER JOIN branches b ON sm.branch_id = b.id
          WHERE
                  smg.from_date = $1
            AND smg.to_date = $2
@@ -43,3 +41,7 @@ ORDER BY
 -- name: GetBranchById :one
 SELECT * FROM branches
 WHERE id = $1;
+
+-- name: CreateBranch :exec
+INSERT INTO branches (title, description)
+VALUES ($1, $2);

@@ -1,22 +1,32 @@
 package service
 
 import (
-	entities3 "zhasa2.0/branch/entities"
 	"zhasa2.0/manager/entities"
 	"zhasa2.0/manager/repository"
 	sale "zhasa2.0/sale/entities"
-	"zhasa2.0/statistic"
-	entities2 "zhasa2.0/statistic/entities"
+	repository2 "zhasa2.0/sale/repository"
 )
 
 type SalesManagerService interface {
+	GetSalesManagerByUserId(userId int32) (*entities.SalesManager, error)
+	CreateSalesManager(userId int32, branchId int32) error
 	SaveSale(sale sale.Sale) error
-	statistic.Statistic
-	ProvideManagers(visitor salesManagerVisitor) (error, *entities.SalesManagers)
 }
+
 type DBSalesManagerService struct {
-	salesManager entities.SalesManager
-	repo         repository.SalesManagerRepository
+	repo repository.SalesManagerRepository
+	repository2.SaleTypeRepository
+}
+
+func (dbs DBSalesManagerService) SaveSale(sale sale.Sale) error {
+	return dbs.repo.SaveSale(sale.SaleManagerId, sale.SaleDate, sale.SalesAmount, sale.SalesTypeId)
+}
+
+func NewSalesManagerService(repo repository.SalesManagerRepository, saleTypeRepo repository2.SaleTypeRepository) SalesManagerService {
+	return DBSalesManagerService{
+		repo:               repo,
+		SaleTypeRepository: saleTypeRepo,
+	}
 }
 
 type salesManagerVisitor interface {
@@ -27,33 +37,10 @@ func (dbs DBSalesManagerService) ProvideManagers(visitor salesManagerVisitor) (e
 	return visitor.provideManagers()
 }
 
-type rankedSalesManagersVisitor struct {
-	entities.SalesManagers
-	entities2.Period
-	repo repository.SalesManagerRepository
-	page int32
-	size int32
+func (dbs DBSalesManagerService) CreateSalesManager(userId int32, branchId int32) error {
+	return dbs.repo.CreateSalesManager(userId, branchId)
 }
 
-type branchSalesManagersVisitor struct {
-	branchId entities3.BranchId
-	repo     repository.SalesManagerRepository
-}
-
-func (rv rankedSalesManagersVisitor) provideManagers() (*entities.SalesManagers, error) {
-	from, to := rv.Period.ConvertToTime()
-	return rv.repo.ProvideRankedSalesManagersList(from, to, rv.size, rv.page)
-}
-
-func (bv branchSalesManagersVisitor) provideManagers() (*entities.SalesManagers, error) {
-	return bv.repo.ProvideBranchSalesManagers(bv.branchId)
-}
-
-func (dbs DBSalesManagerService) SaveSale(sale sale.Sale) error {
-	return dbs.repo.SaveSale(sale.SaleDate, sale.SalesAmount, sale.SalesType.Id)
-}
-
-func (dbs DBSalesManagerService) ProvideSalesSums(period entities2.Period) (*statistic.SaleSumByType, error) {
-	from, to := period.ConvertToTime()
-	return dbs.repo.ProvideSums(from, to)
+func (dbs DBSalesManagerService) GetSalesManagerByUserId(userId int32) (*entities.SalesManager, error) {
+	return dbs.repo.GetSalesManagerByUserId(userId)
 }
