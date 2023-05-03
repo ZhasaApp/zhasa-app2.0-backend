@@ -70,14 +70,16 @@ func NewServer(ctx context.Context) *Server {
 		adminRoute.POST("/user/new", server.createUser)
 		adminRoute.POST("/sales-manager/new", server.createSalesManager)
 		adminRoute.POST("/branch/new", server.createBranch)
+		adminRoute.POST("/sale-type/new", server.createSaleType)
 	}
 
-	smRoute := router.Group("sales-manager")
-	{
-		smRoute.POST("sale/new")
-	}
-
+	smRoute := router.Group("sales-manager/")
 	smRoute.Use(getSalesManager(server.tokenService, server.salesManagerService))
+	{
+		smRoute.POST("/sale/new", server.saveSale)
+		smRoute.GET("/branch/list", server.GetBranches)
+	}
+
 	server.router = router
 	return server
 }

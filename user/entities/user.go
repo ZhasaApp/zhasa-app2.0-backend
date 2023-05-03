@@ -26,13 +26,17 @@ type User struct {
 
 type UserAuth struct {
 	Code      OtpCode
-	UserId    int32
+	UserId    UserId
 	CreatedAt time.Time
 }
 
+type UserId int32
+
 type Name string
 
-type OtpCode int
+type OtpCode int32
+
+type OtpId int32
 
 func NewName(name string) (*Name, error) {
 	// Check that the name is not empty

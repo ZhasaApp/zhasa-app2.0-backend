@@ -7,6 +7,7 @@ import (
 
 type BranchService interface {
 	CreateBranch(request entities.CreateBranchRequest) error
+	GetBranches() ([]entities.Branch, error)
 }
 
 type DBBranchService struct {
@@ -15,6 +16,10 @@ type DBBranchService struct {
 
 func (ds DBBranchService) CreateBranch(request entities.CreateBranchRequest) error {
 	return ds.repo.CreateBranch(request)
+}
+
+func (ds DBBranchService) GetBranches() ([]entities.Branch, error) {
+	return ds.repo.GetBranches()
 }
 
 func NewBranchService(repo repository.BranchRepository) BranchService {

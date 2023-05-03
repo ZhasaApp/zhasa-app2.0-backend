@@ -7,6 +7,7 @@ import (
 
 type SaleTypeService interface {
 	GetSaleType(id entities.SaleTypeId) (*entities.SaleType, error)
+	CreateSaleType(body entities.CreateSaleTypeBody) (entities.SaleTypeId, error)
 }
 
 type DBSaleTypeService struct {
@@ -21,4 +22,8 @@ func NewSaleTypeService(repo repository.SaleTypeRepository) SaleTypeService {
 
 func (ds DBSaleTypeService) GetSaleType(id entities.SaleTypeId) (*entities.SaleType, error) {
 	return ds.repo.GetSaleType(id)
+}
+
+func (ds DBSaleTypeService) CreateSaleType(body entities.CreateSaleTypeBody) (entities.SaleTypeId, error) {
+	return ds.repo.CreateSaleType(body)
 }

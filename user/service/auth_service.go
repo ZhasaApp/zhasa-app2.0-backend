@@ -10,8 +10,8 @@ import (
 )
 
 type AuthorizationService interface {
-	RequestCode(phone entities.Phone) (int32, error)
-	Login(phone entities.Phone, code entities.OtpCode) (*entities.User, error)
+	RequestCode(phone entities.Phone) (entities.OtpId, error)
+	Login(otpId entities.OtpId, code entities.OtpCode) (*entities.User, error)
 }
 
 type AuthResponse struct {
@@ -32,46 +32,47 @@ func NewAuthorizationService(ctx context.Context, repo repository.UserRepository
 	}
 }
 
-func (service SafeAuthorizationService) RequestCode(phone entities.Phone) (int32, error) {
+func (service SafeAuthorizationService) RequestCode(phone entities.Phone) (entities.OtpId, error) {
 	user, err := service.repo.GetUserByPhone(phone)
 	if err != nil {
 		return 0, errors.New("user not found")
 	}
 
 	otp, err := service.recoveryService.GenerateSendRecoveryCode(*user)
-	id, err := service.repo.AddUserCode(user.Id, int32(*otp))
+	id, err := service.repo.AddUserCode(entities.UserId(user.Id), *otp)
 	return id, err
 }
 
-func (service SafeAuthorizationService) Login(phone entities.Phone, code entities.OtpCode) (*entities.User, error) {
+func (service SafeAuthorizationService) Login(otpId entities.OtpId, code entities.OtpCode) (*entities.User, error) {
 
-	user, err := service.repo.GetUserByPhone(phone)
+	userId, err := service.VerifyRecoveryCode(otpId, code)
 	if err != nil {
 		return nil, err
 	}
 
-	err = service.VerifyRecoveryCode(*user, code)
+	user, err := service.repo.GetUserById(userId)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("user not found")
 	}
+
 	return user, nil
 }
 
-func (service SafeAuthorizationService) VerifyRecoveryCode(user entities.User, code entities.OtpCode) error {
+func (service SafeAuthorizationService) VerifyRecoveryCode(otpId entities.OtpId, code entities.OtpCode) (entities.UserId, error) {
 
-	auth, err := service.repo.GetActualUserCode(user.Id)
+	auth, err := service.repo.GetAuthCodeById(otpId)
 
 	if err != nil {
-		return err
+		return 0, errors.New("otp code not found")
 	}
 
 	if code != auth.Code {
-		return errors.New("otp code does not match")
+		return 0, errors.New("otp code does not match")
 	}
 
 	if time.Now().After(auth.CreatedAt.Add(time.Minute)) {
-		return errors.New("otp code expired")
+		return 0, errors.New("otp code expired")
 	}
 
-	return nil
+	return auth.UserId, nil
 }

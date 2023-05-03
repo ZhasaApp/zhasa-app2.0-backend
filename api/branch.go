@@ -9,6 +9,7 @@ import (
 type createBranchBody struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Key         string `json:"key"`
 }
 
 func (server *Server) createBranch(ctx *gin.Context) {
@@ -20,10 +21,11 @@ func (server *Server) createBranch(ctx *gin.Context) {
 
 	title := entities.NewBranchTitle(createBranchBody.Title)
 	description := entities.NewBranchDescription(createBranchBody.Description)
-
+	key := entities.NewBranchKey(createBranchBody.Key)
 	request := entities.CreateBranchRequest{
 		Title:       title,
 		Description: description,
+		Key:         key,
 	}
 	err := server.branchService.CreateBranch(request)
 	if err != nil {
@@ -32,4 +34,14 @@ func (server *Server) createBranch(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusOK)
+}
+
+func (server *Server) GetBranches(ctx *gin.Context) {
+	branches, err := server.branchService.GetBranches()
+	if err != nil {
+		ctx.JSON(http.StatusBadGateway, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, branches)
 }

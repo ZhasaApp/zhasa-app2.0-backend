@@ -10,6 +10,7 @@ type SaleTypeMap map[entities.SaleTypeId]*entities.SaleType
 
 type SaleTypeRepository interface {
 	GetSaleType(id entities.SaleTypeId) (*entities.SaleType, error)
+	CreateSaleType(body entities.CreateSaleTypeBody) (entities.SaleTypeId, error)
 }
 
 type DBSaleTypeRepository struct {
@@ -25,6 +26,19 @@ func NewSaleTypeRepository(ctx context.Context, querier generated.Querier) SaleT
 		querier: querier,
 		cache:   cache,
 	}
+}
+
+func (str DBSaleTypeRepository) CreateSaleType(body entities.CreateSaleTypeBody) (entities.SaleTypeId, error) {
+	params := generated.CreateSaleTypeParams{
+		Title:       body.Title,
+		Description: body.Description,
+	}
+	id, err := str.querier.CreateSaleType(str.ctx, params)
+
+	if err != nil {
+		return 0, err
+	}
+	return entities.SaleTypeId(id), nil
 }
 
 func (str DBSaleTypeRepository) GetSaleType(id entities.SaleTypeId) (*entities.SaleType, error) {

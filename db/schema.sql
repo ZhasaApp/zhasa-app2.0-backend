@@ -69,7 +69,8 @@ CREATE TABLE sales
     amount           BIGINT                                                   NOT NULL,
     sale_type_id     INTEGER REFERENCES sale_types (id) ON DELETE CASCADE     NOT NULL,
     description      TEXT                                                     NOT NULL,
-    created_at TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (sales_manager_id, sale_date, sale_type_id)
 );
 
 CREATE VIEW user_avatar_view AS

@@ -23,7 +23,7 @@ type RequestAuthCodeResponse struct {
 }
 
 type TryAuthBody struct {
-	OtpId int32 `json:"otpId"`
+	OtpId int32 `json:"otp_id"`
 	Otp   int32 `json:"otp"`
 }
 
@@ -41,13 +41,7 @@ func (server *Server) tryAuth(ctx *gin.Context) {
 		return
 	}
 
-	phone, err := entities.NewPhone(string(request.OtpId))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	user, err := server.authService.Login(*phone, entities.OtpCode(request.Otp))
+	user, err := server.authService.Login(entities.OtpId(request.OtpId), entities.OtpCode(request.Otp))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -56,7 +50,7 @@ func (server *Server) tryAuth(ctx *gin.Context) {
 		Id:        user.Id,
 		FirstName: string(user.FirstName),
 		LastName:  string(user.LastName),
-		Email:     string(user.LastName),
+		Phone:     string(user.Phone),
 	}
 	token, err := server.tokenService.GenerateToken(&userTokenData)
 	if err != nil {
@@ -66,7 +60,7 @@ func (server *Server) tryAuth(ctx *gin.Context) {
 	response := AuthResponse{
 		FirstName: userTokenData.FirstName,
 		LastName:  userTokenData.LastName,
-		Phone:     string(*phone),
+		Phone:     userTokenData.Phone,
 		Token:     string(token),
 	}
 	ctx.JSON(http.StatusOK, response)
@@ -93,7 +87,7 @@ func (server *Server) requestAuthCode(ctx *gin.Context) {
 	}
 
 	response := RequestAuthCodeResponse{
-		OtpId: id,
+		OtpId: int32(id),
 	}
 
 	ctx.JSON(http.StatusOK, response)

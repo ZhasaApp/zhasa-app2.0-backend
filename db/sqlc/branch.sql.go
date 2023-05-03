@@ -11,17 +11,18 @@ import (
 )
 
 const createBranch = `-- name: CreateBranch :exec
-INSERT INTO branches (title, description)
-VALUES ($1, $2)
+INSERT INTO branches (title, description, branch_key)
+VALUES ($1, $2, $3)
 `
 
 type CreateBranchParams struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	BranchKey   string `json:"branch_key"`
 }
 
 func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) error {
-	_, err := q.db.ExecContext(ctx, createBranch, arg.Title, arg.Description)
+	_, err := q.db.ExecContext(ctx, createBranch, arg.Title, arg.Description, arg.BranchKey)
 	return err
 }
 
@@ -74,6 +75,8 @@ WITH sales_summary AS (
 SELECT
     b.id AS branch_id,
     b.title AS branch_title,
+    b.branch_key AS branch_key,
+    b.description AS description,
     COALESCE(ss.total_sales_amount / NULLIF(smg.total_goal_amount, 0), 0)::float AS ratio
 FROM
     branches b
@@ -91,6 +94,8 @@ type GetBranchesByRatingParams struct {
 type GetBranchesByRatingRow struct {
 	BranchID    int32   `json:"branch_id"`
 	BranchTitle string  `json:"branch_title"`
+	BranchKey   string  `json:"branch_key"`
+	Description string  `json:"description"`
 	Ratio       float64 `json:"ratio"`
 }
 
@@ -104,7 +109,13 @@ func (q *Queries) GetBranchesByRating(ctx context.Context, arg GetBranchesByRati
 	var items []GetBranchesByRatingRow
 	for rows.Next() {
 		var i GetBranchesByRatingRow
-		if err := rows.Scan(&i.BranchID, &i.BranchTitle, &i.Ratio); err != nil {
+		if err := rows.Scan(
+			&i.BranchID,
+			&i.BranchTitle,
+			&i.BranchKey,
+			&i.Description,
+			&i.Ratio,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

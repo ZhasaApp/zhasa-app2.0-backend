@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"time"
 	entities3 "zhasa2.0/manager/entities"
@@ -18,17 +19,20 @@ func getSalesManager(service token_service.TokenService, salesManagerService ser
 		token := token_service.Token(ctx.GetHeader("Authorization"))
 		userData, err := service.VerifyToken(token)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("invalid token")))
+			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
 			return
 		}
 
-		salesManager, err := salesManagerService.GetSalesManagerByUserId(int32(userData.Id))
+		salesManager, err := salesManagerService.GetSalesManagerByUserId(userData.Id)
 		if err != nil {
-			ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("sales manager not found")))
+			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("sales manager not found"))
 			return
 		}
 
-		ctx.Set("sales_manager_id", int32(salesManager.Id))
+		log.Println(salesManager.Id)
+
+		ctx.Set("sales_manager_id", int(salesManager.Id))
+		ctx.Next()
 	}
 }
 
@@ -38,10 +42,10 @@ type CreateSalesManagerBody struct {
 }
 
 type SaveSaleBody struct {
-	SaleAmount  int64     `json:"sale_amount"`
-	SaleDate    time.Time `json:"sale_date"`
-	SaleTypeId  int32     `json:"sale_type_id"`
-	Description string    `json:"description"`
+	SaleAmount  int64  `json:"sale_amount"`
+	SaleDate    string `json:"sale_date"`
+	SaleTypeId  int32  `json:"sale_type_id"`
+	Description string `json:"description"`
 }
 
 func (server *Server) createSalesManager(ctx *gin.Context) {
@@ -77,7 +81,14 @@ func (server *Server) createSalesManager(ctx *gin.Context) {
 
 	user, err := server.userService.GetUserByPhone(*phone)
 	if user != nil && err == nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user already exist")))
+		err = server.salesManagerService.CreateSalesManager(user.Id, createUserBody.BranchId)
+
+		if err != nil {
+			fmt.Println(err)
+			ctx.JSON(http.StatusBadRequest, errors.New("create sales manager error"))
+			return
+		}
+		ctx.Status(http.StatusOK)
 		return
 	}
 
@@ -120,12 +131,18 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("sale type not found")))
 		return
 	}
+	layout := "01/02/2006"
+	parsedTime, err := time.Parse(layout, saveSaleBody.SaleDate)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 
 	sale := entities2.Sale{
 		SaleManagerId:   entities3.SalesManagerId(salesManagerId),
 		SalesTypeId:     entities2.SaleTypeId(saveSaleBody.SaleTypeId),
 		SalesAmount:     entities2.SaleAmount(saveSaleBody.SaleAmount),
-		SaleDate:        saveSaleBody.SaleDate,
+		SaleDate:        parsedTime,
 		SaleDescription: entities2.SaleDescription(saveSaleBody.Description),
 	}
 

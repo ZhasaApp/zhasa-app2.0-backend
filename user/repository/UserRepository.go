@@ -9,8 +9,9 @@ import (
 type UserRepository interface {
 	CreateUser(request entities.CreateUserRequest) error
 	GetUserByPhone(phone entities.Phone) (*entities.User, error)
-	AddUserCode(userId int32, code int32) (int32, error)
-	GetActualUserCode(userId int32) (*entities.UserAuth, error)
+	GetUserById(id entities.UserId) (*entities.User, error)
+	AddUserCode(userId entities.UserId, code entities.OtpCode) (entities.OtpId, error)
+	GetAuthCodeById(id entities.OtpId) (*entities.UserAuth, error)
 }
 
 type PostgresUserRepository struct {
@@ -18,24 +19,43 @@ type PostgresUserRepository struct {
 	querier db_generated.Querier
 }
 
-func (pur PostgresUserRepository) AddUserCode(userId int32, code int32) (int32, error) {
+func (pur PostgresUserRepository) AddUserCode(userId entities.UserId, code entities.OtpCode) (entities.OtpId, error) {
 	params := db_generated.CreateUserCodeParams{
-		UserID: userId,
-		Code:   code,
+		UserID: int32(userId),
+		Code:   int32(code),
 	}
-	return pur.querier.CreateUserCode(pur.ctx, params)
+	res, err := pur.querier.CreateUserCode(pur.ctx, params)
+	if err != nil {
+		return 0, err
+	}
+	return entities.OtpId(res), err
 }
 
-func (pur PostgresUserRepository) GetActualUserCode(userId int32) (*entities.UserAuth, error) {
-	data, err := pur.querier.GetUserCode(pur.ctx, userId)
+func (pur PostgresUserRepository) GetAuthCodeById(otpId entities.OtpId) (*entities.UserAuth, error) {
+	data, err := pur.querier.GetAuthCodeById(pur.ctx, int32(otpId))
 	if err != nil {
 		return nil, err
 	}
 	return &entities.UserAuth{
 		Code:      entities.OtpCode(data.Code),
-		UserId:    data.UserID,
+		UserId:    entities.UserId(data.UserID),
 		CreatedAt: data.CreatedAt,
 	}, err
+}
+
+func (pur PostgresUserRepository) GetUserById(userId entities.UserId) (*entities.User, error) {
+	res, err := pur.querier.GetUserById(pur.ctx, int32(userId))
+	if err != nil {
+		return nil, err
+	}
+	user := entities.User{
+		Id:        res.ID,
+		Phone:     entities.Phone(res.Phone),
+		Avatar:    entities.Avatar{},
+		FirstName: entities.Name(res.FirstName),
+		LastName:  entities.Name(res.LastName),
+	}
+	return &user, err
 }
 
 func NewUserRepository(ctx context.Context, querier db_generated.Querier) UserRepository {

@@ -6,11 +6,13 @@ type Branch struct {
 	BranchId    BranchId
 	Title       BranchTitle
 	Description BranchDescription
+	Key         BranchKey
 }
 
 type CreateBranchRequest struct {
 	Title       BranchTitle
 	Description BranchDescription
+	Key         BranchKey
 }
 
 type BranchTitle string

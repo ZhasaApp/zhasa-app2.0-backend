@@ -14,6 +14,7 @@ type UserTokenData struct {
 	FirstName string
 	LastName  string
 	Email     string
+	Phone     string
 }
 
 // TokenService responsible for conversion sensitive user data into secure view
@@ -38,9 +39,9 @@ func (ts PasetoTokenService) GenerateToken(user *UserTokenData) (Token, error) {
 
 	jsonToken := paseto.JSONToken{}
 	jsonToken.Set("Id", fmt.Sprintf("%d", user.Id))
-	jsonToken.Set("Email", user.Email)
 	jsonToken.Set("first_name", user.FirstName)
 	jsonToken.Set("last_name", user.LastName)
+	jsonToken.Set("phone", user.Phone)
 
 	footer := map[string]interface{}{
 		"issued_at": time.Now(),
@@ -67,9 +68,9 @@ func (ts PasetoTokenService) VerifyToken(token Token) (*UserTokenData, error) {
 	// Create a user object from the extracted data
 	user := UserTokenData{
 		Id:        int32(userId),
-		Email:     extractedData["Email"].(string),
 		FirstName: extractedData["first_name"].(string),
 		LastName:  extractedData["last_name"].(string),
+		Phone:     extractedData["phone"].(string),
 	}
 
 	return &user, nil

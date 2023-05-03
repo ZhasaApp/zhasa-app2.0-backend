@@ -7,13 +7,17 @@ SELECT *
 FROM users
 WHERE phone = $1;
 
+-- name: GetUserById :one
+SELECT *
+FROM users
+WHERE id = $1;
+
 -- name: CreateUserCode :one
 INSERT INTO users_codes(user_id, code)
 VALUES ($1, $2)
 RETURNING id;
 
--- name: GetUserCode :one
+-- name: GetAuthCodeById :one
 SELECT *
 FROM users_codes
-WHERE user_id = $1
-ORDER BY created_at DESC LIMIT 1;
+WHERE id = $1;

@@ -11,11 +11,8 @@ import (
 )
 
 const addSaleOrReplace = `-- name: AddSaleOrReplace :exec
-INSERT INTO sales (sales_manager_id, sale_date, amount, sale_type_id)
-VALUES ($1, $2, $3, $4) ON CONFLICT (sales_manager_id, date, sale_type_id)
-DO
-UPDATE SET
-    amount = EXCLUDED.amount
+INSERT INTO sales (sales_manager_id, sale_date, amount, sale_type_id, description)
+VALUES ($1, $2, $3, $4, $5)
 `
 
 type AddSaleOrReplaceParams struct {
@@ -23,6 +20,7 @@ type AddSaleOrReplaceParams struct {
 	SaleDate       time.Time `json:"sale_date"`
 	Amount         int64     `json:"amount"`
 	SaleTypeID     int32     `json:"sale_type_id"`
+	Description    string    `json:"description"`
 }
 
 // add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
@@ -32,6 +30,7 @@ func (q *Queries) AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplacePara
 		arg.SaleDate,
 		arg.Amount,
 		arg.SaleTypeID,
+		arg.Description,
 	)
 	return err
 }

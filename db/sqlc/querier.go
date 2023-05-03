@@ -13,9 +13,11 @@ type Querier interface {
 	// add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
 	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) error
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
+	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
 	CreateSalesManager(ctx context.Context, arg CreateSalesManagerParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
+	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
 	// Get Ranked Branches
 	GetBranchesByRating(ctx context.Context, arg GetBranchesByRatingParams) ([]GetBranchesByRatingRow, error)
@@ -27,8 +29,8 @@ type Querier interface {
 	// get the sales sums for a specific sales manager and each sale type within the given period.
 	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) ([]GetSalesManagerSumsByTypeRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
+	GetUserById(ctx context.Context, id int32) (User, error)
 	GetUserByPhone(ctx context.Context, phone string) (User, error)
-	GetUserCode(ctx context.Context, userID int32) (UsersCode, error)
 }
 
 var _ Querier = (*Queries)(nil)

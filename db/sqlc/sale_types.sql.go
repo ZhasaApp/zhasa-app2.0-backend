@@ -9,6 +9,24 @@ import (
 	"context"
 )
 
+const createSaleType = `-- name: CreateSaleType :one
+INSERT INTO sale_types (title, description)
+VALUES ($1, $2)
+RETURNING id
+`
+
+type CreateSaleTypeParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error) {
+	row := q.db.QueryRowContext(ctx, createSaleType, arg.Title, arg.Description)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
 const getSaleTypeById = `-- name: GetSaleTypeById :one
 SELECT id, title, description, created_at FROM sale_types
 WHERE id = $1

@@ -30,6 +30,8 @@ WITH sales_summary AS (
 SELECT
     b.id AS branch_id,
     b.title AS branch_title,
+    b.branch_key AS branch_key,
+    b.description AS description,
     COALESCE(ss.total_sales_amount / NULLIF(smg.total_goal_amount, 0), 0)::float AS ratio
 FROM
     branches b
@@ -43,5 +45,5 @@ SELECT * FROM branches
 WHERE id = $1;
 
 -- name: CreateBranch :exec
-INSERT INTO branches (title, description)
-VALUES ($1, $2);
+INSERT INTO branches (title, description, branch_key)
+VALUES ($1, $2, $3);
