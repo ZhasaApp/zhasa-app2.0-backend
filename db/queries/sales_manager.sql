@@ -2,10 +2,9 @@
 INSERT INTO sales_managers (user_id, branch_id)
 VALUES ($1, $2);
 
-
 -- name: GetRankedSalesManagers :many
 -- get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
-    WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
+WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
                               SUM(s.amount) AS total_sales_amount,
                               u.first_name  AS first_name,
                               u.last_name   AS last_name,
@@ -61,8 +60,12 @@ SELECT *
 from sales s
 WHERE s.sale_date = $1;
 
-
 -- name: GetSalesManagerByUserId :one
 SELECT *
 from sales_managers_view s
 WHERE s.user_id = $1;
+
+-- name: GetSalesManagerGoalByGivenDateRange :one
+SELECT sg.amount AS goal_amount
+FROM sales_manager_goals sg WHERE sg.sales_manager_id = $1 AND
+sg.from_date = $2 AND sg.to_date = $3;

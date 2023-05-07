@@ -21,6 +21,7 @@ type SalesManagerRepository interface {
 	repository.StatisticRepository
 	ProvideRankedSalesManagersList(from time.Time, to time.Time, size int32, page int32) (*entities.SalesManagers, error)
 	GetSalesManagerByUserId(userId int32) (*entities.SalesManager, error)
+	GetSalesManagerGoalAmount(salesManagerId entities.SalesManagerId, from time.Time, to time.Time) (sale.SaleAmount, error)
 }
 
 /*
@@ -127,4 +128,18 @@ func (p PostgresSalesManagerRepository) GetSalesManagerByUserId(userId int32) (*
 		AvatarUrl: data.AvatarUrl,
 	}
 	return &salesManager, err
+}
+
+func (p PostgresSalesManagerRepository) GetSalesManagerGoalAmount(smId entities.SalesManagerId, from time.Time, to time.Time) (sale.SaleAmount, error) {
+	arg := generated.GetSalesManagerGoalByGivenDateRangeParams{
+		SalesManagerID: int32(smId),
+		FromDate:       from,
+		ToDate:         to,
+	}
+	data, err := p.querier.GetSalesManagerGoalByGivenDateRange(p.ctx, arg)
+	if err != nil {
+		return 0, err
+	}
+
+	return sale.SaleAmount(data), nil
 }

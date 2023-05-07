@@ -12,12 +12,12 @@ type Period interface {
 
 // MonthPeriod Period implementation for monthly period
 type MonthPeriod struct {
-	MonthNumber int
-	Year        int
+	MonthNumber int32
+	Year        int32
 }
 
 func (m *MonthPeriod) ConvertToTime() (time.Time, time.Time) {
-	from := time.Date(m.Year, time.Month(m.MonthNumber), 1, 0, 0, 0, 0, time.UTC)
+	from := time.Date(int(m.Year), time.Month(m.MonthNumber), 1, 0, 0, 0, 0, time.UTC)
 	to := from.AddDate(0, 1, -1)
 	return from, to
 }
@@ -48,5 +48,15 @@ func (w *WeekPeriod) getMondayDate() time.Time {
 func (w *WeekPeriod) ConvertToTime() (time.Time, time.Time) {
 	from := w.getMondayDate()
 	to := from.AddDate(0, 0, 6)
+	return from, to
+}
+
+type DayPeriod struct {
+	Day time.Time
+}
+
+func (d DayPeriod) ConvertToTime() (time.Time, time.Time) {
+	from := time.Date(d.Day.Year(), d.Day.Month(), d.Day.Day(), 0, 0, 0, 0, d.Day.Location())
+	to := from.Add(time.Hour * 24).Add(-time.Nanosecond)
 	return from, to
 }

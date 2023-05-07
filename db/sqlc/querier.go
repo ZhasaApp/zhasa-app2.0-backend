@@ -13,12 +13,15 @@ type Querier interface {
 	// add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
 	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) error
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
+	CreateBranchDirector(ctx context.Context, arg CreateBranchDirectorParams) (int32, error)
 	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
 	CreateSalesManager(ctx context.Context, arg CreateSalesManagerParams) error
+	CreateSalesManagerGoal(ctx context.Context, arg CreateSalesManagerGoalParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
+	GetBranchDirectorByUserId(ctx context.Context, userID int32) (BranchDirectorsView, error)
 	// Get Ranked Branches
 	GetBranchesByRating(ctx context.Context, arg GetBranchesByRatingParams) ([]GetBranchesByRatingRow, error)
 	// get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
@@ -26,6 +29,7 @@ type Querier interface {
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
 	GetSalesByDate(ctx context.Context, saleDate time.Time) ([]Sale, error)
 	GetSalesManagerByUserId(ctx context.Context, userID int32) (SalesManagersView, error)
+	GetSalesManagerGoalByGivenDateRange(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeParams) (int64, error)
 	// get the sales sums for a specific sales manager and each sale type within the given period.
 	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) ([]GetSalesManagerSumsByTypeRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)

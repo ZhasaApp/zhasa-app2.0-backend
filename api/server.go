@@ -11,6 +11,8 @@ import (
 	"os"
 	repository3 "zhasa2.0/branch/repository"
 	service3 "zhasa2.0/branch/service"
+	"zhasa2.0/branch_director/repo"
+	service5 "zhasa2.0/branch_director/service"
 	generated "zhasa2.0/db/sqlc"
 	repository2 "zhasa2.0/manager/repository"
 	service2 "zhasa2.0/manager/service"
@@ -29,6 +31,7 @@ type Server struct {
 	saleTypeService     service4.SaleTypeService
 	tokenService        service.TokenService
 	authService         service.AuthorizationService
+	directorService     service5.BranchDirectorService
 }
 
 func (server Server) InitSuperUser() error {
@@ -71,6 +74,8 @@ func NewServer(ctx context.Context) *Server {
 		adminRoute.POST("/sales-manager/new", server.createSalesManager)
 		adminRoute.POST("/branch/new", server.createBranch)
 		adminRoute.POST("/sale-type/new", server.createSaleType)
+		adminRoute.POST("/branch-director/new", server.createBranchDirector)
+		adminRoute.GET("/branch/list", server.GetBranches)
 	}
 
 	smRoute := router.Group("sales-manager/")
@@ -80,6 +85,13 @@ func NewServer(ctx context.Context) *Server {
 		smRoute.GET("/branch/list", server.GetBranches)
 	}
 
+	directorRoute := router.Group("branch-director/")
+	directorRoute.Use(getBranchDirector(server.tokenService, server.directorService))
+	{
+		directorRoute.POST("/goal/new", server.createSaleGoalForSalesManager)
+	}
+
+	router.GET("sales-manager/statistic", server.getDashboardStatistic)
 	server.router = router
 	return server
 }
@@ -98,12 +110,14 @@ func initDependencies(server *Server, ctx context.Context) {
 	saleTypeRepo := repository.NewSaleTypeRepository(ctx, store)
 	saleManagerRepo := repository2.NewSalesManagerRepository(saleTypeRepo, ctx, store)
 	branchRepo := repository3.NewBranchRepository(ctx, store)
+	directorRepo := repo.NewBranchDirectorRepository(ctx, store)
 
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
 	salesManagerService := service2.NewSalesManagerService(saleManagerRepo, saleTypeRepo)
 	branchService := service3.NewBranchService(branchRepo)
 	saleTypeService := service4.NewSaleTypeService(saleTypeRepo)
+	directorService := service5.NewBranchDirectorService(directorRepo)
 	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 
 	tokenService := service.NewTokenService(&encKey)
@@ -113,6 +127,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.branchService = branchService
 	server.tokenService = tokenService
 	server.authService = authService
+	server.directorService = directorService
 }
 
 // Start runs the HTTP server a specific address

@@ -14,6 +14,7 @@ func main() {
 
 	serverAddress := os.Getenv("SERVER_ADDRESS")
 	err := server.InitSuperUser()
+
 	if err != nil {
 		log.Fatal("cannot init super user")
 	}

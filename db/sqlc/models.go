@@ -16,6 +16,23 @@ type Branch struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type BranchDirector struct {
+	ID       int32 `json:"id"`
+	UserID   int32 `json:"user_id"`
+	BranchID int32 `json:"branch_id"`
+}
+
+type BranchDirectorsView struct {
+	UserID           int32  `json:"user_id"`
+	Phone            string `json:"phone"`
+	FirstName        string `json:"first_name"`
+	LastName         string `json:"last_name"`
+	AvatarUrl        string `json:"avatar_url"`
+	BranchDirectorID int32  `json:"branch_director_id"`
+	BranchID         int32  `json:"branch_id"`
+	BranchTitle      string `json:"branch_title"`
+}
+
 type BranchSalesManager struct {
 	SalesManagerID int32 `json:"sales_manager_id"`
 	BranchID       int32 `json:"branch_id"`
@@ -60,6 +77,17 @@ type SalesManagersView struct {
 	LastName       string `json:"last_name"`
 	AvatarUrl      string `json:"avatar_url"`
 	SalesManagerID int32  `json:"sales_manager_id"`
+	BranchID       int32  `json:"branch_id"`
+	BranchTitle    string `json:"branch_title"`
+}
+
+type SalesSumView struct {
+	SalesManagerID   int32     `json:"sales_manager_id"`
+	TotalSalesAmount int64     `json:"total_sales_amount"`
+	FirstName        string    `json:"first_name"`
+	LastName         string    `json:"last_name"`
+	AvatarUrl        string    `json:"avatar_url"`
+	SaleDate         time.Time `json:"sale_date"`
 }
 
 type User struct {

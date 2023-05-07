@@ -1,16 +1,20 @@
 package service
 
 import (
-	"zhasa2.0/manager/entities"
+	"time"
+	. "zhasa2.0/manager/entities"
 	"zhasa2.0/manager/repository"
 	sale "zhasa2.0/sale/entities"
 	repository2 "zhasa2.0/sale/repository"
+	"zhasa2.0/statistic"
 )
 
 type SalesManagerService interface {
-	GetSalesManagerByUserId(userId int32) (*entities.SalesManager, error)
+	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	CreateSalesManager(userId int32, branchId int32) error
 	SaveSale(sale sale.Sale) error
+	GetSalesManagerGoal(from, to time.Time, salesManagerId SalesManagerId) (sale.SaleAmount, error)
+	GetSalesManagerSums(from, to time.Time, salesManagerId SalesManagerId) (*statistic.SaleSumByType, error)
 }
 
 type DBSalesManagerService struct {
@@ -30,10 +34,10 @@ func NewSalesManagerService(repo repository.SalesManagerRepository, saleTypeRepo
 }
 
 type salesManagerVisitor interface {
-	provideManagers() (error, *entities.SalesManagers)
+	provideManagers() (error, *SalesManagers)
 }
 
-func (dbs DBSalesManagerService) ProvideManagers(visitor salesManagerVisitor) (error, *entities.SalesManagers) {
+func (dbs DBSalesManagerService) ProvideManagers(visitor salesManagerVisitor) (error, *SalesManagers) {
 	return visitor.provideManagers()
 }
 
@@ -41,6 +45,14 @@ func (dbs DBSalesManagerService) CreateSalesManager(userId int32, branchId int32
 	return dbs.repo.CreateSalesManager(userId, branchId)
 }
 
-func (dbs DBSalesManagerService) GetSalesManagerByUserId(userId int32) (*entities.SalesManager, error) {
+func (dbs DBSalesManagerService) GetSalesManagerByUserId(userId int32) (*SalesManager, error) {
 	return dbs.repo.GetSalesManagerByUserId(userId)
+}
+
+func (dbs DBSalesManagerService) GetSalesManagerGoal(fromDate time.Time, to time.Time, salesManagerId SalesManagerId) (sale.SaleAmount, error) {
+	return dbs.repo.GetSalesManagerGoalAmount(salesManagerId, fromDate, to)
+}
+
+func (dbs DBSalesManagerService) GetSalesManagerSums(from, to time.Time, salesManagerId SalesManagerId) (*statistic.SaleSumByType, error) {
+	return dbs.repo.ProvideSums(salesManagerId, from, to)
 }

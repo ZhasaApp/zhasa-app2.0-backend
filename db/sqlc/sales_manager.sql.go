@@ -51,7 +51,7 @@ func (q *Queries) CreateSalesManager(ctx context.Context, arg CreateSalesManager
 }
 
 const getRankedSalesManagers = `-- name: GetRankedSalesManagers :many
-    WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
+WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
                               SUM(s.amount) AS total_sales_amount,
                               u.first_name  AS first_name,
                               u.last_name   AS last_name,
@@ -168,7 +168,7 @@ func (q *Queries) GetSalesByDate(ctx context.Context, saleDate time.Time) ([]Sal
 }
 
 const getSalesManagerByUserId = `-- name: GetSalesManagerByUserId :one
-SELECT user_id, phone, first_name, last_name, avatar_url, sales_manager_id
+SELECT user_id, phone, first_name, last_name, avatar_url, sales_manager_id, branch_id, branch_title
 from sales_managers_view s
 WHERE s.user_id = $1
 `
@@ -183,8 +183,29 @@ func (q *Queries) GetSalesManagerByUserId(ctx context.Context, userID int32) (Sa
 		&i.LastName,
 		&i.AvatarUrl,
 		&i.SalesManagerID,
+		&i.BranchID,
+		&i.BranchTitle,
 	)
 	return i, err
+}
+
+const getSalesManagerGoalByGivenDateRange = `-- name: GetSalesManagerGoalByGivenDateRange :one
+SELECT sg.amount AS goal_amount
+FROM sales_manager_goals sg WHERE sg.sales_manager_id = $1 AND
+sg.from_date = $2 AND sg.to_date = $3
+`
+
+type GetSalesManagerGoalByGivenDateRangeParams struct {
+	SalesManagerID int32     `json:"sales_manager_id"`
+	FromDate       time.Time `json:"from_date"`
+	ToDate         time.Time `json:"to_date"`
+}
+
+func (q *Queries) GetSalesManagerGoalByGivenDateRange(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getSalesManagerGoalByGivenDateRange, arg.SalesManagerID, arg.FromDate, arg.ToDate)
+	var goal_amount int64
+	err := row.Scan(&goal_amount)
+	return goal_amount, err
 }
 
 const getSalesManagerSumsByType = `-- name: GetSalesManagerSumsByType :many
