@@ -53,13 +53,13 @@ type SaveSaleBody struct {
 type OverallSaleStatistic struct {
 	Goal         int64        `json:"goal"`
 	Achieved     int64        `json:"achieved"`
-	Percent      string       `json:"percent"`
+	Percent      float64      `json:"percent"`
 	GrowthPerDay GrowthPerDay `json:"growth_per_day"`
 }
 
 type GrowthPerDay struct {
-	Amount  int64  `json:"amount"`
-	Percent string `json:"percent"`
+	Amount  int64   `json:"amount"`
+	Percent float64 `json:"percent"`
 }
 
 type DashboardResponse struct {
@@ -227,10 +227,10 @@ func (server *Server) getDashboardStatistic(ctx *gin.Context) {
 		OverallSaleStatistics: OverallSaleStatistic{
 			Goal:     int64(goal),
 			Achieved: int64(totalPeriodSum),
-			Percent:  totalPercent.Print(),
+			Percent:  float64(totalPercent),
 			GrowthPerDay: GrowthPerDay{
 				Amount:  int64(totalDailySum),
-				Percent: daylyPercent.Print(),
+				Percent: float64(daylyPercent),
 			},
 		},
 	}

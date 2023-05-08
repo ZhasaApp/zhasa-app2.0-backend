@@ -1,6 +1,9 @@
 package entities
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 type SaleAmount int64
 
@@ -12,7 +15,8 @@ func NewPercent(achieved SaleAmount, goal SaleAmount) Percent {
 	}
 
 	percent := float64(achieved) / float64(goal)
-	return Percent(percent)
+	roundedPercent := math.Round(percent*100) / 100
+	return Percent(roundedPercent)
 }
 
 func (p Percent) Print() string {

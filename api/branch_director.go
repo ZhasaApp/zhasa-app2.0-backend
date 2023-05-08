@@ -19,13 +19,13 @@ func getBranchDirector(service token_service.TokenService, branchDirectorService
 		token := token_service.Token(ctx.GetHeader("Authorization"))
 		userData, err := service.VerifyToken(token)
 		if err != nil {
-			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(errors.New("invalid token")))
 			return
 		}
 
 		salesManager, err := branchDirectorService.GetBranchDirectorByUserId(entities.UserId(userData.Id))
 		if err != nil {
-			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("branch director not found"))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
 			return
 		}
 
