@@ -3,14 +3,14 @@ package repository
 import (
 	"context"
 	generated "zhasa2.0/db/sqlc"
-	"zhasa2.0/sale/entities"
+	. "zhasa2.0/sale/entities"
 )
 
-type SaleTypeMap map[entities.SaleTypeId]*entities.SaleType
+type SaleTypeMap map[SaleTypeId]*SaleType
 
 type SaleTypeRepository interface {
-	GetSaleType(id entities.SaleTypeId) (*entities.SaleType, error)
-	CreateSaleType(body entities.CreateSaleTypeBody) (entities.SaleTypeId, error)
+	GetSaleType(id SaleTypeId) (*SaleType, error)
+	CreateSaleType(body CreateSaleTypeBody) (SaleTypeId, error)
 }
 
 type DBSaleTypeRepository struct {
@@ -28,7 +28,7 @@ func NewSaleTypeRepository(ctx context.Context, querier generated.Querier) SaleT
 	}
 }
 
-func (str DBSaleTypeRepository) CreateSaleType(body entities.CreateSaleTypeBody) (entities.SaleTypeId, error) {
+func (str DBSaleTypeRepository) CreateSaleType(body CreateSaleTypeBody) (SaleTypeId, error) {
 	params := generated.CreateSaleTypeParams{
 		Title:       body.Title,
 		Description: body.Description,
@@ -38,10 +38,10 @@ func (str DBSaleTypeRepository) CreateSaleType(body entities.CreateSaleTypeBody)
 	if err != nil {
 		return 0, err
 	}
-	return entities.SaleTypeId(id), nil
+	return SaleTypeId(id), nil
 }
 
-func (str DBSaleTypeRepository) GetSaleType(id entities.SaleTypeId) (*entities.SaleType, error) {
+func (str DBSaleTypeRepository) GetSaleType(id SaleTypeId) (*SaleType, error) {
 	saleType, found := str.cache[id]
 
 	if found {
@@ -53,8 +53,8 @@ func (str DBSaleTypeRepository) GetSaleType(id entities.SaleTypeId) (*entities.S
 		return nil, err
 	}
 
-	newSaleType := &entities.SaleType{
-		Id:          entities.SaleTypeId(saleTypeDb.ID),
+	newSaleType := &SaleType{
+		Id:          SaleTypeId(saleTypeDb.ID),
 		Title:       saleTypeDb.Title,
 		Description: saleTypeDb.Description,
 	}

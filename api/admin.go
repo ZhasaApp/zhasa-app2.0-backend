@@ -5,33 +5,20 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	. "zhasa2.0/api/entities"
 	entities3 "zhasa2.0/branch/entities"
-	"zhasa2.0/sale/entities"
+	. "zhasa2.0/sale/entities"
 	entities2 "zhasa2.0/user/entities"
 )
 
-type createSaleTypeBody struct {
-	Title       string `json:"title"`
-	Description string `json:"description"`
-}
-
-type idResponse struct {
-	Id int32 `json:"id"`
-}
-
-type createBranchDirectorBody struct {
-	CreateUserBody
-	BranchId int32 `json:"branch_id"`
-}
-
 func (server *Server) createSaleType(ctx *gin.Context) {
-	var createSaleTypeBody createSaleTypeBody
+	var createSaleTypeBody CreateSaleTypeRequest
 	if err := ctx.ShouldBindJSON(&createSaleTypeBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	body := entities.CreateSaleTypeBody{
+	body := CreateSaleTypeBody{
 		Title:       createSaleTypeBody.Title,
 		Description: createSaleTypeBody.Description,
 	}
@@ -43,13 +30,13 @@ func (server *Server) createSaleType(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, idResponse{
+	ctx.JSON(http.StatusOK, IdResponse{
 		Id: int32(id),
 	})
 }
 
 func (server *Server) createBranchDirector(ctx *gin.Context) {
-	var body createBranchDirectorBody
+	var body CreateBranchDirectorBody
 	if err := ctx.ShouldBindJSON(&body); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -89,7 +76,7 @@ func (server *Server) createBranchDirector(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, errors.New("create branch director error"))
 			return
 		}
-		ctx.JSON(http.StatusOK, idResponse{
+		ctx.JSON(http.StatusOK, IdResponse{
 			Id: int32(id),
 		})
 		return
@@ -114,7 +101,7 @@ func (server *Server) createBranchDirector(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errors.New("create branch director error"))
 		return
 	}
-	response := idResponse{
+	response := IdResponse{
 		Id: int32(id),
 	}
 	ctx.JSON(http.StatusOK, response)

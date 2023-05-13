@@ -34,7 +34,7 @@ CREATE TABLE sales_managers
 (
     id         SERIAL PRIMARY KEY,
     user_id    INTEGER UNIQUE REFERENCES users (id) ON DELETE CASCADE    NOT NULL,
-    branch_id  INTEGER UNIQUE REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
+    branch_id  INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
     created_at TIMESTAMP                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -71,8 +71,7 @@ CREATE TABLE sales
     amount           BIGINT                                                   NOT NULL,
     sale_type_id     INTEGER REFERENCES sale_types (id) ON DELETE CASCADE     NOT NULL,
     description      TEXT                                                     NOT NULL,
-    created_at       TIMESTAMP                                                NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE (sales_manager_id, sale_date, sale_type_id)
+    created_at       TIMESTAMP                                                NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE VIEW user_avatar_view AS

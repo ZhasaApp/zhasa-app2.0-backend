@@ -34,21 +34,15 @@ OFFSET $4;
 
 -- name: GetSalesManagerSumsByType :many
 -- get the sales sums for a specific sales manager and each sale type within the given period.
-WITH sales_by_manager_type AS (SELECT sm.id         AS sales_manager_id,
-                                      st.id         AS sale_type_id,
-                                      SUM(s.amount) AS total_sales
-                               FROM sales s
-                                        INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
-                                        INNER JOIN sale_types st ON s.sale_type_id = st.id
-                               WHERE s.sale_date BETWEEN $1 AND $2
-                                 AND sm.id = $3
-                               GROUP BY sm.id,
-                                        st.id)
-SELECT smt.sales_manager_id,
-       smt.sale_type_id,
-       COALESCE(smt.total_sales, 0) AS total_sales
-FROM sales_by_manager_type smt
-ORDER BY smt.sale_type_id ASC;
+SELECT st.id         AS sale_type_id,
+       st.title      AS sale_type_title,
+       SUM(s.amount) AS total_sales
+FROM sale_types st
+         JOIN sales s ON st.id = s.sale_type_id AND s.sales_manager_id = $1 AND s.sale_date BETWEEN $2 AND $3
+GROUP BY st.id
+ORDER BY st.id ASC;
+
+
 
 -- name: AddSaleOrReplace :exec
 -- add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
@@ -66,6 +60,19 @@ from sales_managers_view s
 WHERE s.user_id = $1;
 
 -- name: GetSalesManagerGoalByGivenDateRange :one
-SELECT sg.amount AS goal_amount
-FROM sales_manager_goals sg WHERE sg.sales_manager_id = $1 AND
-sg.from_date = $2 AND sg.to_date = $3;
+SELECT COALESCE(sg.amount, 0) AS goal_amount
+FROM sales_manager_goals sg
+WHERE sg.sales_manager_id = $1
+  AND sg.from_date = $2
+  AND sg.to_date = $3;
+
+-- name: GetSalesManagerYearStatistic :many
+SELECT st.id AS sale_type,
+       CAST(EXTRACT(MONTH FROM s.sale_date) AS INTEGER) AS month_number,
+       SUM(s.amount) AS total_amount
+FROM sales AS s
+         JOIN sale_types AS st ON s.sale_type_id = st.id
+WHERE s.sales_manager_id = $1
+  AND DATE_PART('year', s.sale_date)::integer = $2
+GROUP BY st.id, EXTRACT (MONTH FROM s.sale_date)
+ORDER BY month_number, st.id;

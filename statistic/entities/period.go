@@ -1,6 +1,18 @@
 package entities
 
-import "time"
+import (
+	"errors"
+	"time"
+)
+
+type MonthNumber int32
+
+func NewMonth(number int32) (MonthNumber, error) {
+	if number < 1 || number > 12 {
+		return 0, errors.New("month should be between 1 and 12")
+	}
+	return MonthNumber(number), nil
+}
 
 /*
 	Period responsible for store time period in useful format and converts it into

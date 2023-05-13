@@ -13,12 +13,12 @@ import (
 	. "zhasa2.0/sale/entities"
 	. "zhasa2.0/statistic/entities"
 	"zhasa2.0/user/entities"
-	token_service "zhasa2.0/user/service"
+	tokenservice "zhasa2.0/user/service"
 )
 
-func getSalesManager(service token_service.TokenService, salesManagerService service.SalesManagerService) gin.HandlerFunc {
+func getSalesManager(service tokenservice.TokenService, salesManagerService service.SalesManagerService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := token_service.Token(ctx.GetHeader("Authorization"))
+		token := tokenservice.Token(ctx.GetHeader("Authorization"))
 		userData, err := service.VerifyToken(token)
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
@@ -36,34 +36,6 @@ func getSalesManager(service token_service.TokenService, salesManagerService ser
 		ctx.Set("sales_manager_id", int(salesManager.Id))
 		ctx.Next()
 	}
-}
-
-type CreateSalesManagerBody struct {
-	CreateUserBody
-	BranchId int32 `json:"branch_id"`
-}
-
-type SaveSaleBody struct {
-	SaleAmount  int64  `json:"sale_amount"`
-	SaleDate    string `json:"sale_date"`
-	SaleTypeId  int32  `json:"sale_type_id"`
-	Description string `json:"description"`
-}
-
-type OverallSaleStatistic struct {
-	Goal         int64        `json:"goal"`
-	Achieved     int64        `json:"achieved"`
-	Percent      float64      `json:"percent"`
-	GrowthPerDay GrowthPerDay `json:"growth_per_day"`
-}
-
-type GrowthPerDay struct {
-	Amount  int64   `json:"amount"`
-	Percent float64 `json:"percent"`
-}
-
-type DashboardResponse struct {
-	OverallSaleStatistics OverallSaleStatistic `json:"overall_sale_statistics"`
 }
 
 func (server *Server) createSalesManager(ctx *gin.Context) {
@@ -217,11 +189,22 @@ func (server *Server) getDashboardStatistic(ctx *gin.Context) {
 
 	goal, err := server.salesManagerService.GetSalesManagerGoal(fromDate, toDate, salesManager.Id)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("no goal found")))
 		return
 	}
 	totalPercent := NewPercent(totalPeriodSum, goal)
-	daylyPercent := NewPercent(totalDailySum, goal)
+	dailyPercent := NewPercent(totalDailySum, goal)
+
+	salesStatisticItemsByTypes := make([]SaleStatisticsByTypesItem, 0)
+
+	for key, amount := range *sums {
+		item := SaleStatisticsByTypesItem{
+			Color:  "",
+			Title:  key.Title,
+			Amount: int64(amount),
+		}
+		salesStatisticItemsByTypes = append(salesStatisticItemsByTypes, item)
+	}
 
 	dr := DashboardResponse{
 		OverallSaleStatistics: OverallSaleStatistic{
@@ -230,9 +213,45 @@ func (server *Server) getDashboardStatistic(ctx *gin.Context) {
 			Percent:  float64(totalPercent),
 			GrowthPerDay: GrowthPerDay{
 				Amount:  int64(totalDailySum),
-				Percent: float64(daylyPercent),
+				Percent: float64(dailyPercent),
 			},
 		},
+		SaleStatisticsByTypes: salesStatisticItemsByTypes,
 	}
 	ctx.JSON(http.StatusOK, dr)
+}
+
+func (server *Server) getYearStatistic(ctx *gin.Context) {
+	var requestBody SalesManagerYearStatisticRequestBody
+	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	salesManager, err := server.salesManagerService.GetSalesManagerByUserId(requestBody.UserId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	data, err := server.salesManagerService.GetSalesManagerYearMonthlyStatistic(salesManager.Id, requestBody.Year)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	response := make([]SalesManagerYearStatisticResponseBody, 0)
+	for _, item := range *data {
+		response = append(response, SalesManagerYearStatisticResponseBody{
+			SaleType: SaleTypeResponse{
+				Title: item.SaleType.Title,
+				Color: "",
+			},
+			Month:  int32(item.Month),
+			Amount: int64(item.Amount),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, response)
+	return
 }

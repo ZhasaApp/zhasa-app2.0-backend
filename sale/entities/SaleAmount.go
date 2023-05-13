@@ -16,7 +16,7 @@ func NewPercent(achieved SaleAmount, goal SaleAmount) Percent {
 
 	percent := float64(achieved) / float64(goal)
 	roundedPercent := math.Round(percent*100) / 100
-	return Percent(roundedPercent)
+	return Percent(roundedPercent * 100)
 }
 
 func (p Percent) Print() string {

@@ -83,6 +83,7 @@ func NewServer(ctx context.Context) *Server {
 	{
 		smRoute.POST("/sale/new", server.saveSale)
 		smRoute.GET("/branch/list", server.GetBranches)
+		smRoute.GET("/year-statistic", server.getYearStatistic)
 	}
 
 	directorRoute := router.Group("branch-director/")
