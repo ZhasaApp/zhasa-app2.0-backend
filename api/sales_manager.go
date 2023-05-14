@@ -240,9 +240,9 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 		return
 	}
 
-	response := make([]SalesManagerYearStatisticResponseBody, 0)
+	response := make([]YearStatisticResponse, 0)
 	for _, item := range *data {
-		response = append(response, SalesManagerYearStatisticResponseBody{
+		response = append(response, YearStatisticResponse{
 			SaleType: SaleTypeResponse{
 				Title: item.SaleType.Title,
 				Color: "",

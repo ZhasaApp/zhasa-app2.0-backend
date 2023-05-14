@@ -16,7 +16,7 @@ type SalesManagerService interface {
 	SaveSale(sale sale.Sale) error
 	GetSalesManagerGoal(from, to time.Time, salesManagerId SalesManagerId) (sale.SaleAmount, error)
 	GetSalesManagerSums(from, to time.Time, salesManagerId SalesManagerId) (*SaleSumByType, error)
-	GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]YearStatisticByMonth, error)
+	GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 }
 
 type DBSalesManagerService struct {
@@ -59,6 +59,6 @@ func (dbs DBSalesManagerService) GetSalesManagerSums(from, to time.Time, salesMa
 	return dbs.repo.ProvideSums(salesManagerId, from, to)
 }
 
-func (dbs DBSalesManagerService) GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]YearStatisticByMonth, error) {
+func (dbs DBSalesManagerService) GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error) {
 	return dbs.repo.GetMonthlyYearSaleStatistic(smId, year)
 }

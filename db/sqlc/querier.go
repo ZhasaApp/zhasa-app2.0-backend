@@ -32,7 +32,6 @@ type Querier interface {
 	GetSalesManagerGoalByGivenDateRange(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeParams) (int64, error)
 	// get the sales sums for a specific sales manager and each sale type within the given period.
 	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) ([]GetSalesManagerSumsByTypeRow, error)
-	GetSalesManagerYearStatistic(ctx context.Context, arg GetSalesManagerYearStatisticParams) ([]GetSalesManagerYearStatisticRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
 	GetUserById(ctx context.Context, id int32) (User, error)
 	GetUserByPhone(ctx context.Context, phone string) (User, error)

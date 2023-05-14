@@ -33,11 +33,6 @@ type BranchDirectorsView struct {
 	BranchTitle      string `json:"branch_title"`
 }
 
-type BranchSalesManager struct {
-	SalesManagerID int32 `json:"sales_manager_id"`
-	BranchID       int32 `json:"branch_id"`
-}
-
 type Sale struct {
 	ID             int32     `json:"id"`
 	SalesManagerID int32     `json:"sales_manager_id"`

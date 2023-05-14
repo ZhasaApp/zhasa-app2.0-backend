@@ -11,11 +11,16 @@ type SalesManagerYearStatisticRequestBody struct {
 	Year   int32 `json:"year"`
 }
 
+type BranchYearStatisticRequestBody struct {
+	BranchId int32 `json:"branch_id"`
+	Year     int32 `json:"year"`
+}
+
 type SaleTypeResponse struct {
 	Title string `json:"title"`
 	Color string `json:"color"`
 }
-type SalesManagerYearStatisticResponseBody struct {
+type YearStatisticResponse struct {
 	SaleType SaleTypeResponse `json:"sale_type"`
 	Month    int32            `json:"month"`
 	Amount   int64            `json:"amount"`

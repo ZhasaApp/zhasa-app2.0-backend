@@ -65,14 +65,3 @@ FROM sales_manager_goals sg
 WHERE sg.sales_manager_id = $1
   AND sg.from_date = $2
   AND sg.to_date = $3;
-
--- name: GetSalesManagerYearStatistic :many
-SELECT st.id AS sale_type,
-       CAST(EXTRACT(MONTH FROM s.sale_date) AS INTEGER) AS month_number,
-       SUM(s.amount) AS total_amount
-FROM sales AS s
-         JOIN sale_types AS st ON s.sale_type_id = st.id
-WHERE s.sales_manager_id = $1
-  AND DATE_PART('year', s.sale_date)::integer = $2
-GROUP BY st.id, EXTRACT (MONTH FROM s.sale_date)
-ORDER BY month_number, st.id;

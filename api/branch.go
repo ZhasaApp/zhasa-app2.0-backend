@@ -3,7 +3,8 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"zhasa2.0/branch/entities"
+	. "zhasa2.0/api/entities"
+	. "zhasa2.0/branch/entities"
 )
 
 type createBranchBody struct {
@@ -19,10 +20,10 @@ func (server *Server) createBranch(ctx *gin.Context) {
 		return
 	}
 
-	title := entities.NewBranchTitle(createBranchBody.Title)
-	description := entities.NewBranchDescription(createBranchBody.Description)
-	key := entities.NewBranchKey(createBranchBody.Key)
-	request := entities.CreateBranchRequest{
+	title := NewBranchTitle(createBranchBody.Title)
+	description := NewBranchDescription(createBranchBody.Description)
+	key := NewBranchKey(createBranchBody.Key)
+	request := CreateBranchRequest{
 		Title:       title,
 		Description: description,
 		Key:         key,
@@ -44,4 +45,32 @@ func (server *Server) GetBranches(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, branches)
+}
+
+func (server *Server) getBranchYearStatistic(ctx *gin.Context) {
+	var requestBody BranchYearStatisticRequestBody
+	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	data, err := server.branchService.GetBranchYearStatistic(BranchId(requestBody.BranchId), requestBody.Year)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	response := make([]YearStatisticResponse, 0)
+	for _, item := range *data {
+		response = append(response, YearStatisticResponse{
+			SaleType: SaleTypeResponse{
+				Title: item.SaleType.Title,
+				Color: "",
+			},
+			Month:  int32(item.Month),
+			Amount: int64(item.Amount),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }

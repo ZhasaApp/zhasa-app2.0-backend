@@ -13,6 +13,7 @@ import (
 	service3 "zhasa2.0/branch/service"
 	"zhasa2.0/branch_director/repo"
 	service5 "zhasa2.0/branch_director/service"
+	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	repository2 "zhasa2.0/manager/repository"
 	service2 "zhasa2.0/manager/service"
@@ -86,6 +87,11 @@ func NewServer(ctx context.Context) *Server {
 		smRoute.GET("/year-statistic", server.getYearStatistic)
 	}
 
+	branchRoute := router.Group("branch/")
+	{
+		branchRoute.GET("/year-statistic", server.getBranchYearStatistic)
+	}
+
 	directorRoute := router.Group("branch-director/")
 	directorRoute.Use(getBranchDirector(server.tokenService, server.directorService))
 	{
@@ -107,10 +113,11 @@ func initDependencies(server *Server, ctx context.Context) {
 	}
 
 	store := generated.NewStore(conn)
+	customQuerier := NewCustomQuerier(conn)
 	userRepo := repository4.NewUserRepository(ctx, store)
 	saleTypeRepo := repository.NewSaleTypeRepository(ctx, store)
-	saleManagerRepo := repository2.NewSalesManagerRepository(saleTypeRepo, ctx, store)
-	branchRepo := repository3.NewBranchRepository(ctx, store)
+	saleManagerRepo := repository2.NewSalesManagerRepository(saleTypeRepo, ctx, store, customQuerier)
+	branchRepo := repository3.NewBranchRepository(ctx, store, customQuerier, saleTypeRepo)
 	directorRepo := repo.NewBranchDirectorRepository(ctx, store)
 
 	userService := service.NewUserService(userRepo)

@@ -1,24 +1,30 @@
 package service
 
 import (
-	"zhasa2.0/branch/entities"
+	. "zhasa2.0/branch/entities"
 	"zhasa2.0/branch/repository"
+	. "zhasa2.0/statistic/entities"
 )
 
 type BranchService interface {
-	CreateBranch(request entities.CreateBranchRequest) error
-	GetBranches() ([]entities.Branch, error)
+	CreateBranch(request CreateBranchRequest) error
+	GetBranches() ([]Branch, error)
+	GetBranchYearStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error)
 }
 
 type DBBranchService struct {
 	repo repository.BranchRepository
 }
 
-func (ds DBBranchService) CreateBranch(request entities.CreateBranchRequest) error {
+func (ds DBBranchService) GetBranchYearStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error) {
+	return ds.repo.GetBranchYearMonthlyStatistic(id, year)
+}
+
+func (ds DBBranchService) CreateBranch(request CreateBranchRequest) error {
 	return ds.repo.CreateBranch(request)
 }
 
-func (ds DBBranchService) GetBranches() ([]entities.Branch, error) {
+func (ds DBBranchService) GetBranches() ([]Branch, error) {
 	return ds.repo.GetBranches()
 }
 

@@ -38,13 +38,6 @@ CREATE TABLE sales_managers
     created_at TIMESTAMP                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE branch_sales_managers
-(
-    sales_manager_id INTEGER UNIQUE REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
-    branch_id        INTEGER UNIQUE REFERENCES branches (id) ON DELETE CASCADE       NOT NULL,
-    PRIMARY KEY (sales_manager_id, branch_id)
-);
-
 CREATE TABLE sale_types
 (
     id          SERIAL PRIMARY KEY,

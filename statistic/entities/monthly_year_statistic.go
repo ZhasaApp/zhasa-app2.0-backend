@@ -4,7 +4,7 @@ import (
 	. "zhasa2.0/sale/entities"
 )
 
-type YearStatisticByMonth struct {
+type MonthlyYearStatistic struct {
 	SaleType SaleType
 	Month    MonthNumber
 	Amount   SaleAmount

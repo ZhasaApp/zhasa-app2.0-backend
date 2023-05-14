@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"time"
+	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/manager/entities"
 	. "zhasa2.0/sale/entities"
@@ -24,7 +25,7 @@ type SalesManagerRepository interface {
 	ProvideRankedSalesManagersList(from time.Time, to time.Time, size int32, page int32) (*SalesManagers, error)
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	GetSalesManagerGoalAmount(salesManagerId SalesManagerId, from time.Time, to time.Time) (SaleAmount, error)
-	GetMonthlyYearSaleStatistic(saleManagerId SalesManagerId, year int32) (*[]YearStatisticByMonth, error)
+	GetMonthlyYearSaleStatistic(saleManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 }
 
 /*
@@ -32,15 +33,17 @@ type SalesManagerRepository interface {
 */
 type PostgresSalesManagerRepository struct {
 	repository2.SaleTypeRepository
-	ctx     context.Context
-	querier generated.Querier
+	ctx           context.Context
+	querier       generated.Querier
+	customQuerier CustomQuerier
 }
 
-func NewSalesManagerRepository(typeRepository repository2.SaleTypeRepository, ctx context.Context, querier generated.Querier) SalesManagerRepository {
+func NewSalesManagerRepository(typeRepository repository2.SaleTypeRepository, ctx context.Context, querier generated.Querier, customQuerier CustomQuerier) SalesManagerRepository {
 	return PostgresSalesManagerRepository{
 		SaleTypeRepository: typeRepository,
 		ctx:                ctx,
 		querier:            querier,
+		customQuerier:      customQuerier,
 	}
 }
 
@@ -150,14 +153,14 @@ func (p PostgresSalesManagerRepository) GetSalesManagerGoalAmount(smId SalesMana
 	return SaleAmount(data), nil
 }
 
-func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(saleManagerId SalesManagerId, year int32) (*[]YearStatisticByMonth, error) {
-	params := generated.GetSalesManagerYearStatisticParams{
+func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(saleManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error) {
+	params := GetSalesManagerYearStatisticParams{
 		SalesManagerID: int32(saleManagerId),
-		SaleDate:       year,
+		Year:           year,
 	}
-	data, err := p.querier.GetSalesManagerYearStatistic(p.ctx, params)
+	data, err := p.customQuerier.GetSalesManagerYearStatistic(p.ctx, params)
 
-	result := make([]YearStatisticByMonth, 0)
+	result := make([]MonthlyYearStatistic, 0)
 
 	if err == sql.ErrNoRows {
 		return &result, nil
@@ -170,7 +173,7 @@ func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(saleManagerI
 		if err != nil {
 			return nil, err
 		}
-		stat := YearStatisticByMonth{
+		stat := MonthlyYearStatistic{
 			SaleType: *saleType,
 			Month:    MonthNumber(row.MonthNumber),
 			Amount:   SaleAmount(row.TotalAmount),
