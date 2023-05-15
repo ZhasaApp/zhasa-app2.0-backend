@@ -56,6 +56,15 @@ CREATE TABLE sales_manager_goals
     UNIQUE (from_date, to_date, sales_manager_id)
 );
 
+CREATE TABLE branch_goals(
+    id SERIAL PRIMARY KEY ,
+    from_date        TIMESTAMP                                                NOT NULL,
+    to_date          TIMESTAMP                                                NOT NULL,
+    amount           BIGINT                                                   NOT NULL,
+    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
+    UNIQUE (from_date, to_date, branch_id)
+);
+
 CREATE TABLE sales
 (
     id               SERIAL PRIMARY KEY,
@@ -107,7 +116,7 @@ SELECT u.id         AS user_id,
        b.title      as branch_title
 FROM user_avatar_view u
          JOIN branch_directors bd ON u.id = bd.user_id
-         JOIN branches b ON us.branch_id = b.id;
+         JOIN branches b ON ud.branch_id = b.id;
 
 CREATE VIEW sales_sum_view AS
 SELECT sm.sales_manager_id AS sales_manager_id,
