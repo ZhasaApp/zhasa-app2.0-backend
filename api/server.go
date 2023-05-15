@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"database/sql"
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -50,7 +49,7 @@ func (server Server) InitSuperUser() error {
 
 	err = server.userService.CreateUser(request)
 	if err != nil {
-		return errors.New("super user not created")
+		return err
 	}
 	fmt.Println("super user created")
 	return nil
