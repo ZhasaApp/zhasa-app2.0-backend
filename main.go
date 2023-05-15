@@ -16,7 +16,7 @@ func main() {
 	err := server.InitSuperUser()
 
 	if err != nil {
-		log.Fatal("cannot init super user")
+		log.Fatal(err)
 	}
 	err = server.Start(serverAddress)
 
