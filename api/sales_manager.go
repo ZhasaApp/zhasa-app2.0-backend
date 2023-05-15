@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 	. "zhasa2.0/api/entities"
+	"zhasa2.0/base"
 	. "zhasa2.0/manager/entities"
 	"zhasa2.0/manager/service"
 	. "zhasa2.0/sale/entities"
@@ -206,6 +207,25 @@ func (server *Server) getDashboardStatistic(ctx *gin.Context) {
 		salesStatisticItemsByTypes = append(salesStatisticItemsByTypes, item)
 	}
 
+	sales, err := server.salesManagerService.GetManagerSales(salesManager.Id, base.Pagination{
+		PageSize: 10,
+		Page:     0,
+	})
+
+	salesResponse := make([]SaleItemResponse, 0)
+
+	if err == nil {
+		for _, item := range *sales {
+
+			salesResponse = append(salesResponse, SaleItemResponse{
+				Id:          int32(item.Id),
+				Description: string(item.SaleDescription),
+				Date:        item.SaleDate.Format("2006-01-02 15:04:05"),
+				Amount:      int64(item.SalesAmount),
+			})
+		}
+	}
+
 	dr := DashboardResponse{
 		OverallSaleStatistics: OverallSaleStatistic{
 			Goal:     int64(goal),
@@ -217,6 +237,7 @@ func (server *Server) getDashboardStatistic(ctx *gin.Context) {
 			},
 		},
 		SaleStatisticsByTypes: salesStatisticItemsByTypes,
+		LastSales:             salesResponse,
 	}
 	ctx.JSON(http.StatusOK, dr)
 }

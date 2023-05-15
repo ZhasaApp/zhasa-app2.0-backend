@@ -27,6 +27,14 @@ type GrowthPerDay struct {
 type DashboardResponse struct {
 	OverallSaleStatistics OverallSaleStatistic        `json:"overall_sale_statistics"`
 	SaleStatisticsByTypes []SaleStatisticsByTypesItem `json:"sale_statistics_by_types"`
+	LastSales             []SaleItemResponse          `json:"last_sales"`
+}
+
+type SaleItemResponse struct {
+	Id          int32  `json:"id"`
+	Description string `json:"description"`
+	Date        string `json:"date"`
+	Amount      int64  `json:"amount"`
 }
 
 type SaleStatisticsByTypesItem struct {

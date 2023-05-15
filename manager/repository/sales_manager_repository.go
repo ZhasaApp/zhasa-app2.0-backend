@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"time"
+	. "zhasa2.0/base"
 	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/manager/entities"
@@ -25,7 +26,8 @@ type SalesManagerRepository interface {
 	ProvideRankedSalesManagersList(from time.Time, to time.Time, size int32, page int32) (*SalesManagers, error)
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	GetSalesManagerGoalAmount(salesManagerId SalesManagerId, from time.Time, to time.Time) (SaleAmount, error)
-	GetMonthlyYearSaleStatistic(saleManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
+	GetMonthlyYearSaleStatistic(salesManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
+	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error)
 }
 
 /*
@@ -36,6 +38,35 @@ type PostgresSalesManagerRepository struct {
 	ctx           context.Context
 	querier       generated.Querier
 	customQuerier CustomQuerier
+}
+
+func (p PostgresSalesManagerRepository) GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error) {
+	params := generated.GetManagerSalesParams{
+		SalesManagerID: int32(salesManagerId),
+		Limit:          pagination.PageSize,
+		Offset:         pagination.Page,
+	}
+	data, err := p.querier.GetManagerSales(p.ctx, params)
+
+	result := make([]Sale, 0)
+	if err == sql.ErrNoRows {
+		return &result, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range data {
+		result = append(result, Sale{
+			Id:              SaleId(item.ID),
+			SaleManagerId:   salesManagerId,
+			SalesTypeId:     SaleTypeId(item.SaleTypeID),
+			SalesAmount:     SaleAmount(item.Amount),
+			SaleDate:        item.SaleDate,
+			SaleDescription: SaleDescription(item.Description),
+		})
+	}
+	return &result, err
 }
 
 func NewSalesManagerRepository(typeRepository repository2.SaleTypeRepository, ctx context.Context, querier generated.Querier, customQuerier CustomQuerier) SalesManagerRepository {

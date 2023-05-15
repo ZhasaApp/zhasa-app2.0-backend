@@ -2,6 +2,7 @@ package service
 
 import (
 	"time"
+	. "zhasa2.0/base"
 	. "zhasa2.0/manager/entities"
 	"zhasa2.0/manager/repository"
 	sale "zhasa2.0/sale/entities"
@@ -17,11 +18,16 @@ type SalesManagerService interface {
 	GetSalesManagerGoal(from, to time.Time, salesManagerId SalesManagerId) (sale.SaleAmount, error)
 	GetSalesManagerSums(from, to time.Time, salesManagerId SalesManagerId) (*SaleSumByType, error)
 	GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
+	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]sale.Sale, error)
 }
 
 type DBSalesManagerService struct {
 	repo repository.SalesManagerRepository
 	repository2.SaleTypeRepository
+}
+
+func (dbs DBSalesManagerService) GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]sale.Sale, error) {
+	return dbs.repo.GetManagerSales(salesManagerId, pagination)
 }
 
 func (dbs DBSalesManagerService) SaveSale(sale sale.Sale) error {

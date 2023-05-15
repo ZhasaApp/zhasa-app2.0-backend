@@ -50,6 +50,58 @@ func (q *Queries) CreateSalesManager(ctx context.Context, arg CreateSalesManager
 	return err
 }
 
+const getManagerSales = `-- name: GetManagerSales :many
+SELECT id, sale_type_id, description, sale_date, amount
+FROM sales s
+WHERE s.sales_manager_id = $1
+ORDER BY s.sale_date
+LIMIT $2
+OFFSET $3
+`
+
+type GetManagerSalesParams struct {
+	SalesManagerID int32 `json:"sales_manager_id"`
+	Limit          int32 `json:"limit"`
+	Offset         int32 `json:"offset"`
+}
+
+type GetManagerSalesRow struct {
+	ID          int32     `json:"id"`
+	SaleTypeID  int32     `json:"sale_type_id"`
+	Description string    `json:"description"`
+	SaleDate    time.Time `json:"sale_date"`
+	Amount      int64     `json:"amount"`
+}
+
+func (q *Queries) GetManagerSales(ctx context.Context, arg GetManagerSalesParams) ([]GetManagerSalesRow, error) {
+	rows, err := q.db.QueryContext(ctx, getManagerSales, arg.SalesManagerID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetManagerSalesRow
+	for rows.Next() {
+		var i GetManagerSalesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.SaleTypeID,
+			&i.Description,
+			&i.SaleDate,
+			&i.Amount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getRankedSalesManagers = `-- name: GetRankedSalesManagers :many
 WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
                               SUM(s.amount) AS total_sales_amount,

@@ -65,3 +65,11 @@ FROM sales_manager_goals sg
 WHERE sg.sales_manager_id = $1
   AND sg.from_date = $2
   AND sg.to_date = $3;
+
+-- name: GetManagerSales :many
+SELECT id, sale_type_id, description, sale_date, amount
+FROM sales s
+WHERE s.sales_manager_id = $1
+ORDER BY s.sale_date
+LIMIT $2
+OFFSET $3;

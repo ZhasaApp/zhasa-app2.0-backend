@@ -6,12 +6,15 @@ import (
 )
 
 type Sale struct {
+	Id              SaleId
 	SaleManagerId   entities.SalesManagerId
 	SalesTypeId     SaleTypeId
 	SalesAmount     SaleAmount
 	SaleDate        time.Time
 	SaleDescription SaleDescription
 }
+
+type SaleId int32
 
 type SaleDescription string
 
