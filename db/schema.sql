@@ -117,15 +117,3 @@ SELECT u.id         AS user_id,
 FROM user_avatar_view u
          JOIN branch_directors bd ON u.id = bd.user_id
          JOIN branches b ON bd.branch_id = b.id;
-
-CREATE VIEW sales_sum_view AS
-SELECT sm.sales_manager_id AS sales_manager_id,
-       SUM(s.amount)       AS total_sales_amount,
-       sm.first_name       AS first_name,
-       sm.last_name        AS last_name,
-       sm.avatar_url       AS avatar_url,
-       s.sale_date         AS sale_date
-FROM sales s
-         JOIN sales_managers_view sm ON sm.sales_manager_id = s.sales_manager_id
-WHERE s.sale_date BETWEEN $1 AND $2
-GROUP BY sm.sales_manager_id;
