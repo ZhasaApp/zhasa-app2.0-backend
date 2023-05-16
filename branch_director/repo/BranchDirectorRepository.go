@@ -2,14 +2,14 @@ package repo
 
 import (
 	"context"
-	entities3 "zhasa2.0/branch/entities"
+	. "zhasa2.0/branch/entities"
 	"zhasa2.0/branch_director/entities"
 	generated "zhasa2.0/db/sqlc"
 	entities2 "zhasa2.0/user/entities"
 )
 
 type BranchDirectorRepository interface {
-	CreateBranchDirector(userId entities2.UserId, branchId entities3.BranchId) (entities.BranchDirectorId, error)
+	CreateBranchDirector(userId entities2.UserId, branchId BranchId) (entities.BranchDirectorId, error)
 	CreateSalesManagerGoal(goal entities.SalesManagerGoal) error
 	GetBranchDirectorByUserId(userId entities2.UserId) (*entities.BranchDirector, error)
 }
@@ -26,7 +26,7 @@ type DbBranchDirectorRepository struct {
 	querier generated.Querier
 }
 
-func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId entities2.UserId, branchId entities3.BranchId) (entities.BranchDirectorId, error) {
+func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId entities2.UserId, branchId BranchId) (entities.BranchDirectorId, error) {
 	params := generated.CreateBranchDirectorParams{
 		UserID:   int32(userId),
 		BranchID: int32(branchId),
@@ -64,6 +64,12 @@ func (bdr DbBranchDirectorRepository) GetBranchDirectorByUserId(userId entities2
 			LastName:  entities2.Name(data.LastName),
 		},
 		BranchDirectorId: entities.BranchDirectorId(data.BranchDirectorID),
+		Branch: Branch{
+			BranchId:    BranchId(data.BranchID),
+			Title:       BranchTitle(data.BranchTitle),
+			Description: "",
+			Key:         "",
+		},
 	}
 	return &director, nil
 }

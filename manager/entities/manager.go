@@ -1,5 +1,7 @@
 package entities
 
+import "zhasa2.0/branch/entities"
+
 type SalesManagerId int
 
 type SalesManager struct {
@@ -7,6 +9,7 @@ type SalesManager struct {
 	FirstName string
 	LastName  string
 	AvatarUrl string
+	Branch    entities.Branch
 }
 
 type SalesManagers []SalesManager

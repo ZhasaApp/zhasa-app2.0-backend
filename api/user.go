@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	. "zhasa2.0/api/entities"
-	"zhasa2.0/user/entities"
+	. "zhasa2.0/user/entities"
 	"zhasa2.0/user/service"
 )
 
@@ -16,7 +16,8 @@ func (server *Server) tryAuth(ctx *gin.Context) {
 		return
 	}
 
-	user, err := server.authService.Login(entities.OtpId(request.OtpId), entities.OtpCode(request.Otp))
+	user, err := server.authService.Login(OtpId(request.OtpId), OtpCode(request.Otp))
+
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -32,13 +33,63 @@ func (server *Server) tryAuth(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errors.New("error generating new token"))
 	}
 
-	response := AuthResponse{
+	sm, err := server.salesManagerService.GetSalesManagerByUserId(userTokenData.Id)
+
+	if sm != nil {
+		response := UserProfileResponse{
+			Id:        userTokenData.Id,
+			Avatar:    "",
+			FirstName: userTokenData.FirstName,
+			LastName:  userTokenData.LastName,
+			Phone:     userTokenData.Phone,
+			Branch: BranchResponse{
+				Id:          int32(sm.Branch.BranchId),
+				Description: string(sm.Branch.Title),
+			},
+			Role: "sales_manager",
+		}
+		authResponse := AuthResponse{
+			UserProfileResponse: response,
+			Token:               string(token),
+		}
+		ctx.JSON(http.StatusOK, authResponse)
+		return
+	}
+
+	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
+	if bd != nil {
+		response := UserProfileResponse{
+			Id:        userTokenData.Id,
+			Avatar:    "",
+			FirstName: userTokenData.FirstName,
+			LastName:  userTokenData.LastName,
+			Phone:     userTokenData.Phone,
+			Branch: BranchResponse{
+				Id:          int32(bd.Branch.BranchId),
+				Description: string(bd.Branch.Title),
+			},
+			Role: "branch_director",
+		}
+		authResponse := AuthResponse{
+			UserProfileResponse: response,
+			Token:               string(token),
+		}
+		ctx.JSON(http.StatusOK, authResponse)
+		return
+	}
+	response := UserProfileResponse{
+		Id:        userTokenData.Id,
+		Avatar:    "",
 		FirstName: userTokenData.FirstName,
 		LastName:  userTokenData.LastName,
 		Phone:     userTokenData.Phone,
-		Token:     string(token),
+		Role:      "admin",
 	}
-	ctx.JSON(http.StatusOK, response)
+	authResponse := AuthResponse{
+		UserProfileResponse: response,
+		Token:               string(token),
+	}
+	ctx.JSON(http.StatusOK, authResponse)
 }
 
 func (server *Server) requestAuthCode(ctx *gin.Context) {
@@ -48,7 +99,7 @@ func (server *Server) requestAuthCode(ctx *gin.Context) {
 		return
 	}
 
-	phone, err := entities.NewPhone(request.Phone)
+	phone, err := NewPhone(request.Phone)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -74,25 +125,25 @@ func (server *Server) createUser(ctx *gin.Context) {
 		return
 	}
 
-	firstName, err := entities.NewName(createUserBody.FirstName)
+	firstName, err := NewName(createUserBody.FirstName)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	lastName, err := entities.NewName(createUserBody.LastName)
+	lastName, err := NewName(createUserBody.LastName)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	phone, err := entities.NewPhone(createUserBody.Phone)
+	phone, err := NewPhone(createUserBody.Phone)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	request := entities.CreateUserRequest{
+	request := CreateUserRequest{
 		Phone:     *phone,
 		FirstName: *firstName,
 		LastName:  *lastName,

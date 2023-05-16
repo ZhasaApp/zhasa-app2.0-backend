@@ -10,6 +10,7 @@ type BranchService interface {
 	CreateBranch(request CreateBranchRequest) error
 	GetBranches() ([]Branch, error)
 	GetBranchYearStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error)
+	GetBranchById(id BranchId) (Branch, error)
 }
 
 type DBBranchService struct {
@@ -26,6 +27,10 @@ func (ds DBBranchService) CreateBranch(request CreateBranchRequest) error {
 
 func (ds DBBranchService) GetBranches() ([]Branch, error) {
 	return ds.repo.GetBranches()
+}
+
+func (ds DBBranchService) GetBranchById(id BranchId) (Branch, error) {
+	return ds.GetBranchById(id)
 }
 
 func NewBranchService(repo repository.BranchRepository) BranchService {

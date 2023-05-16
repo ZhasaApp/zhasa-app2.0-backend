@@ -21,7 +21,7 @@ services:
       - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db:/hand-made
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
 volumes:
   postgres_data:

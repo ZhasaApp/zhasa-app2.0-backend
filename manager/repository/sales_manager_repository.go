@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"time"
 	. "zhasa2.0/base"
+	. "zhasa2.0/branch/entities"
 	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/manager/entities"
@@ -157,12 +158,17 @@ func (p PostgresSalesManagerRepository) GetSalesManagerByUserId(userId int32) (*
 	if err != nil {
 		return nil, err
 	}
-
 	salesManager := SalesManager{
 		Id:        SalesManagerId(data.SalesManagerID),
 		FirstName: data.FirstName,
 		LastName:  data.LastName,
 		AvatarUrl: data.AvatarUrl,
+		Branch: Branch{
+			BranchId:    BranchId(data.BranchID),
+			Title:       BranchTitle(data.BranchTitle),
+			Description: "",
+			Key:         "",
+		},
 	}
 	return &salesManager, err
 }
