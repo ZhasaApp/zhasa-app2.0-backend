@@ -33,9 +33,9 @@ CREATE TABLE users_avatars
 CREATE TABLE sales_managers
 (
     id         SERIAL PRIMARY KEY,
-    user_id    INTEGER UNIQUE REFERENCES users (id) ON DELETE CASCADE    NOT NULL,
-    branch_id  INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
-    created_at TIMESTAMP                                                 NOT NULL DEFAULT CURRENT_TIMESTAMP
+    user_id    INTEGER UNIQUE REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+    branch_id  INTEGER REFERENCES branches (id) ON DELETE CASCADE     NOT NULL,
+    created_at TIMESTAMP                                              NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE sale_types
@@ -56,11 +56,12 @@ CREATE TABLE sales_manager_goals
     UNIQUE (from_date, to_date, sales_manager_id)
 );
 
-CREATE TABLE branch_goals(
-    id SERIAL PRIMARY KEY ,
-    from_date        TIMESTAMP                                                NOT NULL,
-    to_date          TIMESTAMP                                                NOT NULL,
-    amount           BIGINT                                                   NOT NULL,
+CREATE TABLE branch_goals
+(
+    id        SERIAL PRIMARY KEY,
+    from_date TIMESTAMP                                          NOT NULL,
+    to_date   TIMESTAMP                                          NOT NULL,
+    amount    BIGINT                                             NOT NULL,
     branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (from_date, to_date, branch_id)
 );
@@ -75,6 +76,9 @@ CREATE TABLE sales
     description      TEXT                                                     NOT NULL,
     created_at       TIMESTAMP                                                NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_sales_sales_manager_id
+    ON sales (sales_manager_id);
 
 CREATE VIEW user_avatar_view AS
 SELECT u.id                        AS id,

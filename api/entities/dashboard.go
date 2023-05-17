@@ -24,10 +24,25 @@ type GrowthPerDay struct {
 	Percent float64 `json:"percent"`
 }
 
-type DashboardResponse struct {
+type SalesManagerDashboardResponse struct {
 	OverallSaleStatistics OverallSaleStatistic        `json:"overall_sale_statistics"`
 	SaleStatisticsByTypes []SaleStatisticsByTypesItem `json:"sale_statistics_by_types"`
 	LastSales             []SaleItemResponse          `json:"last_sales"`
+}
+
+type SalesManagerBranchItem struct {
+	Id          int32   `json:"id"`
+	Avatar      string  `json:"avatar"`
+	FullName    string  `json:"full_name"`
+	Ratio       float64 `json:"ratio"`
+	BranchTitle string  `json:"branch_title"`
+	BranchId    int32   `json:"branch_id"`
+}
+
+type BranchDashboardResponse struct {
+	OverallSaleStatistics OverallSaleStatistic        `json:"overall_sale_statistics"`
+	SaleStatisticsByTypes []SaleStatisticsByTypesItem `json:"sale_statistics_by_types"`
+	BestSalesManagers     []SalesManagerBranchItem    `json:"best_sales_managers"`
 }
 
 type SaleItemResponse struct {

@@ -24,7 +24,6 @@ type SalesManagerRepository interface {
 	CreateSalesManager(userId int32, branchId int32) error
 	SaveSale(salesManagerId SalesManagerId, salesDate time.Time, amount SaleAmount, saleTypeId SaleTypeId) error
 	repository.StatisticRepository
-	ProvideRankedSalesManagersList(from time.Time, to time.Time, size int32, page int32) (*SalesManagers, error)
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	GetSalesManagerGoalAmount(salesManagerId SalesManagerId, from time.Time, to time.Time) (SaleAmount, error)
 	GetMonthlyYearSaleStatistic(salesManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
@@ -109,48 +108,18 @@ func (p PostgresSalesManagerRepository) ProvideSums(salesManagerId SalesManagerI
 	if err != nil {
 		return nil, err
 	}
+	sums := make([]SumsByTypeRow, 0)
 
-	result := p.mapSalesSumsByType(data)
+	for _, item := range data {
+		sums = append(sums, SumsByTypeRow{
+			SaleTypeID:    item.SaleTypeID,
+			SaleTypeTitle: item.SaleTypeTitle,
+			TotalSales:    item.TotalSales,
+		})
+	}
+
+	result := p.MapSalesSumsByType(sums)
 	return &result, err
-}
-
-func (p PostgresSalesManagerRepository) mapSalesSumsByType(rows []generated.GetSalesManagerSumsByTypeRow) statistic.SaleSumByType {
-	saleSumsByType := make(map[SaleType]SaleAmount)
-
-	for _, row := range rows {
-		saleAmount := SaleAmount(row.TotalSales)
-		saleType, err := p.GetSaleType(SaleTypeId(row.SaleTypeID))
-		if err != nil {
-			return nil
-		}
-		saleSumsByType[*saleType] = saleAmount
-	}
-
-	return saleSumsByType
-}
-
-func (p PostgresSalesManagerRepository) ProvideRankedSalesManagersList(from time.Time, to time.Time, size int32, page int32) (*SalesManagers, error) {
-	params := generated.GetRankedSalesManagersParams{
-		SaleDate:   from,
-		SaleDate_2: to,
-		Limit:      size,
-		Offset:     page,
-	}
-	data, err := p.querier.GetRankedSalesManagers(p.ctx, params)
-	if err != nil {
-		return nil, err
-	}
-	var managers SalesManagers
-	for _, row := range data {
-		salesManager := SalesManager{
-			Id:        SalesManagerId(row.SalesManagerID),
-			FirstName: row.FirstName,
-			LastName:  row.LastName,
-			AvatarUrl: row.AvatarUrl,
-		}
-		managers = append(managers, salesManager)
-	}
-	return &managers, nil
 }
 
 func (p PostgresSalesManagerRepository) GetSalesManagerByUserId(userId int32) (*SalesManager, error) {

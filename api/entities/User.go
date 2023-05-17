@@ -35,6 +35,5 @@ type UserProfileResponse struct {
 }
 
 type AuthResponse struct {
-	UserProfileResponse UserProfileResponse `json:"user_profile_response"`
-	Token               string              `json:"token"`
+	Token string `json:"token"`
 }

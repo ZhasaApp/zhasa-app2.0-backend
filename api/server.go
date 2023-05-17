@@ -68,25 +68,27 @@ func NewServer(ctx context.Context) *Server {
 		authRoute.POST("/try", server.tryAuth)
 	}
 
-	adminRoute := router.Group("admin/")
+	router.GET("user/get-user-profile", server.getUserProfile)
+
+	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
 		adminRoute.POST("/user/new", server.createUser)
 		adminRoute.POST("/sales-manager/new", server.createSalesManager)
 		adminRoute.POST("/branch/new", server.createBranch)
 		adminRoute.POST("/sale-type/new", server.createSaleType)
 		adminRoute.POST("/branch-director/new", server.createBranchDirector)
-		adminRoute.GET("/branch/list", server.GetBranches)
+		adminRoute.GET("/branch/list", server.getBranches)
 	}
 
 	smRoute := router.Group("sales-manager/")
 	smRoute.Use(getSalesManager(server.tokenService, server.salesManagerService))
 	{
 		smRoute.POST("/sale/new", server.saveSale)
-		smRoute.GET("/branch/list", server.GetBranches)
+		smRoute.GET("/branch/list", server.getBranches)
 		smRoute.GET("/year-statistic", server.getYearStatistic)
 	}
 
-	branchRoute := router.Group("branch/")
+	branchRoute := router.Group("branch/").Use(verifyToken(server.tokenService))
 	{
 		branchRoute.GET("/year-statistic", server.getBranchYearStatistic)
 	}
@@ -97,7 +99,10 @@ func NewServer(ctx context.Context) *Server {
 		directorRoute.POST("/goal/new", server.createSaleGoalForSalesManager)
 	}
 
-	router.GET("sales-manager/statistic", server.getDashboardStatistic)
+	router.GET("sales-manager/dashboard", server.getSalesManagerDashboardStatistic).Use(verifyToken(server.tokenService))
+
+	router.GET("branch/dashboard", server.getBranchDashboardStatistic).Use(verifyToken(server.tokenService))
+
 	server.router = router
 	return server
 }

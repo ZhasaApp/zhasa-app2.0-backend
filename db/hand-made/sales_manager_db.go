@@ -8,6 +8,7 @@ import (
 type CustomQuerier interface {
 	GetSalesManagerYearStatistic(ctx context.Context, arg GetSalesManagerYearStatisticParams) ([]GetSalesManagerYearStatisticRow, error)
 	GetBranchYearStatistic(ctx context.Context, arg GetBranchYearStatisticParams) ([]GetBranchYearStatisticRow, error)
+	GetBranchRankedSalesManagers(ctx context.Context, arg GetBranchRankedSalesManagersParams) ([]GetBranchRankedSalesManagersRow, error)
 }
 
 func NewCustomQuerier(db *sql.DB) CustomQuerier {

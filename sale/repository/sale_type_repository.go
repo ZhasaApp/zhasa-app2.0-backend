@@ -4,6 +4,7 @@ import (
 	"context"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/sale/entities"
+	"zhasa2.0/statistic"
 )
 
 type SaleTypeMap map[SaleTypeId]*SaleType
@@ -11,12 +12,28 @@ type SaleTypeMap map[SaleTypeId]*SaleType
 type SaleTypeRepository interface {
 	GetSaleType(id SaleTypeId) (*SaleType, error)
 	CreateSaleType(body CreateSaleTypeBody) (SaleTypeId, error)
+	MapSalesSumsByType(rows []SumsByTypeRow) statistic.SaleSumByType
 }
 
 type DBSaleTypeRepository struct {
 	ctx     context.Context
 	querier generated.Querier
 	cache   SaleTypeMap
+}
+
+func (str DBSaleTypeRepository) MapSalesSumsByType(rows []SumsByTypeRow) statistic.SaleSumByType {
+	saleSumsByType := make(map[SaleType]SaleAmount)
+
+	for _, row := range rows {
+		saleAmount := SaleAmount(row.TotalSales)
+		saleType, err := str.GetSaleType(SaleTypeId(row.SaleTypeID))
+		if err != nil {
+			return nil
+		}
+		saleSumsByType[*saleType] = saleAmount
+	}
+
+	return saleSumsByType
 }
 
 func NewSaleTypeRepository(ctx context.Context, querier generated.Querier) SaleTypeRepository {

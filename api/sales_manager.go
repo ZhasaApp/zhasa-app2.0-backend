@@ -147,7 +147,7 @@ func (server *Server) saveSale(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func (server *Server) getDashboardStatistic(ctx *gin.Context) {
+func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 	var requestBody SalesManagerMonthStatisticRequestBody
 	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
 		ctx.Status(http.StatusBadRequest)
@@ -193,8 +193,8 @@ func (server *Server) getDashboardStatistic(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("no goal found")))
 		return
 	}
-	totalPercent := NewPercent(totalPeriodSum, goal)
-	dailyPercent := NewPercent(totalDailySum, goal)
+	totalPercent := base.NewPercent(int64(totalPeriodSum), int64(goal))
+	dailyPercent := base.NewPercent(int64(totalDailySum), int64(goal))
 
 	salesStatisticItemsByTypes := make([]SaleStatisticsByTypesItem, 0)
 
@@ -226,7 +226,7 @@ func (server *Server) getDashboardStatistic(ctx *gin.Context) {
 		}
 	}
 
-	dr := DashboardResponse{
+	dr := SalesManagerDashboardResponse{
 		OverallSaleStatistics: OverallSaleStatistic{
 			Goal:     int64(goal),
 			Achieved: int64(totalPeriodSum),

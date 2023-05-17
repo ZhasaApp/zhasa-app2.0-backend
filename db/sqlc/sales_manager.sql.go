@@ -7,6 +7,7 @@ package generated
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -103,55 +104,76 @@ func (q *Queries) GetManagerSales(ctx context.Context, arg GetManagerSalesParams
 }
 
 const getRankedSalesManagers = `-- name: GetRankedSalesManagers :many
-WITH sales_summary AS (SELECT sm.id         AS sales_manager_id,
-                              SUM(s.amount) AS total_sales_amount,
-                              u.first_name  AS first_name,
-                              u.last_name   AS last_name,
-                              u.avatar_url  AS avatar_url
-                       FROM sales s
-                                INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
-                                INNER JOIN user_avatar_view u ON sm.user_id = u.id
-                       WHERE s.sale_date BETWEEN $1 AND $2
-                       GROUP BY sm.id),
-     goal_summary AS (SELECT sm.id     AS sales_manager_id,
-                             sg.from_date,
-                             sg.to_date,
-                             sg.amount AS goal_amount
-                      FROM sales_manager_goals sg
-                               INNER JOIN sales_managers sm ON s.sales_manager_id = sm.id
-                      WHERE sg.from_date = $1
-                        AND sg.to_date = $2)
-SELECT ss.sales_manager_id,
-       ss.first_name,
-       ss.last_name,
-       ss.avatar_url,
-       COALESCE(ss.total_sales_amount / NULLIF(smg.goal_amount, 0), 0) ::float AS ratio
-FROM sales_summary ss
-         LEFT JOIN goal_summary smg ON ss.sales_manager_id = smg.sales_manager_id
-ORDER BY ratio DESC LIMIT $3
+WITH goal_sales AS (
+    SELECT
+        sm.sales_manager_id AS sales_manager_id,
+        sm.first_name AS first_name,
+        sm.last_name AS last_name,
+        smg.amount AS sale_goal,
+        COALESCE(SUM(s.amount), 0) AS total_sales_sum
+    FROM
+        sales_managers_view sm
+            LEFT JOIN
+        sales_manager_goals smg
+        ON sm.sales_manager_id = smg.sales_manager_id
+            AND smg.from_date = $1
+            AND smg.to_date = $2
+            LEFT JOIN
+        sales s
+        ON sm.sales_manager_id = s.sales_manager_id
+            AND s.sale_date BETWEEN $1 AND $2
+    GROUP BY
+        sm.sales_manager_id,
+        smg.amount
+),
+     rankings AS (
+         SELECT
+             sales_manager_id, first_name, last_name, sale_goal, total_sales_sum,
+             CASE
+                 WHEN sale_goal = 0 THEN 0
+                 ELSE total_sales_sum::decimal / sale_goal::decimal
+END AS ratio,
+        RANK() OVER (ORDER BY CASE
+                             WHEN sale_goal = 0 THEN 0
+                             ELSE total_sales_sum::decimal / sale_goal::decimal
+                         END DESC) AS rating_position
+    FROM
+        goal_sales
+)
+SELECT
+    sales_manager_id,
+    sale_goal,
+    total_sales_sum,
+    ratio,
+    rating_position
+FROM
+    rankings
+ORDER BY
+    rating_position
+LIMIT $3
 OFFSET $4
 `
 
 type GetRankedSalesManagersParams struct {
-	SaleDate   time.Time `json:"sale_date"`
-	SaleDate_2 time.Time `json:"sale_date_2"`
-	Limit      int32     `json:"limit"`
-	Offset     int32     `json:"offset"`
+	FromDate time.Time `json:"from_date"`
+	ToDate   time.Time `json:"to_date"`
+	Limit    int32     `json:"limit"`
+	Offset   int32     `json:"offset"`
 }
 
 type GetRankedSalesManagersRow struct {
-	SalesManagerID int32   `json:"sales_manager_id"`
-	FirstName      string  `json:"first_name"`
-	LastName       string  `json:"last_name"`
-	AvatarUrl      string  `json:"avatar_url"`
-	Ratio          float64 `json:"ratio"`
+	SalesManagerID int32         `json:"sales_manager_id"`
+	SaleGoal       sql.NullInt64 `json:"sale_goal"`
+	TotalSalesSum  interface{}   `json:"total_sales_sum"`
+	Ratio          interface{}   `json:"ratio"`
+	RatingPosition int64         `json:"rating_position"`
 }
 
 // get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
 func (q *Queries) GetRankedSalesManagers(ctx context.Context, arg GetRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error) {
 	rows, err := q.db.QueryContext(ctx, getRankedSalesManagers,
-		arg.SaleDate,
-		arg.SaleDate_2,
+		arg.FromDate,
+		arg.ToDate,
 		arg.Limit,
 		arg.Offset,
 	)
@@ -164,10 +186,10 @@ func (q *Queries) GetRankedSalesManagers(ctx context.Context, arg GetRankedSales
 		var i GetRankedSalesManagersRow
 		if err := rows.Scan(
 			&i.SalesManagerID,
-			&i.FirstName,
-			&i.LastName,
-			&i.AvatarUrl,
+			&i.SaleGoal,
+			&i.TotalSalesSum,
 			&i.Ratio,
+			&i.RatingPosition,
 		); err != nil {
 			return nil, err
 		}

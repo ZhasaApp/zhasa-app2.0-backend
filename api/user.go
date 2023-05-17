@@ -9,6 +9,78 @@ import (
 	"zhasa2.0/user/service"
 )
 
+func verifyToken(tokenService service.TokenService) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		token := service.Token(ctx.GetHeader("Authorization"))
+		userData, err := tokenService.VerifyToken(token)
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
+			return
+		}
+
+		ctx.Set("user_id", int(userData.Id))
+		ctx.Next()
+	}
+}
+
+func (server *Server) getUserProfile(ctx *gin.Context) {
+	token := service.Token(ctx.GetHeader("Authorization"))
+	userTokenData, err := server.tokenService.VerifyToken(token)
+	if err != nil {
+		_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
+		return
+	}
+
+	sm, err := server.salesManagerService.GetSalesManagerByUserId(userTokenData.Id)
+
+	if sm != nil {
+		response := UserProfileResponse{
+			Id:        userTokenData.Id,
+			Avatar:    "",
+			FirstName: userTokenData.FirstName,
+			LastName:  userTokenData.LastName,
+			Phone:     userTokenData.Phone,
+			Branch: BranchResponse{
+				Id:          int32(sm.Branch.BranchId),
+				Description: string(sm.Branch.Title),
+			},
+			Role: "sales_manager",
+		}
+
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
+	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
+	if bd != nil {
+		response := UserProfileResponse{
+			Id:        userTokenData.Id,
+			Avatar:    "",
+			FirstName: userTokenData.FirstName,
+			LastName:  userTokenData.LastName,
+			Phone:     userTokenData.Phone,
+			Branch: BranchResponse{
+				Id:          int32(bd.Branch.BranchId),
+				Description: string(bd.Branch.Title),
+			},
+			Role: "branch_director",
+		}
+
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+	response := UserProfileResponse{
+		Id:        userTokenData.Id,
+		Avatar:    "",
+		FirstName: userTokenData.FirstName,
+		LastName:  userTokenData.LastName,
+		Phone:     userTokenData.Phone,
+		Role:      "admin",
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
 func (server *Server) tryAuth(ctx *gin.Context) {
 	var request TryAuthBody
 	if err := ctx.ShouldBindJSON(&request); err != nil {
@@ -33,61 +105,8 @@ func (server *Server) tryAuth(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errors.New("error generating new token"))
 	}
 
-	sm, err := server.salesManagerService.GetSalesManagerByUserId(userTokenData.Id)
-
-	if sm != nil {
-		response := UserProfileResponse{
-			Id:        userTokenData.Id,
-			Avatar:    "",
-			FirstName: userTokenData.FirstName,
-			LastName:  userTokenData.LastName,
-			Phone:     userTokenData.Phone,
-			Branch: BranchResponse{
-				Id:          int32(sm.Branch.BranchId),
-				Description: string(sm.Branch.Title),
-			},
-			Role: "sales_manager",
-		}
-		authResponse := AuthResponse{
-			UserProfileResponse: response,
-			Token:               string(token),
-		}
-		ctx.JSON(http.StatusOK, authResponse)
-		return
-	}
-
-	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
-	if bd != nil {
-		response := UserProfileResponse{
-			Id:        userTokenData.Id,
-			Avatar:    "",
-			FirstName: userTokenData.FirstName,
-			LastName:  userTokenData.LastName,
-			Phone:     userTokenData.Phone,
-			Branch: BranchResponse{
-				Id:          int32(bd.Branch.BranchId),
-				Description: string(bd.Branch.Title),
-			},
-			Role: "branch_director",
-		}
-		authResponse := AuthResponse{
-			UserProfileResponse: response,
-			Token:               string(token),
-		}
-		ctx.JSON(http.StatusOK, authResponse)
-		return
-	}
-	response := UserProfileResponse{
-		Id:        userTokenData.Id,
-		Avatar:    "",
-		FirstName: userTokenData.FirstName,
-		LastName:  userTokenData.LastName,
-		Phone:     userTokenData.Phone,
-		Role:      "admin",
-	}
 	authResponse := AuthResponse{
-		UserProfileResponse: response,
-		Token:               string(token),
+		Token: string(token),
 	}
 	ctx.JSON(http.StatusOK, authResponse)
 }
