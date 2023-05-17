@@ -67,7 +67,7 @@ WITH goal_sales AS (SELECT
                            sm.sales_manager_id        AS sales_manager_id,
                            sm.first_name              AS first_name,
                            sm.last_name               AS last_name,
-                           smg.amount                 AS sale_goal,
+                           COALESCE(smg.amount ,0)                AS sale_goal,
                            sm.branch_id               AS branch_id,
                            COALESCE(SUM(s.amount), 0) AS total_sales_sum
                     FROM sales_managers_view sm
@@ -88,12 +88,12 @@ WITH goal_sales AS (SELECT
         smg.amount),
      rankings AS (SELECT user_id, sales_manager_id, first_name, last_name, sale_goal, branch_id, total_sales_sum,
                          CASE
-                             WHEN sale_goal = 0 THEN 0
+                            WHEN sale_goal IS NULL OR sale_goal = 0 THEN 0
                              ELSE total_sales_sum::decimal / sale_goal:: decimal
 END
 AS ratio,
         RANK() OVER (ORDER BY CASE
-                             WHEN sale_goal = 0 THEN 0
+                             WHEN sale_goal IS NULL OR sale_goal = 0 THEN 0
                              ELSE total_sales_sum::decimal / sale_goal::decimal
                          END DESC) AS rating_position
     FROM

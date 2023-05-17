@@ -122,6 +122,8 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 
 	if err != nil {
 		log.Println(err)
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
 	}
 
 	for _, sm := range *salesManagers {
