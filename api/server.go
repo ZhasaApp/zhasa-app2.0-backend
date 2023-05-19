@@ -62,6 +62,8 @@ func NewServer(ctx context.Context) *Server {
 
 	router := gin.Default()
 
+	router.POST("/images/upload", server.HandleUpload)
+
 	authRoute := router.Group("auth/")
 	{
 		authRoute.POST("/request-code", server.requestAuthCode)
