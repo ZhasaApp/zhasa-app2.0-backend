@@ -49,7 +49,7 @@ func (ep FourDigitsRecoveryCodeGenerator) GenerateRecoveryCode() (entities.OtpCo
 }
 
 func (t TestPasswordRecoveryCodeGenerator) GenerateRecoveryCode() (entities.OtpCode, error) {
-	return 7777, nil
+	return 777777, nil
 }
 
 func (e PhoneCodeSender) SendRecoveryCode(entities.OtpCode) error {
