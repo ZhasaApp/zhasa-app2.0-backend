@@ -7,7 +7,7 @@ type CreateUserBody struct {
 }
 
 type RequestAuthCodeBody struct {
-	Phone string `json:"phone"`
+	Phone string `json:"phone_number"`
 }
 
 type RequestAuthCodeResponse struct {
@@ -16,7 +16,7 @@ type RequestAuthCodeResponse struct {
 
 type TryAuthBody struct {
 	OtpId int32 `json:"otp_id"`
-	Otp   int32 `json:"otp"`
+	Otp   int32 `json:"code"`
 }
 
 type BranchResponse struct {

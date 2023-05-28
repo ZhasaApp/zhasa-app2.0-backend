@@ -11,6 +11,28 @@ import (
 	entities2 "zhasa2.0/user/entities"
 )
 
+func (server *Server) getSaleTypes(ctx *gin.Context) {
+	types, err := server.saleTypeService.GetSaleTypes()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	saleTypes := make([]SaleTypeResponse, 0)
+	for _, item := range *types {
+		saleTypes = append(saleTypes, SaleTypeResponse{
+			Id:    int32(item.Id),
+			Title: item.Title,
+			Color: item.Color,
+		})
+	}
+
+	saleTypesResponse := SaleTypesResponse{
+		Result: saleTypes,
+	}
+
+	ctx.JSON(http.StatusOK, saleTypesResponse)
+}
+
 func (server *Server) createSaleType(ctx *gin.Context) {
 	var createSaleTypeBody CreateSaleTypeRequest
 	if err := ctx.ShouldBindJSON(&createSaleTypeBody); err != nil {

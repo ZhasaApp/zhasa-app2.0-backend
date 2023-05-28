@@ -27,6 +27,11 @@ type SaleTypeResponse struct {
 	Title string `json:"title"`
 	Color string `json:"color"`
 }
+
+type SaleTypesResponse struct {
+	Result []SaleTypeResponse `json:"result"`
+}
+
 type YearStatisticResponse struct {
 	SaleType SaleTypeResponse `json:"sale_type"`
 	Month    int32            `json:"month"`

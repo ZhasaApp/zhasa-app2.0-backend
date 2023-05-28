@@ -13,12 +13,34 @@ type SaleTypeRepository interface {
 	GetSaleType(id SaleTypeId) (*SaleType, error)
 	CreateSaleType(body CreateSaleTypeBody) (SaleTypeId, error)
 	MapSalesSumsByType(rows []SumsByTypeRow) statistic.SaleSumByType
+	GetSaleTypes() (*[]SaleType, error)
 }
 
 type DBSaleTypeRepository struct {
 	ctx     context.Context
 	querier generated.Querier
 	cache   SaleTypeMap
+}
+
+func (str DBSaleTypeRepository) GetSaleTypes() (*[]SaleType, error) {
+	rows, err := str.querier.GetSalesTypes(str.ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	saleTypes := make([]SaleType, 0)
+
+	for _, row := range rows {
+		saleTypes = append(saleTypes, SaleType{
+			Id:          SaleTypeId(row.ID),
+			Title:       row.Title,
+			Description: row.Description,
+			Color:       row.Color,
+		})
+	}
+
+	return &saleTypes, nil
 }
 
 func (str DBSaleTypeRepository) MapSalesSumsByType(rows []SumsByTypeRow) statistic.SaleSumByType {

@@ -8,10 +8,15 @@ import (
 type SaleTypeService interface {
 	GetSaleType(id entities.SaleTypeId) (*entities.SaleType, error)
 	CreateSaleType(body entities.CreateSaleTypeBody) (entities.SaleTypeId, error)
+	GetSaleTypes() (*[]entities.SaleType, error)
 }
 
 type DBSaleTypeService struct {
 	repo repository.SaleTypeRepository
+}
+
+func (ds DBSaleTypeService) GetSaleTypes() (*[]entities.SaleType, error) {
+	return ds.repo.GetSaleTypes()
 }
 
 func NewSaleTypeService(repo repository.SaleTypeRepository) SaleTypeService {
