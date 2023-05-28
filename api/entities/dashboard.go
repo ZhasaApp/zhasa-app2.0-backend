@@ -9,7 +9,7 @@ type SaveSaleBody struct {
 	SaleAmount  int64  `json:"amount"`
 	SaleDate    string `json:"date"`
 	SaleTypeId  int32  `json:"type_id"`
-	Description string `json:"description"`
+	Description string `json:"title"`
 }
 
 type OverallSalesStatistic struct {

@@ -208,12 +208,16 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, CreateSaleResponse{
+	ctx.JSON(http.StatusOK, SaleItemResponse{
 		Id:     int32(saleRes.Id),
 		Title:  string(saleRes.SaleDescription),
 		Date:   saleRes.SaleDate.Format("2006-01-02 15:04:05"),
 		Amount: int64(saleRes.SalesAmount),
-		TypeId: int32(saleRes.SaleType.Id),
+		Type: SaleTypeResponse{
+			Id:    int32(saleRes.SaleType.Id),
+			Title: saleRes.SaleType.Title,
+			Color: saleRes.SaleType.Color,
+		},
 	})
 }
 
