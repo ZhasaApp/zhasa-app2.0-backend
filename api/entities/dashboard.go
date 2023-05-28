@@ -39,6 +39,12 @@ type SalesManagerBranchItem struct {
 	BranchId    int32   `json:"branch_id"`
 }
 
+type SalesManagersListResponse struct {
+	Result  []SalesManagerBranchItem `json:"result"`
+	Count   int32                    `json:"count"`
+	HasNext bool
+}
+
 type BranchDashboardResponse struct {
 	OverallSaleStatistics OverallSalesStatistic        `json:"overall_sale_statistics"`
 	SaleStatisticsByTypes []SalesStatisticsByTypesItem `json:"sale_statistics_by_types"`
@@ -51,6 +57,12 @@ type SaleItemResponse struct {
 	Date   string           `json:"date"`
 	Amount int64            `json:"amount"`
 	Type   SaleTypeResponse `json:"type"`
+}
+
+type SalesResponse struct {
+	Result  []SaleItemResponse `json:"result"`
+	Count   int32              `json:"count"`
+	HasNext bool               `json:"has_next"`
 }
 
 type SalesStatisticsByTypesItem struct {

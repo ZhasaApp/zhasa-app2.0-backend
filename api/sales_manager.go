@@ -105,6 +105,63 @@ func (server *Server) createSalesManager(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
+func (server *Server) getSales(ctx *gin.Context) {
+	var monthPagination MonthPaginationRequest
+	if err := ctx.ShouldBindJSON(&monthPagination); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	salesManager, err := server.salesManagerService.GetSalesManagerByUserId(monthPagination.UserId)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("sales manager not found")))
+		return
+	}
+
+	salesCount, err := server.salesManagerService.GetSalesManagerSalesCount(salesManager.Id)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("sales manager not found")))
+		return
+	}
+
+	sales, err := server.salesManagerService.GetManagerSales(salesManager.Id, base.Pagination{
+		PageSize: monthPagination.PageSize,
+		Page:     monthPagination.Page,
+	})
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	salesList := make([]SaleItemResponse, 0)
+	for _, item := range *sales {
+		salesList = append(salesList, SaleItemResponse{
+			Id:     int32(item.Id),
+			Title:  string(item.SaleDescription),
+			Date:   item.SaleDate.Format("2006-01-02 15:04:05"),
+			Amount: int64(item.SalesAmount),
+			Type: SaleTypeResponse{
+				Id:    int32(item.SaleType.Id),
+				Title: item.SaleType.Title,
+				Color: item.SaleType.Color,
+			},
+		})
+	}
+
+	hasNext := salesCount > monthPagination.PageSize*(monthPagination.Page+1)
+
+	salesResponse := SalesResponse{
+		Result:  salesList,
+		Count:   int32(len(salesList)),
+		HasNext: hasNext,
+	}
+
+	ctx.JSON(http.StatusOK, salesResponse)
+}
+
 func (server *Server) saveSale(ctx *gin.Context) {
 	var saveSaleBody SaveSaleBody
 	if err := ctx.ShouldBindJSON(&saveSaleBody); err != nil {
@@ -123,8 +180,9 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		return
 	}
 
-	layout := "01/02/2006"
+	layout := "2006-01-02 15:04:05"
 	parsedTime, err := time.Parse(layout, saveSaleBody.SaleDate)
+
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -206,7 +264,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 
 	for key, amount := range *sums {
 		item := SalesStatisticsByTypesItem{
-			Color:  "",
+			Color:  key.Color,
 			Title:  key.Title,
 			Amount: int64(amount),
 		}

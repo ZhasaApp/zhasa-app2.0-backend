@@ -241,6 +241,19 @@ func (q *Queries) GetSalesByDate(ctx context.Context, saleDate time.Time) ([]Sal
 	return items, nil
 }
 
+const getSalesCount = `-- name: GetSalesCount :one
+SELECT COUNT(*)
+FROM sales
+WHERE sales_manager_id = $1
+`
+
+func (q *Queries) GetSalesCount(ctx context.Context, salesManagerID int32) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getSalesCount, salesManagerID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const getSalesManagerByUserId = `-- name: GetSalesManagerByUserId :one
 SELECT user_id, phone, first_name, last_name, avatar_url, sales_manager_id, branch_id, branch_title
 from sales_managers_view s

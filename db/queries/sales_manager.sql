@@ -94,3 +94,9 @@ ORDER BY
     rating_position
 LIMIT $3
 OFFSET $4;
+
+-- name: GetSalesCount :one
+SELECT COUNT(*)
+FROM sales
+WHERE sales_manager_id = $1;
+

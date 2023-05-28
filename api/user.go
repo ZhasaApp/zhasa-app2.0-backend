@@ -36,7 +36,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	if sm != nil {
 		response := UserProfileResponse{
 			Id:        userTokenData.Id,
-			Avatar:    "",
+			Avatar:    nil,
 			FirstName: userTokenData.FirstName,
 			LastName:  userTokenData.LastName,
 			Phone:     userTokenData.Phone,
@@ -55,7 +55,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	if bd != nil {
 		response := UserProfileResponse{
 			Id:        userTokenData.Id,
-			Avatar:    "",
+			Avatar:    nil,
 			FirstName: userTokenData.FirstName,
 			LastName:  userTokenData.LastName,
 			Phone:     userTokenData.Phone,
@@ -71,7 +71,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	}
 	response := UserProfileResponse{
 		Id:        userTokenData.Id,
-		Avatar:    "",
+		Avatar:    nil,
 		FirstName: userTokenData.FirstName,
 		LastName:  userTokenData.LastName,
 		Phone:     userTokenData.Phone,

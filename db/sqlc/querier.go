@@ -32,6 +32,7 @@ type Querier interface {
 	GetRankedSalesManagers(ctx context.Context, arg GetRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
 	GetSalesByDate(ctx context.Context, saleDate time.Time) ([]Sale, error)
+	GetSalesCount(ctx context.Context, salesManagerID int32) (int64, error)
 	GetSalesManagerByUserId(ctx context.Context, userID int32) (SalesManagersView, error)
 	GetSalesManagerGoalByGivenDateRange(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeParams) (int64, error)
 	// get the sales sums for a specific sales manager and each sale type within the given period.

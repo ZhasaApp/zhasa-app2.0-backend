@@ -42,5 +42,11 @@ func (server *Server) getRankedSalesManager(ctx *gin.Context) {
 		})
 	}
 
-	ctx.JSON(http.StatusOK, bestSalesManagers)
+	response := SalesManagersListResponse{
+		Result:  bestSalesManagers,
+		Count:   int32(len(bestSalesManagers)),
+		HasNext: false,
+	}
+
+	ctx.JSON(http.StatusOK, response)
 }

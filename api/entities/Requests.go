@@ -42,5 +42,6 @@ type MonthPaginationRequest struct {
 	Month    int32 `json:"month"`
 	Year     int32 `json:"year"`
 	Page     int32 `json:"page"`
-	PageSize int32 `json:"page_size"`
+	PageSize int32 `json:"limit"`
+	UserId   int32 `json:"user_id"`
 }

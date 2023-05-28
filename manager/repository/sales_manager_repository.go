@@ -28,6 +28,7 @@ type SalesManagerRepository interface {
 	GetSalesManagerGoalAmount(salesManagerId SalesManagerId, from time.Time, to time.Time) (SaleAmount, error)
 	GetMonthlyYearSaleStatistic(salesManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error)
+	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
 }
 
 /*
@@ -38,6 +39,11 @@ type PostgresSalesManagerRepository struct {
 	ctx           context.Context
 	querier       generated.Querier
 	customQuerier CustomQuerier
+}
+
+func (p PostgresSalesManagerRepository) GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error) {
+	count, err := p.querier.GetSalesCount(p.ctx, int32(salesManagerId))
+	return int32(count), err
 }
 
 func (p PostgresSalesManagerRepository) GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error) {

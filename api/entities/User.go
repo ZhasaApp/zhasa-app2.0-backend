@@ -26,7 +26,7 @@ type BranchResponse struct {
 
 type UserProfileResponse struct {
 	Id        int32          `json:"id"`
-	Avatar    string         `json:"avatar"`
+	Avatar    *string        `json:"avatar"`
 	FirstName string         `json:"first_name"`
 	LastName  string         `json:"last_name"`
 	Phone     string         `json:"phone"`
