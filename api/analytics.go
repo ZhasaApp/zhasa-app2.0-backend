@@ -34,7 +34,7 @@ func (server *Server) getRankedSalesManager(ctx *gin.Context) {
 	for _, sm := range *managers {
 		bestSalesManagers = append(bestSalesManagers, SalesManagerBranchItem{
 			Id:          int32(sm.UserId),
-			Avatar:      sm.AvatarUrl,
+			Avatar:      nil,
 			FullName:    sm.FirstName + " " + sm.LastName,
 			Ratio:       float64(sm.Ratio),
 			BranchTitle: string(sm.Branch.Title),

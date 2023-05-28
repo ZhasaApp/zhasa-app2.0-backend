@@ -35,11 +35,10 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 
 	if sm != nil {
 		response := UserProfileResponse{
-			Id:        userTokenData.Id,
-			Avatar:    nil,
-			FirstName: userTokenData.FirstName,
-			LastName:  userTokenData.LastName,
-			Phone:     userTokenData.Phone,
+			Id:       userTokenData.Id,
+			Avatar:   nil,
+			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
+			Phone:    userTokenData.Phone,
 			Branch: BranchResponse{
 				Id:          int32(sm.Branch.BranchId),
 				Description: string(sm.Branch.Title),
@@ -54,11 +53,10 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
 	if bd != nil {
 		response := UserProfileResponse{
-			Id:        userTokenData.Id,
-			Avatar:    nil,
-			FirstName: userTokenData.FirstName,
-			LastName:  userTokenData.LastName,
-			Phone:     userTokenData.Phone,
+			Id:       userTokenData.Id,
+			Avatar:   nil,
+			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
+			Phone:    userTokenData.Phone,
 			Branch: BranchResponse{
 				Id:          int32(bd.Branch.BranchId),
 				Description: string(bd.Branch.Title),
@@ -70,12 +68,11 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		return
 	}
 	response := UserProfileResponse{
-		Id:        userTokenData.Id,
-		Avatar:    nil,
-		FirstName: userTokenData.FirstName,
-		LastName:  userTokenData.LastName,
-		Phone:     userTokenData.Phone,
-		Role:      "admin",
+		Id:       userTokenData.Id,
+		Avatar:   nil,
+		FullName: userTokenData.FirstName + " " + userTokenData.LastName,
+		Phone:    userTokenData.Phone,
+		Role:     "admin",
 	}
 
 	ctx.JSON(http.StatusOK, response)

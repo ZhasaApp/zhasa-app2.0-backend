@@ -32,9 +32,9 @@ type SalesManagerDashboardResponse struct {
 
 type SalesManagerBranchItem struct {
 	Id          int32   `json:"id"`
-	Avatar      string  `json:"avatar"`
+	Avatar      *string `json:"avatar"`
 	FullName    string  `json:"full_name"`
-	Ratio       float64 `json:"ratio"`
+	Ratio       float64 `json:"goal_achievement_percent"`
 	BranchTitle string  `json:"branch_title"`
 	BranchId    int32   `json:"branch_id"`
 }
