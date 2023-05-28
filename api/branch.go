@@ -102,10 +102,10 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	totalPercent := NewPercent(int64(totalPeriodSum), int64(goal))
 	dailyPercent := NewPercent(int64(totalDailySum), int64(goal))
 
-	salesStatisticItemsByTypes := make([]SaleStatisticsByTypesItem, 0)
+	salesStatisticItemsByTypes := make([]SalesStatisticsByTypesItem, 0)
 
 	for key, amount := range *sums {
-		item := SaleStatisticsByTypesItem{
+		item := SalesStatisticsByTypesItem{
 			Color:  "",
 			Title:  key.Title,
 			Amount: int64(amount),
@@ -137,10 +137,8 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 		})
 	}
 
-	log.Println(len(*salesManagers))
-
 	dr := BranchDashboardResponse{
-		OverallSaleStatistics: OverallSaleStatistic{
+		OverallSaleStatistics: OverallSalesStatistic{
 			Goal:     int64(goal),
 			Achieved: int64(totalPeriodSum),
 			Percent:  float64(totalPercent),

@@ -57,10 +57,14 @@ func (p PostgresSalesManagerRepository) GetManagerSales(salesManagerId SalesMana
 	}
 
 	for _, item := range data {
+		t, err := p.SaleTypeRepository.GetSaleType(SaleTypeId(item.SaleTypeID))
+		if err != nil {
+			return nil, err
+		}
 		result = append(result, Sale{
 			Id:              SaleId(item.ID),
 			SaleManagerId:   salesManagerId,
-			SalesTypeId:     SaleTypeId(item.SaleTypeID),
+			SaleType:        *t,
 			SalesAmount:     SaleAmount(item.Amount),
 			SaleDate:        item.SaleDate,
 			SaleDescription: SaleDescription(item.Description),

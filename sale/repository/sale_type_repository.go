@@ -74,6 +74,7 @@ func (str DBSaleTypeRepository) GetSaleType(id SaleTypeId) (*SaleType, error) {
 		Id:          SaleTypeId(saleTypeDb.ID),
 		Title:       saleTypeDb.Title,
 		Description: saleTypeDb.Description,
+		Color:       saleTypeDb.Color,
 	}
 
 	return newSaleType, nil

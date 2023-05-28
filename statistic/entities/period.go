@@ -28,7 +28,7 @@ type MonthPeriod struct {
 	Year        int32
 }
 
-func (m *MonthPeriod) ConvertToTime() (time.Time, time.Time) {
+func (m MonthPeriod) ConvertToTime() (time.Time, time.Time) {
 	from := time.Date(int(m.Year), time.Month(m.MonthNumber), 1, 0, 0, 0, 0, time.UTC)
 	to := from.AddDate(0, 1, -1)
 	return from, to

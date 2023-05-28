@@ -43,7 +43,8 @@ CREATE TABLE sale_types
     id          SERIAL PRIMARY KEY,
     title       VARCHAR(255) NOT NULL,
     description TEXT         NOT NULL,
-    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    color VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE sales_manager_goals

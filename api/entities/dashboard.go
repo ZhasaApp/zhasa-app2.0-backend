@@ -12,7 +12,7 @@ type SaveSaleBody struct {
 	Description string `json:"description"`
 }
 
-type OverallSaleStatistic struct {
+type OverallSalesStatistic struct {
 	Goal         int64        `json:"goal"`
 	Achieved     int64        `json:"achieved"`
 	Percent      float64      `json:"percent"`
@@ -25,9 +25,9 @@ type GrowthPerDay struct {
 }
 
 type SalesManagerDashboardResponse struct {
-	OverallSaleStatistics OverallSaleStatistic        `json:"overall_sale_statistics"`
-	SaleStatisticsByTypes []SaleStatisticsByTypesItem `json:"sale_statistics_by_types"`
-	LastSales             []SaleItemResponse          `json:"last_sales"`
+	OverallSalesStatistics OverallSalesStatistic        `json:"overall_sales_statistics"`
+	SalesStatisticsByTypes []SalesStatisticsByTypesItem `json:"sales_statistics_by_types"`
+	LastSales              []SaleItemResponse           `json:"last_sales"`
 }
 
 type SalesManagerBranchItem struct {
@@ -40,19 +40,20 @@ type SalesManagerBranchItem struct {
 }
 
 type BranchDashboardResponse struct {
-	OverallSaleStatistics OverallSaleStatistic        `json:"overall_sale_statistics"`
-	SaleStatisticsByTypes []SaleStatisticsByTypesItem `json:"sale_statistics_by_types"`
-	BestSalesManagers     []SalesManagerBranchItem    `json:"best_sales_managers"`
+	OverallSaleStatistics OverallSalesStatistic        `json:"overall_sale_statistics"`
+	SaleStatisticsByTypes []SalesStatisticsByTypesItem `json:"sale_statistics_by_types"`
+	BestSalesManagers     []SalesManagerBranchItem     `json:"best_sales_managers"`
 }
 
 type SaleItemResponse struct {
-	Id          int32  `json:"id"`
-	Description string `json:"description"`
-	Date        string `json:"date"`
-	Amount      int64  `json:"amount"`
+	Id     int32            `json:"id"`
+	Title  string           `json:"title"`
+	Date   string           `json:"date"`
+	Amount int64            `json:"amount"`
+	Type   SaleTypeResponse `json:"type"`
 }
 
-type SaleStatisticsByTypesItem struct {
+type SalesStatisticsByTypesItem struct {
 	Color  string `json:"color"`
 	Title  string `json:"title"`
 	Amount int64  `json:"amount"`

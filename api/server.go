@@ -18,6 +18,8 @@ import (
 	service2 "zhasa2.0/manager/service"
 	"zhasa2.0/sale/repository"
 	service4 "zhasa2.0/sale/service"
+	. "zhasa2.0/statistic/repository"
+	service6 "zhasa2.0/statistic/service"
 	"zhasa2.0/user/entities"
 	repository4 "zhasa2.0/user/repository"
 	"zhasa2.0/user/service"
@@ -32,6 +34,7 @@ type Server struct {
 	tokenService        service.TokenService
 	authService         service.AuthorizationService
 	directorService     service5.BranchDirectorService
+	analyticsService    service6.AnalyticsService
 }
 
 func (server Server) InitSuperUser() error {
@@ -105,6 +108,8 @@ func NewServer(ctx context.Context) *Server {
 
 	router.GET("branch/dashboard", server.getBranchDashboardStatistic).Use(verifyToken(server.tokenService))
 
+	router.GET("ratings/managers", server.getRankedSalesManager).Use(verifyToken(server.tokenService))
+
 	server.router = router
 	return server
 }
@@ -125,6 +130,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	saleManagerRepo := repository2.NewSalesManagerRepository(saleTypeRepo, ctx, store, customQuerier)
 	branchRepo := repository3.NewBranchRepository(ctx, store, customQuerier, saleTypeRepo)
 	directorRepo := repo.NewBranchDirectorRepository(ctx, store)
+	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
 
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
@@ -132,6 +138,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	branchService := service3.NewBranchService(branchRepo)
 	saleTypeService := service4.NewSaleTypeService(saleTypeRepo)
 	directorService := service5.NewBranchDirectorService(directorRepo)
+	analyticsService := service6.NewAnalyticsService(rankingsRepo)
+
 	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 
 	tokenService := service.NewTokenService(&encKey)
@@ -142,6 +150,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.tokenService = tokenService
 	server.authService = authService
 	server.directorService = directorService
+	server.analyticsService = analyticsService
 }
 
 // Start runs the HTTP server a specific address

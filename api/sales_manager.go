@@ -130,9 +130,15 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		return
 	}
 
+	saleType, err := server.saleTypeService.GetSaleType(SaleTypeId(saveSaleBody.SaleTypeId))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("sale type not found")))
+		return
+	}
+
 	sale := Sale{
 		SaleManagerId:   SalesManagerId(salesManagerId),
-		SalesTypeId:     SaleTypeId(saveSaleBody.SaleTypeId),
+		SaleType:        *saleType,
 		SalesAmount:     SaleAmount(saveSaleBody.SaleAmount),
 		SaleDate:        parsedTime,
 		SaleDescription: SaleDescription(saveSaleBody.Description),
@@ -196,10 +202,10 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 	totalPercent := base.NewPercent(int64(totalPeriodSum), int64(goal))
 	dailyPercent := base.NewPercent(int64(totalDailySum), int64(goal))
 
-	salesStatisticItemsByTypes := make([]SaleStatisticsByTypesItem, 0)
+	salesStatisticItemsByTypes := make([]SalesStatisticsByTypesItem, 0)
 
 	for key, amount := range *sums {
-		item := SaleStatisticsByTypesItem{
+		item := SalesStatisticsByTypesItem{
 			Color:  "",
 			Title:  key.Title,
 			Amount: int64(amount),
@@ -218,16 +224,20 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 		for _, item := range *sales {
 
 			salesResponse = append(salesResponse, SaleItemResponse{
-				Id:          int32(item.Id),
-				Description: string(item.SaleDescription),
-				Date:        item.SaleDate.Format("2006-01-02 15:04:05"),
-				Amount:      int64(item.SalesAmount),
+				Id:     int32(item.Id),
+				Title:  string(item.SaleDescription),
+				Date:   item.SaleDate.Format("2006-01-02 15:04:05"),
+				Amount: int64(item.SalesAmount),
+				Type: SaleTypeResponse{
+					Id:    int32(item.SaleType.Id),
+					Title: item.SaleType.Title,
+				},
 			})
 		}
 	}
 
 	dr := SalesManagerDashboardResponse{
-		OverallSaleStatistics: OverallSaleStatistic{
+		OverallSalesStatistics: OverallSalesStatistic{
 			Goal:     int64(goal),
 			Achieved: int64(totalPeriodSum),
 			Percent:  float64(totalPercent),
@@ -236,8 +246,8 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 				Percent: float64(dailyPercent),
 			},
 		},
-		SaleStatisticsByTypes: salesStatisticItemsByTypes,
-		LastSales:             salesResponse,
+		SalesStatisticsByTypes: salesStatisticItemsByTypes,
+		LastSales:              salesResponse,
 	}
 	ctx.JSON(http.StatusOK, dr)
 }

@@ -11,6 +11,7 @@ type SaleType struct {
 	Id          SaleTypeId
 	Title       string
 	Description string
+	Color       string
 }
 
 type SumsByTypeRow struct {

@@ -122,7 +122,7 @@ type GetBranchRankedSalesManagersParams struct {
 	BranchID int32     `json:"branch_id"`
 }
 
-type GetBranchRankedSalesManagersRow struct {
+type GetRankedSalesManagersRow struct {
 	UserId         int32   `json:"user_id"`
 	SalesManagerID int32   `json:"sales_manager_id"`
 	FirstName      string  `json:"first_name"`
@@ -135,7 +135,7 @@ type GetBranchRankedSalesManagersRow struct {
 }
 
 // GetBranchRankedSalesManagers get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
-func (d DBCustomQuerier) GetBranchRankedSalesManagers(ctx context.Context, arg GetBranchRankedSalesManagersParams) ([]GetBranchRankedSalesManagersRow, error) {
+func (d DBCustomQuerier) GetBranchRankedSalesManagers(ctx context.Context, arg GetBranchRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error) {
 	rows, err := d.db.QueryContext(ctx, getBranchRankedSalesManagers,
 		arg.FromDate,
 		arg.ToDate,
@@ -147,9 +147,9 @@ func (d DBCustomQuerier) GetBranchRankedSalesManagers(ctx context.Context, arg G
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetBranchRankedSalesManagersRow
+	var items []GetRankedSalesManagersRow
 	for rows.Next() {
-		var i GetBranchRankedSalesManagersRow
+		var i GetRankedSalesManagersRow
 		if err := rows.Scan(
 			&i.UserId,
 			&i.SalesManagerID,

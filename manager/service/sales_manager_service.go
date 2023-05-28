@@ -31,7 +31,7 @@ func (dbs DBSalesManagerService) GetManagerSales(salesManagerId SalesManagerId, 
 }
 
 func (dbs DBSalesManagerService) SaveSale(sale sale.Sale) error {
-	return dbs.repo.SaveSale(sale.SaleManagerId, sale.SaleDate, sale.SalesAmount, sale.SalesTypeId)
+	return dbs.repo.SaveSale(sale.SaleManagerId, sale.SaleDate, sale.SalesAmount, sale.SaleType.Id)
 }
 
 func NewSalesManagerService(repo repository.SalesManagerRepository, saleTypeRepo repository2.SaleTypeRepository) SalesManagerService {

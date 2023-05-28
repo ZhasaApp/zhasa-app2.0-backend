@@ -56,6 +56,7 @@ type SaleType struct {
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
+	Color       string    `json:"color"`
 }
 
 type SalesManager struct {

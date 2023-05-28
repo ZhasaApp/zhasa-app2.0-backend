@@ -8,7 +8,7 @@ import (
 type Sale struct {
 	Id              SaleId
 	SaleManagerId   entities.SalesManagerId
-	SalesTypeId     SaleTypeId
+	SaleType        SaleType
 	SalesAmount     SaleAmount
 	SaleDate        time.Time
 	SaleDescription SaleDescription
