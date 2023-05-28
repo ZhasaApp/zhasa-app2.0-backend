@@ -311,6 +311,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 		},
 		SalesStatisticsByTypes: salesStatisticItemsByTypes,
 		LastSales:              salesResponse,
+		Rating:                 int32(1),
 	}
 	ctx.JSON(http.StatusOK, dr)
 }

@@ -29,6 +29,7 @@ type SalesManagerDashboardResponse struct {
 	OverallSalesStatistics OverallSalesStatistic        `json:"overall_sales_statistics"`
 	SalesStatisticsByTypes []SalesStatisticsByTypesItem `json:"sales_statistics_by_types"`
 	LastSales              []SaleItemResponse           `json:"last_sales"`
+	Rating                 int32                        `json:"rating"`
 }
 
 type SalesManagerBranchItem struct {
