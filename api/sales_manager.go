@@ -295,6 +295,11 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 	}
 
 	dr := SalesManagerDashboardResponse{
+		Profile: SalesManagerDashboardProfile{
+			Avatar:   nil,
+			FullName: salesManager.FirstName + " " + salesManager.LastName,
+			Branch:   string(salesManager.Branch.Title),
+		},
 		OverallSalesStatistics: OverallSalesStatistic{
 			Goal:     int64(goal),
 			Achieved: int64(totalPeriodSum),

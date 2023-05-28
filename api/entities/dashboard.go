@@ -25,6 +25,7 @@ type GrowthPerDay struct {
 }
 
 type SalesManagerDashboardResponse struct {
+	Profile                SalesManagerDashboardProfile `json:"profile"`
 	OverallSalesStatistics OverallSalesStatistic        `json:"overall_sales_statistics"`
 	SalesStatisticsByTypes []SalesStatisticsByTypesItem `json:"sales_statistics_by_types"`
 	LastSales              []SaleItemResponse           `json:"last_sales"`
@@ -69,4 +70,10 @@ type SalesStatisticsByTypesItem struct {
 	Color  string `json:"color"`
 	Title  string `json:"title"`
 	Amount int64  `json:"amount"`
+}
+
+type SalesManagerDashboardProfile struct {
+	Avatar   *string `json:"avatar"`
+	FullName string  `json:"full_name"`
+	Branch   string  `json:"branch"`
 }
