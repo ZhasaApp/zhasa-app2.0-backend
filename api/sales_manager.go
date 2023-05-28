@@ -202,13 +202,19 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		SaleDescription: SaleDescription(saveSaleBody.Description),
 	}
 
-	err = server.salesManagerService.SaveSale(sale)
+	saleRes, err := server.salesManagerService.SaveSale(sale)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	ctx.JSON(http.StatusOK, CreateSaleResponse{
+		Id:     int32(saleRes.Id),
+		Title:  string(saleRes.SaleDescription),
+		Date:   saleRes.SaleDate.Format("2006-01-02 15:04:05"),
+		Amount: int64(saleRes.SalesAmount),
+		TypeId: int32(saleRes.SaleType.Id),
+	})
 }
 
 func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {

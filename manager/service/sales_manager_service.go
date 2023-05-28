@@ -14,7 +14,7 @@ import (
 type SalesManagerService interface {
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	CreateSalesManager(userId int32, branchId int32) error
-	SaveSale(sale sale.Sale) error
+	SaveSale(sale sale.Sale) (*sale.Sale, error)
 	GetSalesManagerGoal(from, to time.Time, salesManagerId SalesManagerId) (sale.SaleAmount, error)
 	GetSalesManagerSums(from, to time.Time, salesManagerId SalesManagerId) (*SaleSumByType, error)
 	GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
@@ -35,8 +35,8 @@ func (dbs DBSalesManagerService) GetManagerSales(salesManagerId SalesManagerId, 
 	return dbs.repo.GetManagerSales(salesManagerId, pagination)
 }
 
-func (dbs DBSalesManagerService) SaveSale(sale sale.Sale) error {
-	return dbs.repo.SaveSale(sale.SaleManagerId, sale.SaleDate, sale.SalesAmount, sale.SaleType.Id)
+func (dbs DBSalesManagerService) SaveSale(sale sale.Sale) (*sale.Sale, error) {
+	return dbs.repo.SaveSale(sale.SaleManagerId, sale.SaleDate, sale.SalesAmount, sale.SaleType.Id, sale.SaleDescription)
 }
 
 func NewSalesManagerService(repo repository.SalesManagerRepository, saleTypeRepo repository2.SaleTypeRepository) SalesManagerService {

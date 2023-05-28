@@ -61,6 +61,14 @@ type SaleItemResponse struct {
 	Type   SaleTypeResponse `json:"type"`
 }
 
+type CreateSaleResponse struct {
+	Id     int32  `json:"id"`
+	Title  string `json:"title"`
+	Date   string `json:"date"`
+	Amount int64  `json:"amount"`
+	TypeId int32  `json:"type_id"`
+}
+
 type SalesResponse struct {
 	Result  []SaleItemResponse `json:"result"`
 	Count   int32              `json:"count"`

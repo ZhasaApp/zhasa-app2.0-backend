@@ -11,9 +11,9 @@ import (
 	"time"
 )
 
-const addSaleOrReplace = `-- name: AddSaleOrReplace :exec
+const addSaleOrReplace = `-- name: AddSaleOrReplace :one
 INSERT INTO sales (sales_manager_id, sale_date, amount, sale_type_id, description)
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5) RETURNING id, sales_manager_id, sale_date, amount, sale_type_id, description, created_at
 `
 
 type AddSaleOrReplaceParams struct {
@@ -25,15 +25,25 @@ type AddSaleOrReplaceParams struct {
 }
 
 // add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
-func (q *Queries) AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) error {
-	_, err := q.db.ExecContext(ctx, addSaleOrReplace,
+func (q *Queries) AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) (Sale, error) {
+	row := q.db.QueryRowContext(ctx, addSaleOrReplace,
 		arg.SalesManagerID,
 		arg.SaleDate,
 		arg.Amount,
 		arg.SaleTypeID,
 		arg.Description,
 	)
-	return err
+	var i Sale
+	err := row.Scan(
+		&i.ID,
+		&i.SalesManagerID,
+		&i.SaleDate,
+		&i.Amount,
+		&i.SaleTypeID,
+		&i.Description,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const createSalesManager = `-- name: CreateSalesManager :exec
@@ -55,8 +65,7 @@ const getManagerSales = `-- name: GetManagerSales :many
 SELECT id, sale_type_id, description, sale_date, amount
 FROM sales s
 WHERE s.sales_manager_id = $1
-ORDER BY s.sale_date
-LIMIT $2
+ORDER BY s.sale_date DESC LIMIT $2
 OFFSET $3
 `
 
@@ -104,35 +113,29 @@ func (q *Queries) GetManagerSales(ctx context.Context, arg GetManagerSalesParams
 }
 
 const getRankedSalesManagers = `-- name: GetRankedSalesManagers :many
-WITH goal_sales AS (
-    SELECT
-        sm.sales_manager_id AS sales_manager_id,
-        sm.first_name AS first_name,
-        sm.last_name AS last_name,
-        smg.amount AS sale_goal,
-        COALESCE(SUM(s.amount), 0) AS total_sales_sum
-    FROM
-        sales_managers_view sm
-            LEFT JOIN
-        sales_manager_goals smg
-        ON sm.sales_manager_id = smg.sales_manager_id
-            AND smg.from_date = $1
-            AND smg.to_date = $2
-            LEFT JOIN
-        sales s
-        ON sm.sales_manager_id = s.sales_manager_id
-            AND s.sale_date BETWEEN $1 AND $2
-    GROUP BY
-        sm.sales_manager_id,
-        smg.amount
-),
-     rankings AS (
-         SELECT
-             sales_manager_id, first_name, last_name, sale_goal, total_sales_sum,
-             CASE
-                 WHEN sale_goal = 0 THEN 0
-                 ELSE total_sales_sum::decimal / sale_goal::decimal
-END AS ratio,
+WITH goal_sales AS (SELECT sm.sales_manager_id        AS sales_manager_id,
+                           sm.first_name              AS first_name,
+                           sm.last_name               AS last_name,
+                           smg.amount                 AS sale_goal,
+                           COALESCE(SUM(s.amount), 0) AS total_sales_sum
+                    FROM sales_managers_view sm
+                             LEFT JOIN
+                         sales_manager_goals smg
+                         ON sm.sales_manager_id = smg.sales_manager_id
+                             AND smg.from_date = $1
+                             AND smg.to_date = $2
+                             LEFT JOIN
+                         sales s
+                         ON sm.sales_manager_id = s.sales_manager_id
+                             AND s.sale_date BETWEEN $1 AND $2
+                    GROUP BY sm.sales_manager_id,
+                             smg.amount),
+     rankings AS (SELECT sales_manager_id, first_name, last_name, sale_goal, total_sales_sum,
+                         CASE
+                             WHEN sale_goal = 0 THEN 0
+                             ELSE total_sales_sum::decimal / sale_goal:: decimal
+END
+AS ratio,
         RANK() OVER (ORDER BY CASE
                              WHEN sale_goal = 0 THEN 0
                              ELSE total_sales_sum::decimal / sale_goal::decimal
@@ -140,17 +143,13 @@ END AS ratio,
     FROM
         goal_sales
 )
-SELECT
-    sales_manager_id,
-    sale_goal,
-    total_sales_sum,
-    ratio,
-    rating_position
-FROM
-    rankings
-ORDER BY
-    rating_position
-LIMIT $3
+SELECT sales_manager_id,
+       sale_goal,
+       total_sales_sum,
+       ratio,
+       rating_position
+FROM rankings
+ORDER BY rating_position LIMIT $3
 OFFSET $4
 `
 

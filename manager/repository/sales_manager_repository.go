@@ -22,7 +22,7 @@ import (
 */
 type SalesManagerRepository interface {
 	CreateSalesManager(userId int32, branchId int32) error
-	SaveSale(salesManagerId SalesManagerId, salesDate time.Time, amount SaleAmount, saleTypeId SaleTypeId) error
+	SaveSale(salesManagerId SalesManagerId, salesDate time.Time, amount SaleAmount, saleTypeId SaleTypeId, description SaleDescription) (*Sale, error)
 	repository.StatisticRepository
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	GetSalesManagerGoalAmount(salesManagerId SalesManagerId, from time.Time, to time.Time) (SaleAmount, error)
@@ -96,15 +96,29 @@ func (p PostgresSalesManagerRepository) CreateSalesManager(userId int32, branchI
 	return p.querier.CreateSalesManager(p.ctx, params)
 }
 
-func (p PostgresSalesManagerRepository) SaveSale(salesManagerId SalesManagerId, salesDate time.Time, amount SaleAmount, saleTypeId SaleTypeId) error {
+func (p PostgresSalesManagerRepository) SaveSale(salesManagerId SalesManagerId, salesDate time.Time, amount SaleAmount, saleTypeId SaleTypeId, description SaleDescription) (*Sale, error) {
 	params := generated.AddSaleOrReplaceParams{
 		SalesManagerID: int32(salesManagerId),
 		SaleDate:       salesDate,
 		Amount:         int64(amount),
 		SaleTypeID:     int32(saleTypeId),
+		Description:    string(description),
 	}
 
-	return p.querier.AddSaleOrReplace(p.ctx, params)
+	row, err := p.querier.AddSaleOrReplace(p.ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	saleType, err := p.GetSaleType(SaleTypeId(row.SaleTypeID))
+	return &Sale{
+		Id:              SaleId(row.ID),
+		SaleManagerId:   SalesManagerId(row.SalesManagerID),
+		SaleType:        *saleType,
+		SalesAmount:     SaleAmount(row.Amount),
+		SaleDate:        row.SaleDate,
+		SaleDescription: SaleDescription(row.Description),
+	}, nil
 }
 
 func (p PostgresSalesManagerRepository) ProvideSums(salesManagerId SalesManagerId, from time.Time, to time.Time) (*statistic.SaleSumByType, error) {

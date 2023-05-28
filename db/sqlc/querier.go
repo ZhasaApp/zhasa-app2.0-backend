@@ -11,7 +11,7 @@ import (
 
 type Querier interface {
 	// add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
-	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) error
+	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) (Sale, error)
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
 	CreateBranchDirector(ctx context.Context, arg CreateBranchDirectorParams) (int32, error)
 	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
