@@ -92,7 +92,7 @@ func NewServer(ctx context.Context) *Server {
 		smRoute.POST("/sale/new", server.saveSale)
 		smRoute.GET("/branch/list", server.getBranches)
 		smRoute.POST("/year-statistic", server.getYearStatistic)
-		smRoute.GET("/sale/list", server.getSales)
+		smRoute.POST("/sale/list", server.getSales)
 	}
 
 	branchRoute := router.Group("branch/").Use(verifyToken(server.tokenService))
