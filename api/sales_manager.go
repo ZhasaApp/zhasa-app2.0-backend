@@ -282,7 +282,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 	}
 
 	sales, err := server.salesManagerService.GetManagerSales(salesManager.Id, base.Pagination{
-		PageSize: 10,
+		PageSize: 5,
 		Page:     0,
 	})
 
