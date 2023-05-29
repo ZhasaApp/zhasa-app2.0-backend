@@ -28,6 +28,7 @@ type SalesManagerRepository interface {
 	GetSalesManagerGoalAmount(salesManagerId SalesManagerId, from time.Time, to time.Time) (SaleAmount, error)
 	GetMonthlyYearSaleStatistic(salesManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error)
+	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, from time.Time, to time.Time) (*[]Sale, error)
 	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
 }
 
@@ -39,6 +40,42 @@ type PostgresSalesManagerRepository struct {
 	ctx           context.Context
 	querier       generated.Querier
 	customQuerier CustomQuerier
+}
+
+func (p PostgresSalesManagerRepository) GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, from time.Time, to time.Time) (*[]Sale, error) {
+	params := generated.GetManagerSalesByPeriodParams{
+		SalesManagerID: int32(salesManagerId),
+		SaleDate:       from,
+		SaleDate_2:     to,
+		Limit:          pagination.PageSize,
+		Offset:         pagination.Page,
+	}
+
+	rows, err := p.querier.GetManagerSalesByPeriod(p.ctx, params)
+
+	result := make([]Sale, 0)
+	if err == sql.ErrNoRows {
+		return &result, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	for _, item := range rows {
+		t, err := p.SaleTypeRepository.GetSaleType(SaleTypeId(item.SaleTypeID))
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, Sale{
+			Id:              SaleId(item.ID),
+			SaleManagerId:   salesManagerId,
+			SaleType:        *t,
+			SalesAmount:     SaleAmount(item.Amount),
+			SaleDate:        item.SaleDate,
+			SaleDescription: SaleDescription(item.Description),
+		})
+	}
+	return &result, err
 }
 
 func (p PostgresSalesManagerRepository) GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error) {

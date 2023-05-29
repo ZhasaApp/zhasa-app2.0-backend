@@ -43,6 +43,14 @@ ORDER BY s.sale_date DESC LIMIT $2
 OFFSET $3;
 
 
+-- name: GetManagerSalesByPeriod :many
+SELECT id, sale_type_id, description, sale_date, amount
+FROM sales s
+WHERE s.sales_manager_id = $1 AND s.sale_date BETWEEN $2 AND $3
+ORDER BY s.sale_date DESC LIMIT $4
+OFFSET $5;
+
+
 -- name: GetRankedSalesManagers :many
 -- get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
 WITH goal_sales AS (SELECT sm.sales_manager_id        AS sales_manager_id,

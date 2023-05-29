@@ -28,6 +28,7 @@ type Querier interface {
 	// Get Ranked Branches
 	GetBranchesByRating(ctx context.Context, arg GetBranchesByRatingParams) ([]GetBranchesByRatingRow, error)
 	GetManagerSales(ctx context.Context, arg GetManagerSalesParams) ([]GetManagerSalesRow, error)
+	GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSalesByPeriodParams) ([]GetManagerSalesByPeriodRow, error)
 	// get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
 	GetRankedSalesManagers(ctx context.Context, arg GetRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)

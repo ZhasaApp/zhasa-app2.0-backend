@@ -19,12 +19,18 @@ type SalesManagerService interface {
 	GetSalesManagerSums(from, to time.Time, salesManagerId SalesManagerId) (*SaleSumByType, error)
 	GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]sale.Sale, error)
+	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, period Period) (*[]sale.Sale, error)
 	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
 }
 
 type DBSalesManagerService struct {
 	repo repository.SalesManagerRepository
 	repository2.SaleTypeRepository
+}
+
+func (dbs DBSalesManagerService) GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, period Period) (*[]sale.Sale, error) {
+	from, to := period.ConvertToTime()
+	return dbs.repo.GetManagerSalesByPeriod(salesManagerId, pagination, from, to)
 }
 
 func (dbs DBSalesManagerService) GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error) {

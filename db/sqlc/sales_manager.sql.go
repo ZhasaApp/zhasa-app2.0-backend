@@ -112,6 +112,65 @@ func (q *Queries) GetManagerSales(ctx context.Context, arg GetManagerSalesParams
 	return items, nil
 }
 
+const getManagerSalesByPeriod = `-- name: GetManagerSalesByPeriod :many
+SELECT id, sale_type_id, description, sale_date, amount
+FROM sales s
+WHERE s.sales_manager_id = $1 AND s.sale_date BETWEEN $2 AND $3
+ORDER BY s.sale_date DESC LIMIT $4
+OFFSET $5
+`
+
+type GetManagerSalesByPeriodParams struct {
+	SalesManagerID int32     `json:"sales_manager_id"`
+	SaleDate       time.Time `json:"sale_date"`
+	SaleDate_2     time.Time `json:"sale_date_2"`
+	Limit          int32     `json:"limit"`
+	Offset         int32     `json:"offset"`
+}
+
+type GetManagerSalesByPeriodRow struct {
+	ID          int32     `json:"id"`
+	SaleTypeID  int32     `json:"sale_type_id"`
+	Description string    `json:"description"`
+	SaleDate    time.Time `json:"sale_date"`
+	Amount      int64     `json:"amount"`
+}
+
+func (q *Queries) GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSalesByPeriodParams) ([]GetManagerSalesByPeriodRow, error) {
+	rows, err := q.db.QueryContext(ctx, getManagerSalesByPeriod,
+		arg.SalesManagerID,
+		arg.SaleDate,
+		arg.SaleDate_2,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetManagerSalesByPeriodRow
+	for rows.Next() {
+		var i GetManagerSalesByPeriodRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.SaleTypeID,
+			&i.Description,
+			&i.SaleDate,
+			&i.Amount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getRankedSalesManagers = `-- name: GetRankedSalesManagers :many
 WITH goal_sales AS (SELECT sm.sales_manager_id        AS sales_manager_id,
                            sm.first_name              AS first_name,

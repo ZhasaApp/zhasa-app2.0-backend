@@ -112,6 +112,10 @@ func (server *Server) getSales(ctx *gin.Context) {
 		return
 	}
 
+	period := MonthPeriod{
+		MonthNumber: monthPagination.Month,
+		Year:        monthPagination.Year,
+	}
 	salesManager, err := server.salesManagerService.GetSalesManagerByUserId(monthPagination.UserId)
 
 	if err != nil {
@@ -126,10 +130,10 @@ func (server *Server) getSales(ctx *gin.Context) {
 		return
 	}
 
-	sales, err := server.salesManagerService.GetManagerSales(salesManager.Id, base.Pagination{
+	sales, err := server.salesManagerService.GetManagerSalesByPeriod(salesManager.Id, base.Pagination{
 		PageSize: monthPagination.PageSize,
 		Page:     monthPagination.Page,
-	})
+	}, period)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
