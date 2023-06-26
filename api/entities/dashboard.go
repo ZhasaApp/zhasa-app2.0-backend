@@ -49,7 +49,7 @@ type SaleItemResponse struct {
 	Id     int32            `json:"id"`
 	Title  string           `json:"title"`
 	Date   string           `json:"date"`
-	Amount int64            `json:"amount"`
+	Amount int64            `json:"value"`
 	Type   SaleTypeResponse `json:"type"`
 }
 
