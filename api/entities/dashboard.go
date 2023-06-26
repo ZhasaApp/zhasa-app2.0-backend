@@ -12,13 +12,6 @@ type SaveSaleBody struct {
 	Description string `json:"title"`
 }
 
-type OverallSalesStatistic struct {
-	Goal         int64        `json:"goal"`
-	Achieved     int64        `json:"achieved"`
-	Percent      float64      `json:"percent"`
-	GrowthPerDay GrowthPerDay `json:"growth_per_day"`
-}
-
 type GrowthPerDay struct {
 	Amount  int64   `json:"amount"`
 	Percent float64 `json:"percent"`
@@ -26,8 +19,8 @@ type GrowthPerDay struct {
 
 type SalesManagerDashboardResponse struct {
 	Profile                SalesManagerDashboardProfile `json:"profile"`
-	OverallSalesStatistics OverallSalesStatistic        `json:"overall_sales_statistics"`
 	SalesStatisticsByTypes []SalesStatisticsByTypesItem `json:"sales_statistics_by_types"`
+	GoalAchievementPercent float32                      `json:"goal_achievement_percent"`
 	LastSales              []SaleItemResponse           `json:"last_sales"`
 	Rating                 int32                        `json:"rating"`
 }
@@ -48,7 +41,6 @@ type SalesManagersListResponse struct {
 }
 
 type BranchDashboardResponse struct {
-	OverallSaleStatistics OverallSalesStatistic        `json:"overall_sale_statistics"`
 	SaleStatisticsByTypes []SalesStatisticsByTypesItem `json:"sale_statistics_by_types"`
 	BestSalesManagers     []SalesManagerBranchItem     `json:"best_sales_managers"`
 }
@@ -76,9 +68,10 @@ type SalesResponse struct {
 }
 
 type SalesStatisticsByTypesItem struct {
-	Color  string `json:"color"`
-	Title  string `json:"title"`
-	Amount int64  `json:"amount"`
+	Color    string `json:"color"`
+	Title    string `json:"title"`
+	Achieved int64  `json:"achieved"`
+	Goal     int64  `json:"goal"`
 }
 
 type SalesManagerDashboardProfile struct {

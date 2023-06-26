@@ -11,9 +11,7 @@ import (
 	. "zhasa2.0/manager/entities"
 	. "zhasa2.0/sale/entities"
 	repository2 "zhasa2.0/sale/repository"
-	"zhasa2.0/statistic"
 	. "zhasa2.0/statistic/entities"
-	"zhasa2.0/statistic/repository"
 )
 
 /*
@@ -23,13 +21,22 @@ import (
 type SalesManagerRepository interface {
 	CreateSalesManager(userId int32, branchId int32) error
 	SaveSale(salesManagerId SalesManagerId, salesDate time.Time, amount SaleAmount, saleTypeId SaleTypeId, description SaleDescription) (*Sale, error)
-	repository.StatisticRepository
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
-	GetSalesManagerGoalAmount(salesManagerId SalesManagerId, from time.Time, to time.Time) (SaleAmount, error)
 	GetMonthlyYearSaleStatistic(salesManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error)
 	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, from time.Time, to time.Time) (*[]Sale, error)
 	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
+}
+
+type SalesManagerStatisticRepository interface {
+	GetSalesSumBySaleTypeAndManager(smId SalesManagerId, typeId SaleTypeId, from, to time.Time) (SaleAmount, error)
+	GetSalesGoalBySaleTypeAndManager(smId SalesManagerId, typeId SaleTypeId, from, to time.Time) (SaleAmount, error)
+}
+
+type PostgresSalesManagerStatisticRepository struct {
+	repository2.SaleTypeRepository
+	ctx     context.Context
+	querier generated.Querier
 }
 
 /*
@@ -125,6 +132,14 @@ func NewSalesManagerRepository(typeRepository repository2.SaleTypeRepository, ct
 	}
 }
 
+func NewSalesManagerStatisticRepository(typeRepository repository2.SaleTypeRepository, ctx context.Context, querier generated.Querier) SalesManagerStatisticRepository {
+	return PostgresSalesManagerStatisticRepository{
+		SaleTypeRepository: typeRepository,
+		ctx:                ctx,
+		querier:            querier,
+	}
+}
+
 func (p PostgresSalesManagerRepository) CreateSalesManager(userId int32, branchId int32) error {
 	params := generated.CreateSalesManagerParams{
 		UserID:   userId,
@@ -158,31 +173,6 @@ func (p PostgresSalesManagerRepository) SaveSale(salesManagerId SalesManagerId, 
 	}, nil
 }
 
-func (p PostgresSalesManagerRepository) ProvideSums(salesManagerId SalesManagerId, from time.Time, to time.Time) (*statistic.SaleSumByType, error) {
-	arg := generated.GetSalesManagerSumsByTypeParams{
-		SaleDate:       from,
-		SaleDate_2:     to,
-		SalesManagerID: int32(salesManagerId),
-	}
-	data, err := p.querier.GetSalesManagerSumsByType(p.ctx, arg)
-
-	if err != nil {
-		return nil, err
-	}
-	sums := make([]SumsByTypeRow, 0)
-
-	for _, item := range data {
-		sums = append(sums, SumsByTypeRow{
-			SaleTypeID:    item.SaleTypeID,
-			SaleTypeTitle: item.SaleTypeTitle,
-			TotalSales:    item.TotalSales,
-		})
-	}
-
-	result := p.MapSalesSumsByType(sums)
-	return &result, err
-}
-
 func (p PostgresSalesManagerRepository) GetSalesManagerByUserId(userId int32) (*SalesManager, error) {
 	data, err := p.querier.GetSalesManagerByUserId(p.ctx, userId)
 	if err != nil {
@@ -202,17 +192,34 @@ func (p PostgresSalesManagerRepository) GetSalesManagerByUserId(userId int32) (*
 	}
 	return &salesManager, err
 }
-
-func (p PostgresSalesManagerRepository) GetSalesManagerGoalAmount(smId SalesManagerId, from time.Time, to time.Time) (SaleAmount, error) {
-	arg := generated.GetSalesManagerGoalByGivenDateRangeParams{
+func (p PostgresSalesManagerStatisticRepository) GetSalesSumBySaleTypeAndManager(smId SalesManagerId, typeId SaleTypeId, from, to time.Time) (SaleAmount, error) {
+	arg := generated.GetSalesManagerSumsByTypeParams{
 		SalesManagerID: int32(smId),
-		FromDate:       from,
-		ToDate:         to,
+		SaleDate:       from,
+		SaleDate_2:     to,
+		ID:             int32(typeId),
 	}
-	data, err := p.querier.GetSalesManagerGoalByGivenDateRange(p.ctx, arg)
+	data, err := p.querier.GetSalesManagerSumsByType(p.ctx, arg)
+
 	if err == sql.ErrNoRows {
 		return 0, nil
 	}
+	if err != nil {
+		return 0, err
+	}
+
+	return SaleAmount(data.TotalSales), nil
+}
+
+func (p PostgresSalesManagerStatisticRepository) GetSalesGoalBySaleTypeAndManager(smId SalesManagerId, typeId SaleTypeId, from, to time.Time) (SaleAmount, error) {
+	arg := generated.GetSalesManagerGoalByGivenDateRangeAndSaleTypeParams{
+		SalesManagerID: int32(smId),
+		FromDate:       from,
+		ToDate:         to,
+		TypeID:         int32(typeId),
+	}
+	data, err := p.querier.GetSalesManagerGoalByGivenDateRangeAndSaleType(p.ctx, arg)
+
 	if err != nil {
 		return 0, err
 	}
@@ -229,12 +236,10 @@ func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(saleManagerI
 
 	result := make([]MonthlyYearStatistic, 0)
 
-	if err == sql.ErrNoRows {
-		return &result, nil
-	}
 	if err != nil {
 		return nil, err
 	}
+
 	for _, row := range data {
 		saleType, err := p.GetSaleType(SaleTypeId(row.SaleType))
 		if err != nil {

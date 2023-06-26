@@ -16,7 +16,7 @@ type Querier interface {
 	CreateBranchDirector(ctx context.Context, arg CreateBranchDirectorParams) (int32, error)
 	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
 	CreateSalesManager(ctx context.Context, arg CreateSalesManagerParams) error
-	CreateSalesManagerGoal(ctx context.Context, arg CreateSalesManagerGoalParams) error
+	CreateSalesManagerGoalByType(ctx context.Context, arg CreateSalesManagerGoalByTypeParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
@@ -25,19 +25,15 @@ type Querier interface {
 	GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error)
 	// get the sales sums for a specific branch and each sale type within the given period.
 	GetBranchSumsByType(ctx context.Context, arg GetBranchSumsByTypeParams) ([]GetBranchSumsByTypeRow, error)
-	// Get Ranked Branches
-	GetBranchesByRating(ctx context.Context, arg GetBranchesByRatingParams) ([]GetBranchesByRatingRow, error)
 	GetManagerSales(ctx context.Context, arg GetManagerSalesParams) ([]GetManagerSalesRow, error)
 	GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSalesByPeriodParams) ([]GetManagerSalesByPeriodRow, error)
-	// get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
-	GetRankedSalesManagers(ctx context.Context, arg GetRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
 	GetSalesByDate(ctx context.Context, saleDate time.Time) ([]Sale, error)
 	GetSalesCount(ctx context.Context, salesManagerID int32) (int64, error)
 	GetSalesManagerByUserId(ctx context.Context, userID int32) (SalesManagersView, error)
-	GetSalesManagerGoalByGivenDateRange(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeParams) (int64, error)
+	GetSalesManagerGoalByGivenDateRangeAndSaleType(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeAndSaleTypeParams) (int64, error)
 	// get the sales sums for a specific sales manager and each sale type within the given period.
-	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) ([]GetSalesManagerSumsByTypeRow, error)
+	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) (GetSalesManagerSumsByTypeRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
 	GetUserById(ctx context.Context, id int32) (User, error)
 	GetUserByPhone(ctx context.Context, phone string) (User, error)

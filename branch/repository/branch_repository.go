@@ -194,26 +194,8 @@ func (br DBBranchRepository) GetBranchById(id BranchId) (*Branch, error) {
 }
 
 func (br DBBranchRepository) GetBranches() ([]Branch, error) {
-	params := generated.GetBranchesByRatingParams{
-		SaleDate:   time.Now(),
-		SaleDate_2: time.Now().Add(time.Hour),
-	}
-	branches, err := br.querier.GetBranchesByRating(br.ctx, params)
-
-	if err != nil {
-		return nil, err
-	}
 
 	branchList := make([]Branch, 0)
 
-	for _, br := range branches {
-		branch := Branch{
-			BranchId:    BranchId(br.BranchID),
-			Title:       NewBranchTitle(br.BranchTitle),
-			Description: NewBranchDescription(br.Description),
-			Key:         NewBranchKey(br.BranchKey),
-		}
-		branchList = append(branchList, branch)
-	}
-	return branchList, err
+	return branchList, nil
 }

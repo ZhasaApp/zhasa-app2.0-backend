@@ -7,7 +7,6 @@ import (
 	"zhasa2.0/manager/repository"
 	sale "zhasa2.0/sale/entities"
 	repository2 "zhasa2.0/sale/repository"
-	. "zhasa2.0/statistic"
 	. "zhasa2.0/statistic/entities"
 )
 
@@ -15,8 +14,8 @@ type SalesManagerService interface {
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	CreateSalesManager(userId int32, branchId int32) error
 	SaveSale(sale sale.Sale) (*sale.Sale, error)
-	GetSalesManagerGoal(from, to time.Time, salesManagerId SalesManagerId) (sale.SaleAmount, error)
-	GetSalesManagerSums(from, to time.Time, salesManagerId SalesManagerId) (*SaleSumByType, error)
+	GetSalesManagerGoalByType(from, to time.Time, salesManagerId SalesManagerId, typeId sale.SaleTypeId) (sale.SaleAmount, error)
+	GetSalesManagerSumsByType(from, to time.Time, salesManagerId SalesManagerId, typeId sale.SaleTypeId) (sale.SaleAmount, error)
 	GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]sale.Sale, error)
 	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, period Period) (*[]sale.Sale, error)
@@ -24,7 +23,8 @@ type SalesManagerService interface {
 }
 
 type DBSalesManagerService struct {
-	repo repository.SalesManagerRepository
+	repo          repository.SalesManagerRepository
+	statisticRepo repository.SalesManagerStatisticRepository
 	repository2.SaleTypeRepository
 }
 
@@ -45,10 +45,11 @@ func (dbs DBSalesManagerService) SaveSale(sale sale.Sale) (*sale.Sale, error) {
 	return dbs.repo.SaveSale(sale.SaleManagerId, sale.SaleDate, sale.SalesAmount, sale.SaleType.Id, sale.SaleDescription)
 }
 
-func NewSalesManagerService(repo repository.SalesManagerRepository, saleTypeRepo repository2.SaleTypeRepository) SalesManagerService {
+func NewSalesManagerService(repo repository.SalesManagerRepository, statisticRepo repository.SalesManagerStatisticRepository, saleTypeRepo repository2.SaleTypeRepository) SalesManagerService {
 	return DBSalesManagerService{
 		repo:               repo,
 		SaleTypeRepository: saleTypeRepo,
+		statisticRepo:      statisticRepo,
 	}
 }
 
@@ -68,12 +69,12 @@ func (dbs DBSalesManagerService) GetSalesManagerByUserId(userId int32) (*SalesMa
 	return dbs.repo.GetSalesManagerByUserId(userId)
 }
 
-func (dbs DBSalesManagerService) GetSalesManagerGoal(fromDate time.Time, to time.Time, salesManagerId SalesManagerId) (sale.SaleAmount, error) {
-	return dbs.repo.GetSalesManagerGoalAmount(salesManagerId, fromDate, to)
+func (dbs DBSalesManagerService) GetSalesManagerGoalByType(fromDate time.Time, to time.Time, salesManagerId SalesManagerId, typeId sale.SaleTypeId) (sale.SaleAmount, error) {
+	return dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(salesManagerId, typeId, fromDate, to)
 }
 
-func (dbs DBSalesManagerService) GetSalesManagerSums(from, to time.Time, salesManagerId SalesManagerId) (*SaleSumByType, error) {
-	return dbs.repo.ProvideSums(salesManagerId, from, to)
+func (dbs DBSalesManagerService) GetSalesManagerSumsByType(from, to time.Time, salesManagerId SalesManagerId, typeId sale.SaleTypeId) (sale.SaleAmount, error) {
+	return dbs.statisticRepo.GetSalesSumBySaleTypeAndManager(salesManagerId, typeId, from, to)
 }
 
 func (dbs DBSalesManagerService) GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error) {

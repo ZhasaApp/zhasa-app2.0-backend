@@ -44,16 +44,18 @@ CREATE TABLE sale_types
     title       VARCHAR(255) NOT NULL,
     description TEXT         NOT NULL,
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    color VARCHAR(255) NOT NULL
+    color VARCHAR(255) NOT NULL,
+    gravity INTEGER NOT NULL
 );
 
-CREATE TABLE sales_manager_goals
+CREATE TABLE sales_manager_goals_by_types
 (
     id               SERIAL PRIMARY KEY,
     from_date        TIMESTAMP                                                NOT NULL,
     to_date          TIMESTAMP                                                NOT NULL,
     amount           BIGINT                                                   NOT NULL,
     sales_manager_id INTEGER REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
+    type_id INTEGER REFERENCES sale_types (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (from_date, to_date, sales_manager_id)
 );
 

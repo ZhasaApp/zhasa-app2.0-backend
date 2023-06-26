@@ -57,6 +57,7 @@ type SaleType struct {
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 	Color       string    `json:"color"`
+	Gravity     int32     `json:"gravity"`
 }
 
 type SalesManager struct {
@@ -66,12 +67,13 @@ type SalesManager struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-type SalesManagerGoal struct {
+type SalesManagerGoalsByType struct {
 	ID             int32     `json:"id"`
 	FromDate       time.Time `json:"from_date"`
 	ToDate         time.Time `json:"to_date"`
 	Amount         int64     `json:"amount"`
 	SalesManagerID int32     `json:"sales_manager_id"`
+	TypeID         int32     `json:"type_id"`
 }
 
 type SalesManagersView struct {

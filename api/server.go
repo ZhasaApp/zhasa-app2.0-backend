@@ -133,10 +133,11 @@ func initDependencies(server *Server, ctx context.Context) {
 	branchRepo := repository3.NewBranchRepository(ctx, store, customQuerier, saleTypeRepo)
 	directorRepo := repo.NewBranchDirectorRepository(ctx, store)
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
+	salesManagerStatisticRepo := repository2.NewSalesManagerStatisticRepository(saleTypeRepo, ctx, store)
 
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
-	salesManagerService := service2.NewSalesManagerService(saleManagerRepo, saleTypeRepo)
+	salesManagerService := service2.NewSalesManagerService(saleManagerRepo, salesManagerStatisticRepo, saleTypeRepo)
 	branchService := service3.NewBranchService(branchRepo)
 	saleTypeService := service4.NewSaleTypeService(saleTypeRepo)
 	directorService := service5.NewBranchDirectorService(directorRepo)

@@ -244,45 +244,29 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 	}
 	fromDate, toDate := period.ConvertToTime()
 
-	sums, err := server.salesManagerService.GetSalesManagerSums(fromDate, toDate, salesManager.Id)
+	log.Println(fromDate)
+	log.Println(toDate)
 
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	dailyPeriod := DayPeriod{
-		Day: time.Now(),
-	}
-	dayStart, dayEnd := dailyPeriod.ConvertToTime()
-
-	dailySums, err := server.salesManagerService.GetSalesManagerSums(dayStart, dayEnd, salesManager.Id)
-
-	totalDailySum := dailySums.TotalSum()
-	totalPeriodSum := sums.TotalSum()
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	goal, err := server.salesManagerService.GetSalesManagerGoal(fromDate, toDate, salesManager.Id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("no goal found")))
-		return
-	}
-	totalPercent := base.NewPercent(int64(totalPeriodSum), int64(goal))
-	dailyPercent := base.NewPercent(int64(totalDailySum), int64(goal))
-
+	types, err := server.saleTypeService.GetSaleTypes()
 	salesStatisticItemsByTypes := make([]SalesStatisticsByTypesItem, 0)
 
-	for key, amount := range *sums {
+	for _, row := range *types {
+		sumByType, _ := server.salesManagerService.GetSalesManagerSumsByType(fromDate, toDate, salesManager.Id, row.Id)
+
+		goal, _ := server.salesManagerService.GetSalesManagerGoalByType(fromDate, toDate, salesManager.Id, row.Id)
+
 		item := SalesStatisticsByTypesItem{
-			Color:  key.Color,
-			Title:  key.Title,
-			Amount: int64(amount),
+			Color:    row.Color,
+			Title:    row.Title,
+			Achieved: int64(sumByType),
+			Goal:     int64(goal),
 		}
 		salesStatisticItemsByTypes = append(salesStatisticItemsByTypes, item)
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	sales, err := server.salesManagerService.GetManagerSales(salesManager.Id, base.Pagination{
@@ -314,15 +298,6 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 			Avatar:   nil,
 			FullName: salesManager.FirstName + " " + salesManager.LastName,
 			Branch:   string(salesManager.Branch.Title),
-		},
-		OverallSalesStatistics: OverallSalesStatistic{
-			Goal:     int64(goal),
-			Achieved: int64(totalPeriodSum),
-			Percent:  float64(totalPercent),
-			GrowthPerDay: GrowthPerDay{
-				Amount:  int64(totalDailySum),
-				Percent: float64(dailyPercent),
-			},
 		},
 		SalesStatisticsByTypes: salesStatisticItemsByTypes,
 		LastSales:              salesResponse,

@@ -27,24 +27,26 @@ func (q *Queries) CreateBranchDirector(ctx context.Context, arg CreateBranchDire
 	return id, err
 }
 
-const createSalesManagerGoal = `-- name: CreateSalesManagerGoal :exec
-INSERT INTO sales_manager_goals (sales_manager_id, from_date, to_date, amount)
-VALUES ($1, $2, $3, $4)
+const createSalesManagerGoalByType = `-- name: CreateSalesManagerGoalByType :exec
+INSERT INTO sales_manager_goals_by_types (sales_manager_id, from_date, to_date, amount, type_id)
+VALUES ($1, $2, $3, $4, $5)
 `
 
-type CreateSalesManagerGoalParams struct {
+type CreateSalesManagerGoalByTypeParams struct {
 	SalesManagerID int32     `json:"sales_manager_id"`
 	FromDate       time.Time `json:"from_date"`
 	ToDate         time.Time `json:"to_date"`
 	Amount         int64     `json:"amount"`
+	TypeID         int32     `json:"type_id"`
 }
 
-func (q *Queries) CreateSalesManagerGoal(ctx context.Context, arg CreateSalesManagerGoalParams) error {
-	_, err := q.db.ExecContext(ctx, createSalesManagerGoal,
+func (q *Queries) CreateSalesManagerGoalByType(ctx context.Context, arg CreateSalesManagerGoalByTypeParams) error {
+	_, err := q.db.ExecContext(ctx, createSalesManagerGoalByType,
 		arg.SalesManagerID,
 		arg.FromDate,
 		arg.ToDate,
 		arg.Amount,
+		arg.TypeID,
 	)
 	return err
 }

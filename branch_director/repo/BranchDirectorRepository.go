@@ -39,13 +39,13 @@ func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId entities2.User
 }
 
 func (bdr DbBranchDirectorRepository) CreateSalesManagerGoal(goal entities.SalesManagerGoal) error {
-	params := generated.CreateSalesManagerGoalParams{
+	params := generated.CreateSalesManagerGoalByTypeParams{
 		FromDate:       goal.FromDate,
 		ToDate:         goal.ToDate,
 		Amount:         int64(goal.Amount),
 		SalesManagerID: int32(goal.SalesManagerId),
 	}
-	return bdr.querier.CreateSalesManagerGoal(bdr.ctx, params)
+	return bdr.querier.CreateSalesManagerGoalByType(bdr.ctx, params)
 }
 
 func (bdr DbBranchDirectorRepository) GetBranchDirectorByUserId(userId entities2.UserId) (*entities.BranchDirector, error) {

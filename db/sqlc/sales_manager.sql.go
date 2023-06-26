@@ -7,7 +7,6 @@ package generated
 
 import (
 	"context"
-	"database/sql"
 	"time"
 )
 
@@ -115,7 +114,8 @@ func (q *Queries) GetManagerSales(ctx context.Context, arg GetManagerSalesParams
 const getManagerSalesByPeriod = `-- name: GetManagerSalesByPeriod :many
 SELECT id, sale_type_id, description, sale_date, amount
 FROM sales s
-WHERE s.sales_manager_id = $1 AND s.sale_date BETWEEN $2 AND $3
+WHERE s.sales_manager_id = $1
+  AND s.sale_date BETWEEN $2 AND $3
 ORDER BY s.sale_date DESC LIMIT $4
 OFFSET $5
 `
@@ -157,97 +157,6 @@ func (q *Queries) GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSal
 			&i.Description,
 			&i.SaleDate,
 			&i.Amount,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getRankedSalesManagers = `-- name: GetRankedSalesManagers :many
-WITH goal_sales AS (SELECT sm.sales_manager_id        AS sales_manager_id,
-                           sm.first_name              AS first_name,
-                           sm.last_name               AS last_name,
-                           smg.amount                 AS sale_goal,
-                           COALESCE(SUM(s.amount), 0) AS total_sales_sum
-                    FROM sales_managers_view sm
-                             LEFT JOIN
-                         sales_manager_goals smg
-                         ON sm.sales_manager_id = smg.sales_manager_id
-                             AND smg.from_date = $1
-                             AND smg.to_date = $2
-                             LEFT JOIN
-                         sales s
-                         ON sm.sales_manager_id = s.sales_manager_id
-                             AND s.sale_date BETWEEN $1 AND $2
-                    GROUP BY sm.sales_manager_id,
-                             smg.amount),
-     rankings AS (SELECT sales_manager_id, first_name, last_name, sale_goal, total_sales_sum,
-                         CASE
-                             WHEN sale_goal = 0 THEN 0
-                             ELSE total_sales_sum::decimal / sale_goal:: decimal
-END
-AS ratio,
-        RANK() OVER (ORDER BY CASE
-                             WHEN sale_goal = 0 THEN 0
-                             ELSE total_sales_sum::decimal / sale_goal::decimal
-                         END DESC) AS rating_position
-    FROM
-        goal_sales
-)
-SELECT sales_manager_id,
-       sale_goal,
-       total_sales_sum,
-       ratio,
-       rating_position
-FROM rankings
-ORDER BY rating_position LIMIT $3
-OFFSET $4
-`
-
-type GetRankedSalesManagersParams struct {
-	FromDate time.Time `json:"from_date"`
-	ToDate   time.Time `json:"to_date"`
-	Limit    int32     `json:"limit"`
-	Offset   int32     `json:"offset"`
-}
-
-type GetRankedSalesManagersRow struct {
-	SalesManagerID int32         `json:"sales_manager_id"`
-	SaleGoal       sql.NullInt64 `json:"sale_goal"`
-	TotalSalesSum  interface{}   `json:"total_sales_sum"`
-	Ratio          interface{}   `json:"ratio"`
-	RatingPosition int64         `json:"rating_position"`
-}
-
-// get the ranked sales managers by their total sales divided by their sales goal amount for the given period.
-func (q *Queries) GetRankedSalesManagers(ctx context.Context, arg GetRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error) {
-	rows, err := q.db.QueryContext(ctx, getRankedSalesManagers,
-		arg.FromDate,
-		arg.ToDate,
-		arg.Limit,
-		arg.Offset,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetRankedSalesManagersRow
-	for rows.Next() {
-		var i GetRankedSalesManagersRow
-		if err := rows.Scan(
-			&i.SalesManagerID,
-			&i.SaleGoal,
-			&i.TotalSalesSum,
-			&i.Ratio,
-			&i.RatingPosition,
 		); err != nil {
 			return nil, err
 		}
@@ -334,33 +243,41 @@ func (q *Queries) GetSalesManagerByUserId(ctx context.Context, userID int32) (Sa
 	return i, err
 }
 
-const getSalesManagerGoalByGivenDateRange = `-- name: GetSalesManagerGoalByGivenDateRange :one
+const getSalesManagerGoalByGivenDateRangeAndSaleType = `-- name: GetSalesManagerGoalByGivenDateRangeAndSaleType :one
 SELECT COALESCE(sg.amount, 0) AS goal_amount
-FROM sales_manager_goals sg
+FROM sales_manager_goals_by_types sg
 WHERE sg.sales_manager_id = $1
   AND sg.from_date = $2
   AND sg.to_date = $3
+  AND sg.type_id = $4
 `
 
-type GetSalesManagerGoalByGivenDateRangeParams struct {
+type GetSalesManagerGoalByGivenDateRangeAndSaleTypeParams struct {
 	SalesManagerID int32     `json:"sales_manager_id"`
 	FromDate       time.Time `json:"from_date"`
 	ToDate         time.Time `json:"to_date"`
+	TypeID         int32     `json:"type_id"`
 }
 
-func (q *Queries) GetSalesManagerGoalByGivenDateRange(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getSalesManagerGoalByGivenDateRange, arg.SalesManagerID, arg.FromDate, arg.ToDate)
+func (q *Queries) GetSalesManagerGoalByGivenDateRangeAndSaleType(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeAndSaleTypeParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getSalesManagerGoalByGivenDateRangeAndSaleType,
+		arg.SalesManagerID,
+		arg.FromDate,
+		arg.ToDate,
+		arg.TypeID,
+	)
 	var goal_amount int64
 	err := row.Scan(&goal_amount)
 	return goal_amount, err
 }
 
-const getSalesManagerSumsByType = `-- name: GetSalesManagerSumsByType :many
+const getSalesManagerSumsByType = `-- name: GetSalesManagerSumsByType :one
 SELECT st.id         AS sale_type_id,
        st.title      AS sale_type_title,
        SUM(s.amount) AS total_sales
 FROM sale_types st
          JOIN sales s ON st.id = s.sale_type_id AND s.sales_manager_id = $1 AND s.sale_date BETWEEN $2 AND $3
+WHERE st.id = $4
 GROUP BY st.id
 ORDER BY st.id ASC
 `
@@ -369,6 +286,7 @@ type GetSalesManagerSumsByTypeParams struct {
 	SalesManagerID int32     `json:"sales_manager_id"`
 	SaleDate       time.Time `json:"sale_date"`
 	SaleDate_2     time.Time `json:"sale_date_2"`
+	ID             int32     `json:"id"`
 }
 
 type GetSalesManagerSumsByTypeRow struct {
@@ -378,25 +296,14 @@ type GetSalesManagerSumsByTypeRow struct {
 }
 
 // get the sales sums for a specific sales manager and each sale type within the given period.
-func (q *Queries) GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) ([]GetSalesManagerSumsByTypeRow, error) {
-	rows, err := q.db.QueryContext(ctx, getSalesManagerSumsByType, arg.SalesManagerID, arg.SaleDate, arg.SaleDate_2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetSalesManagerSumsByTypeRow
-	for rows.Next() {
-		var i GetSalesManagerSumsByTypeRow
-		if err := rows.Scan(&i.SaleTypeID, &i.SaleTypeTitle, &i.TotalSales); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) (GetSalesManagerSumsByTypeRow, error) {
+	row := q.db.QueryRowContext(ctx, getSalesManagerSumsByType,
+		arg.SalesManagerID,
+		arg.SaleDate,
+		arg.SaleDate_2,
+		arg.ID,
+	)
+	var i GetSalesManagerSumsByTypeRow
+	err := row.Scan(&i.SaleTypeID, &i.SaleTypeTitle, &i.TotalSales)
+	return i, err
 }
