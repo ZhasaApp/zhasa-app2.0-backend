@@ -1,9 +1,9 @@
 package entities
 
 type SalesManagerMonthStatisticRequestBody struct {
-	UserId int32 `json:"user_id"`
-	Month  int32 `json:"month"`
-	Year   int32 `json:"year"`
+	UserId int32 `form:"user_id" json:"user_id" binding:"required"`
+	Month  int32 `form:"month" json:"month" binding:"required"`
+	Year   int32 `form:"year" json:"year" binding:"required"`
 }
 
 type BranchMonthStatisticRequestBody struct {
