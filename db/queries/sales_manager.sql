@@ -29,6 +29,11 @@ SELECT *
 from sales_managers_view s
 WHERE s.user_id = $1;
 
+-- name: GetSalesManagerByUserId :one
+SELECT *
+from sales_managers_view s
+WHERE s.user_id = $1;
+
 -- name: GetSalesManagerGoalByGivenDateRangeAndSaleType :one
 SELECT COALESCE(sg.amount, 0) AS goal_amount
 FROM sales_manager_goals_by_types sg

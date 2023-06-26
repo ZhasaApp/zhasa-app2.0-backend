@@ -107,7 +107,7 @@ func (server *Server) createSalesManager(ctx *gin.Context) {
 
 func (server *Server) getSales(ctx *gin.Context) {
 	var monthPagination MonthPaginationRequest
-	if err := ctx.ShouldBindJSON(&monthPagination); err != nil {
+	if err := ctx.ShouldBindQuery(&monthPagination); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -227,7 +227,7 @@ func (server *Server) saveSale(ctx *gin.Context) {
 
 func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 	var requestBody SalesManagerMonthStatisticRequestBody
-	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+	if err := ctx.ShouldBindQuery(&requestBody); err != nil {
 		ctx.Status(http.StatusBadRequest)
 		return
 	}

@@ -6,7 +6,7 @@ type CreateSalesManagerBody struct {
 }
 
 type SaveSaleBody struct {
-	SaleAmount  int64  `json:"amount"`
+	SaleAmount  int64  `json:"value"`
 	SaleDate    string `json:"date"`
 	SaleTypeId  int32  `json:"type_id"`
 	Description string `json:"title"`
