@@ -24,7 +24,7 @@ func (dbs DBSalesManagerService) UpdateRatio(smId entities.SalesManagerId, perio
 	ratioRows := make([]RatioRow, 0)
 
 	for _, item := range *types {
-		sum, err := dbs.statisticRepo.GetSalesSumBySaleTypeAndManager(smId, item.Id, from, to)
+		sum, _ := dbs.statisticRepo.GetSalesSumBySaleTypeAndManager(smId, item.Id, from, to)
 		goal, err := dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(smId, item.Id, from, to)
 		if err != nil || goal != 0 {
 			return 0, errors.New("no goal found for given sale type: " + string(item.Id))

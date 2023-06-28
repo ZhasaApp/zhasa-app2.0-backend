@@ -56,7 +56,7 @@ CREATE TABLE sales_manager_goals_by_types
     amount           BIGINT                                                   NOT NULL,
     sales_manager_id INTEGER REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
     type_id          INTEGER REFERENCES sale_types (id) ON DELETE CASCADE     NOT NULL,
-    UNIQUE (from_date, to_date, sales_manager_id)
+    UNIQUE (from_date, to_date, sales_manager_id, type_id)
 );
 
 CREATE TABLE sales_manager_goals_ratio_by_period
