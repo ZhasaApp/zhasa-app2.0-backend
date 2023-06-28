@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
+	"math"
 	"net/http"
 	"time"
 	. "zhasa2.0/api/entities"
@@ -309,7 +310,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 			Branch:   string(salesManager.Branch.Title),
 		},
 		SalesStatisticsByTypes: salesStatisticItemsByTypes,
-		GoalAchievementPercent: float32(goalAchievement),
+		GoalAchievementPercent: float32(math.Round(float64(goalAchievement*100)) / 100),
 		LastSales:              salesResponse,
 		Rating:                 int32(1),
 	}

@@ -8,17 +8,17 @@ import (
 func TestCalculateRatio(t *testing.T) {
 	goals := []RatioRow{
 		{
-			amount:  80.0,
+			amount:  98.0,
 			goal:    100.0,
 			gravity: 5,
 		},
 		{
-			amount:  70.0,
+			amount:  29.0,
 			goal:    100.0,
 			gravity: 3,
 		},
 		{
-			amount:  40,
+			amount:  10,
 			goal:    100,
 			gravity: 2,
 		},
