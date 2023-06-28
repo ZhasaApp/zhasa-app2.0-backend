@@ -32,12 +32,23 @@ type SalesManagerStatisticRepository interface {
 	GetSalesSumBySaleTypeAndManager(smId SalesManagerId, typeId SaleTypeId, from, to time.Time) (SaleAmount, error)
 	GetSalesGoalBySaleTypeAndManager(smId SalesManagerId, typeId SaleTypeId, from, to time.Time) (SaleAmount, error)
 	GetSalesManagerRatioByPeriod(smId SalesManagerId, from, to time.Time) (Percent, error)
+	SetRatioByPeriod(smId SalesManagerId, ratio Percent, from, to time.Time) error
 }
 
 type PostgresSalesManagerStatisticRepository struct {
 	repository2.SaleTypeRepository
 	ctx     context.Context
 	querier generated.Querier
+}
+
+func (p PostgresSalesManagerStatisticRepository) SetRatioByPeriod(smId SalesManagerId, ratio Percent, from, to time.Time) error {
+	err := p.querier.SetSMRatio(p.ctx, generated.SetSMRatioParams{
+		FromDate:       from,
+		ToDate:         to,
+		Ratio:          float64(ratio),
+		SalesManagerID: int32(smId),
+	})
+	return err
 }
 
 func (p PostgresSalesManagerStatisticRepository) GetSalesManagerRatioByPeriod(smId SalesManagerId, from, to time.Time) (Percent, error) {

@@ -37,7 +37,11 @@ func (dbs DBSalesManagerService) UpdateRatio(smId entities.SalesManagerId, perio
 		})
 	}
 
-	return Percent(CalculateRatio(ratioRows)), nil
+	ratio := Percent(CalculateRatio(ratioRows))
+
+	err = dbs.statisticRepo.SetRatioByPeriod(smId, ratio, from, to)
+
+	return Percent(CalculateRatio(ratioRows)), err
 }
 
 func CalculateRatio(rows []RatioRow) float32 {
