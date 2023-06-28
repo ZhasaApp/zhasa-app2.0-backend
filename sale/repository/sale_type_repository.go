@@ -37,6 +37,7 @@ func (str DBSaleTypeRepository) GetSaleTypes() (*[]SaleType, error) {
 			Title:       row.Title,
 			Description: row.Description,
 			Color:       row.Color,
+			Gravity:     row.Gravity,
 		})
 	}
 
