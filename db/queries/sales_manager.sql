@@ -29,11 +29,6 @@ SELECT *
 from sales_managers_view s
 WHERE s.user_id = $1;
 
--- name: GetSalesManagerByUserId :one
-SELECT *
-from sales_managers_view s
-WHERE s.user_id = $1;
-
 -- name: GetSalesManagerGoalByGivenDateRangeAndSaleType :one
 SELECT COALESCE(sg.amount, 0) AS goal_amount
 FROM sales_manager_goals_by_types sg
@@ -63,3 +58,17 @@ SELECT COUNT(*)
 FROM sales
 WHERE sales_manager_id = $1;
 
+-- name: SetSMRatio :exec
+INSERT INTO sales_manager_goals_ratio_by_period
+    (from_date, to_date, ratio, sales_manager_id)
+VALUES ($1, $2, $3, $4) ON CONFLICT (from_date, to_date, sales_manager_id)
+DO
+UPDATE SET ratio = EXCLUDED.ratio;
+
+
+-- name: GetSMRatio :one
+SELECT ratio
+FROM sales_manager_goals_ratio_by_period smgr
+WHERE smgr.from_date = $1
+  AND smgr.to_date = $2
+  AND smgr.sales_manager_id = $3;

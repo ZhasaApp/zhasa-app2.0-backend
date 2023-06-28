@@ -212,6 +212,13 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		return
 	}
 
+	percent, err := server.salesManagerService.UpdateRatio(sale.SaleManagerId, MonthPeriod{
+		MonthNumber: int32(sale.SaleDate.Month()),
+		Year:        int32(sale.SaleDate.Year()),
+	})
+
+	log.Println(percent)
+
 	ctx.JSON(http.StatusOK, SaleItemResponse{
 		Id:     int32(saleRes.Id),
 		Title:  string(saleRes.SaleDescription),
@@ -293,6 +300,8 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 		}
 	}
 
+	goalAchievement, err := server.salesManagerService.GetRatio(salesManager.Id, period)
+
 	dr := SalesManagerDashboardResponse{
 		Profile: SalesManagerDashboardProfile{
 			Avatar:   nil,
@@ -300,6 +309,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 			Branch:   string(salesManager.Branch.Title),
 		},
 		SalesStatisticsByTypes: salesStatisticItemsByTypes,
+		GoalAchievementPercent: float32(goalAchievement),
 		LastSales:              salesResponse,
 		Rating:                 int32(1),
 	}

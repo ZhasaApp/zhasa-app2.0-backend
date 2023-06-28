@@ -44,8 +44,8 @@ CREATE TABLE sale_types
     title       VARCHAR(255) NOT NULL,
     description TEXT         NOT NULL,
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    color VARCHAR(255) NOT NULL,
-    gravity INTEGER NOT NULL
+    color       VARCHAR(255) NOT NULL,
+    gravity     INTEGER      NOT NULL
 );
 
 CREATE TABLE sales_manager_goals_by_types
@@ -55,7 +55,16 @@ CREATE TABLE sales_manager_goals_by_types
     to_date          TIMESTAMP                                                NOT NULL,
     amount           BIGINT                                                   NOT NULL,
     sales_manager_id INTEGER REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
-    type_id INTEGER REFERENCES sale_types (id) ON DELETE CASCADE NOT NULL,
+    type_id          INTEGER REFERENCES sale_types (id) ON DELETE CASCADE     NOT NULL,
+    UNIQUE (from_date, to_date, sales_manager_id)
+);
+
+CREATE TABLE sales_manager_goals_ratio_by_period
+(
+    from_date TIMESTAMP NOT NULL,
+    to_date   TIMESTAMP NOT NULL,
+    ratio FLOAT NOT NULL,
+    sales_manager_id INTEGER REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (from_date, to_date, sales_manager_id)
 );
 

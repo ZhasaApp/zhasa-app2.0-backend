@@ -27,6 +27,7 @@ type Querier interface {
 	GetBranchSumsByType(ctx context.Context, arg GetBranchSumsByTypeParams) ([]GetBranchSumsByTypeRow, error)
 	GetManagerSales(ctx context.Context, arg GetManagerSalesParams) ([]GetManagerSalesRow, error)
 	GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSalesByPeriodParams) ([]GetManagerSalesByPeriodRow, error)
+	GetSMRatio(ctx context.Context, arg GetSMRatioParams) (float64, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
 	GetSalesByDate(ctx context.Context, saleDate time.Time) ([]Sale, error)
 	GetSalesCount(ctx context.Context, salesManagerID int32) (int64, error)
@@ -37,6 +38,7 @@ type Querier interface {
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
 	GetUserById(ctx context.Context, id int32) (User, error)
 	GetUserByPhone(ctx context.Context, phone string) (User, error)
+	SetSMRatio(ctx context.Context, arg SetSMRatioParams) error
 }
 
 var _ Querier = (*Queries)(nil)

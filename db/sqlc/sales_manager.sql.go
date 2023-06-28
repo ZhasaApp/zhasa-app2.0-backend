@@ -171,6 +171,27 @@ func (q *Queries) GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSal
 	return items, nil
 }
 
+const getSMRatio = `-- name: GetSMRatio :one
+SELECT ratio
+FROM sales_manager_goals_ratio_by_period smgr
+WHERE smgr.from_date = $1
+  AND smgr.to_date = $2
+  AND smgr.sales_manager_id = $3
+`
+
+type GetSMRatioParams struct {
+	FromDate       time.Time `json:"from_date"`
+	ToDate         time.Time `json:"to_date"`
+	SalesManagerID int32     `json:"sales_manager_id"`
+}
+
+func (q *Queries) GetSMRatio(ctx context.Context, arg GetSMRatioParams) (float64, error) {
+	row := q.db.QueryRowContext(ctx, getSMRatio, arg.FromDate, arg.ToDate, arg.SalesManagerID)
+	var ratio float64
+	err := row.Scan(&ratio)
+	return ratio, err
+}
+
 const getSalesByDate = `-- name: GetSalesByDate :many
 SELECT id, sales_manager_id, sale_date, amount, sale_type_id, description, created_at
 from sales s
@@ -306,4 +327,29 @@ func (q *Queries) GetSalesManagerSumsByType(ctx context.Context, arg GetSalesMan
 	var i GetSalesManagerSumsByTypeRow
 	err := row.Scan(&i.SaleTypeID, &i.SaleTypeTitle, &i.TotalSales)
 	return i, err
+}
+
+const setSMRatio = `-- name: SetSMRatio :exec
+INSERT INTO sales_manager_goals_ratio_by_period
+    (from_date, to_date, ratio, sales_manager_id)
+VALUES ($1, $2, $3, $4) ON CONFLICT (from_date, to_date, sales_manager_id)
+DO
+UPDATE SET ratio = EXCLUDED.ratio
+`
+
+type SetSMRatioParams struct {
+	FromDate       time.Time `json:"from_date"`
+	ToDate         time.Time `json:"to_date"`
+	Ratio          float64   `json:"ratio"`
+	SalesManagerID int32     `json:"sales_manager_id"`
+}
+
+func (q *Queries) SetSMRatio(ctx context.Context, arg SetSMRatioParams) error {
+	_, err := q.db.ExecContext(ctx, setSMRatio,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Ratio,
+		arg.SalesManagerID,
+	)
+	return err
 }

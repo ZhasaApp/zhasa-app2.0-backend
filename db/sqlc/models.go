@@ -76,6 +76,13 @@ type SalesManagerGoalsByType struct {
 	TypeID         int32     `json:"type_id"`
 }
 
+type SalesManagerGoalsRatioByPeriod struct {
+	FromDate       time.Time `json:"from_date"`
+	ToDate         time.Time `json:"to_date"`
+	Ratio          float64   `json:"ratio"`
+	SalesManagerID int32     `json:"sales_manager_id"`
+}
+
 type SalesManagersView struct {
 	UserID         int32  `json:"user_id"`
 	Phone          string `json:"phone"`
