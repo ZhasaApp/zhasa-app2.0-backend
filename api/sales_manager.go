@@ -348,6 +348,8 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 		})
 	}
 
-	ctx.JSON(http.StatusOK, response)
+	ctx.JSON(http.StatusOK, YearStatisticResultResponse{
+		Result: response,
+	})
 	return
 }
