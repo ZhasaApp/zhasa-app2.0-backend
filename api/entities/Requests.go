@@ -13,8 +13,8 @@ type BranchMonthStatisticRequestBody struct {
 }
 
 type SalesManagerYearStatisticRequestBody struct {
-	UserId int32 `json:"user_id"`
-	Year   int32 `json:"year"`
+	UserId int32 `form:"user_id" json:"user_id"`
+	Year   int32 `form:"year" json:"year"`
 }
 
 type BranchYearStatisticRequestBody struct {
@@ -35,7 +35,8 @@ type SaleTypesResponse struct {
 type YearStatisticResponse struct {
 	SaleType SaleTypeResponse `json:"sale_type"`
 	Month    int32            `json:"month"`
-	Amount   int64            `json:"amount"`
+	Amount   int64            `json:"value"`
+	Goal     int64            `json:"goal"`
 }
 
 type MonthPaginationRequest struct {

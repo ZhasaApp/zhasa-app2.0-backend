@@ -318,7 +318,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 
 func (server *Server) getYearStatistic(ctx *gin.Context) {
 	var requestBody SalesManagerYearStatisticRequestBody
-	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+	if err := ctx.ShouldBindQuery(&requestBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -340,10 +340,11 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 		response = append(response, YearStatisticResponse{
 			SaleType: SaleTypeResponse{
 				Title: item.SaleType.Title,
-				Color: "",
+				Color: item.SaleType.Color,
 			},
 			Month:  int32(item.Month),
 			Amount: int64(item.Amount),
+			Goal:   100,
 		})
 	}
 
