@@ -197,6 +197,19 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("sale type not found")))
 		return
 	}
+	period := MonthPeriod{
+		int32(parsedTime.Month()),
+		int32(parsedTime.Year()),
+	}
+
+	from, to := period.ConvertToTime()
+
+	goal, err := server.salesManagerService.GetSalesManagerGoalByType(from, to, SalesManagerId(salesManagerId), saleType.Id)
+
+	if err == nil || goal == 0 {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("Не создана цель по типу продажи на данный месяц")))
+		return
+	}
 
 	sale := Sale{
 		SaleManagerId:   SalesManagerId(salesManagerId),
@@ -351,5 +364,4 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, YearStatisticResultResponse{
 		Result: response,
 	})
-	return
 }
