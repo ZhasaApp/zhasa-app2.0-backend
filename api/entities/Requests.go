@@ -44,9 +44,10 @@ type YearStatisticResponse struct {
 }
 
 type MonthPaginationRequest struct {
-	Month    int32 `json:"month"`
-	Year     int32 `json:"year"`
-	Page     int32 `json:"page"`
-	PageSize int32 `json:"limit"`
-	UserId   int32 `json:"user_id"`
+	Month    int32 `json:"month" form:"month"`
+	Year     int32 `json:"year" form:"month"`
+	Page     int32 `json:"page" form:"month"`
+	PageSize int32 `json:"limit" form:"month"`
+	UserId   int32 `json:"user_id" form:"month"`
+	BranchId int32 `json:"branchId" form:"branch_id"`
 }
