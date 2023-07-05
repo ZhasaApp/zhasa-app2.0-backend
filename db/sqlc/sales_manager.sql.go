@@ -171,6 +171,151 @@ func (q *Queries) GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSal
 	return items, nil
 }
 
+const getOrderedSalesManagers = `-- name: GetOrderedSalesManagers :many
+SELECT
+    v.sales_manager_id,
+    v.first_name,
+    v.last_name,
+    v.avatar_url,
+    v.branch_title,
+    v.branch_id,
+    v.user_id,
+    COALESCE(r.ratio, 0.0) AS ratio
+FROM
+    sales_managers_view v
+        LEFT JOIN
+    sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
+        AND r.from_date >= $1 AND r.to_date <= $2
+ORDER BY
+    ratio DESC
+    LIMIT $3 OFFSET $4
+`
+
+type GetOrderedSalesManagersParams struct {
+	FromDate time.Time `json:"from_date"`
+	ToDate   time.Time `json:"to_date"`
+	Limit    int32     `json:"limit"`
+	Offset   int32     `json:"offset"`
+}
+
+type GetOrderedSalesManagersRow struct {
+	SalesManagerID int32   `json:"sales_manager_id"`
+	FirstName      string  `json:"first_name"`
+	LastName       string  `json:"last_name"`
+	AvatarUrl      string  `json:"avatar_url"`
+	BranchTitle    string  `json:"branch_title"`
+	BranchID       int32   `json:"branch_id"`
+	UserID         int32   `json:"user_id"`
+	Ratio          float64 `json:"ratio"`
+}
+
+func (q *Queries) GetOrderedSalesManagers(ctx context.Context, arg GetOrderedSalesManagersParams) ([]GetOrderedSalesManagersRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrderedSalesManagers,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrderedSalesManagersRow
+	for rows.Next() {
+		var i GetOrderedSalesManagersRow
+		if err := rows.Scan(
+			&i.SalesManagerID,
+			&i.FirstName,
+			&i.LastName,
+			&i.AvatarUrl,
+			&i.BranchTitle,
+			&i.BranchID,
+			&i.UserID,
+			&i.Ratio,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOrderedSalesManagersOfBranch = `-- name: GetOrderedSalesManagersOfBranch :many
+SELECT
+    v.sales_manager_id,
+    v.first_name,
+    v.last_name,
+    v.avatar_url,
+    v.branch_title,
+    COALESCE(r.ratio, 0.0) AS ratio
+FROM
+    sales_managers_view v
+        LEFT JOIN
+    sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
+        AND r.from_date >= $1 AND r.to_date <= $2
+    AND v.branch_id = $3
+ORDER BY
+    ratio DESC
+    LIMIT $3 OFFSET $4
+`
+
+type GetOrderedSalesManagersOfBranchParams struct {
+	FromDate time.Time `json:"from_date"`
+	ToDate   time.Time `json:"to_date"`
+	Limit    int32     `json:"limit"`
+	Offset   int32     `json:"offset"`
+}
+
+type GetOrderedSalesManagersOfBranchRow struct {
+	SalesManagerID int32   `json:"sales_manager_id"`
+	FirstName      string  `json:"first_name"`
+	LastName       string  `json:"last_name"`
+	AvatarUrl      string  `json:"avatar_url"`
+	BranchTitle    string  `json:"branch_title"`
+	Ratio          float64 `json:"ratio"`
+}
+
+func (q *Queries) GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOrderedSalesManagersOfBranchParams) ([]GetOrderedSalesManagersOfBranchRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrderedSalesManagersOfBranch,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrderedSalesManagersOfBranchRow
+	for rows.Next() {
+		var i GetOrderedSalesManagersOfBranchRow
+		if err := rows.Scan(
+			&i.SalesManagerID,
+			&i.FirstName,
+			&i.LastName,
+			&i.AvatarUrl,
+			&i.BranchTitle,
+			&i.Ratio,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSMRatio = `-- name: GetSMRatio :one
 SELECT ratio
 FROM sales_manager_goals_ratio_by_period smgr

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"time"
 	. "zhasa2.0/api/entities"
+	. "zhasa2.0/api/entities/sm"
 	"zhasa2.0/base"
 	. "zhasa2.0/manager/entities"
 	"zhasa2.0/manager/service"
@@ -357,11 +358,55 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 			},
 			Month:  int32(item.Month),
 			Amount: int64(item.Amount),
-			Goal:   100,
+			Goal:   int64(item.Goal),
 		})
 	}
 
 	ctx.JSON(http.StatusOK, YearStatisticResultResponse{
 		Result: response,
 	})
+}
+
+func (server Server) GetSalesManagers(ctx *gin.Context) {
+	var monthPagination MonthPaginationRequest
+	if err := ctx.ShouldBindQuery(&monthPagination); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	period := MonthPeriod{
+		MonthNumber: monthPagination.Month,
+		Year:        monthPagination.Year,
+	}
+	salesManagers, err := server.salesManagerService.GetSalesManagersOrderedByRatio(base.Pagination{
+		PageSize: 0,
+		Page:     0,
+	}, period)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	itemsResponse := make([]SalesManagerRatingItem, 0)
+	for _, item := range *salesManagers {
+		var avatar *string
+		if len(item.AvatarUrl) != 0 {
+			avatar = &item.AvatarUrl
+		}
+		itemsResponse = append(itemsResponse, SalesManagerRatingItem{
+			ID:                     int32(item.Id),
+			Avatar:                 avatar,
+			FullName:               item.FirstName + " " + item.LastName,
+			Branch:                 string(item.Branch.Title),
+			GoalAchievementPercent: float64(item.Ratio),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, SalesManagersResponse{
+		Result:  itemsResponse,
+		Count:   int32(len(itemsResponse)),
+		HasNext: len(itemsResponse) >= int(monthPagination.PageSize),
+	})
+
 }

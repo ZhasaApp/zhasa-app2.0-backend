@@ -12,6 +12,7 @@ import (
 	. "zhasa2.0/sale/entities"
 	repository2 "zhasa2.0/sale/repository"
 	. "zhasa2.0/statistic/entities"
+	. "zhasa2.0/user/entities"
 )
 
 /*
@@ -22,10 +23,11 @@ type SalesManagerRepository interface {
 	CreateSalesManager(userId int32, branchId int32) error
 	SaveSale(salesManagerId SalesManagerId, salesDate time.Time, amount SaleAmount, saleTypeId SaleTypeId, description SaleDescription) (*Sale, error)
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
-	GetMonthlyYearSaleStatistic(salesManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
+	GetMonthlyYearSaleStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error)
 	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, from time.Time, to time.Time) (*[]Sale, error)
 	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
+	GetSalesManagersListOrderedByRatio(pagination Pagination, from time.Time, to time.Time) (*[]SalesManager, error)
 }
 
 type SalesManagerStatisticRepository interface {
@@ -76,6 +78,43 @@ type PostgresSalesManagerRepository struct {
 	ctx           context.Context
 	querier       generated.Querier
 	customQuerier CustomQuerier
+}
+
+func (p PostgresSalesManagerRepository) GetSalesManagersListOrderedByRatio(pagination Pagination, from time.Time, to time.Time) (*[]SalesManager, error) {
+	data, err := p.querier.GetOrderedSalesManagers(p.ctx, generated.GetOrderedSalesManagersParams{
+		FromDate: from,
+		ToDate:   to,
+		Limit:    pagination.PageSize,
+		Offset:   pagination.Page,
+	})
+
+	result := make([]SalesManager, 0)
+
+	if err == sql.ErrNoRows {
+		return &result, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	for index, item := range data {
+		result = append(result, SalesManager{
+			Id:        SalesManagerId(item.SalesManagerID),
+			FirstName: item.FirstName,
+			LastName:  item.LastName,
+			AvatarUrl: item.AvatarUrl,
+			Branch: Branch{
+				BranchId:    BranchId(item.BranchID),
+				Title:       BranchTitle(item.BranchTitle),
+				Description: "",
+				Key:         "",
+			},
+			Ratio:       Percent(item.Ratio),
+			RatingPlace: RatingPlace((pagination.Page)*pagination.PageSize + int32(index) + int32(1)),
+			UserId:      UserId(item.UserID),
+		})
+	}
+	return &result, err
 }
 
 func (p PostgresSalesManagerRepository) GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, from time.Time, to time.Time) (*[]Sale, error) {
@@ -257,9 +296,9 @@ func (p PostgresSalesManagerStatisticRepository) GetSalesGoalBySaleTypeAndManage
 	return SaleAmount(data), nil
 }
 
-func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(saleManagerId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error) {
+func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error) {
 	params := GetSalesManagerYearStatisticParams{
-		SalesManagerID: int32(saleManagerId),
+		SalesManagerID: int32(smId),
 		Year:           year,
 	}
 	data, err := p.customQuerier.GetSalesManagerYearStatistic(p.ctx, params)
@@ -275,10 +314,12 @@ func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(saleManagerI
 		if err != nil {
 			return nil, err
 		}
+
 		stat := MonthlyYearStatistic{
 			SaleType: *saleType,
 			Month:    MonthNumber(row.MonthNumber),
 			Amount:   SaleAmount(row.TotalAmount),
+			Goal:     SaleAmount(row.Goal),
 		}
 		result = append(result, stat)
 	}

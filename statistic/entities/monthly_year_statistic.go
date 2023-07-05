@@ -8,4 +8,5 @@ type MonthlyYearStatistic struct {
 	SaleType SaleType
 	Month    MonthNumber
 	Amount   SaleAmount
+	Goal     SaleAmount
 }

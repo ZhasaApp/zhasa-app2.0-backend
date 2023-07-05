@@ -9,7 +9,6 @@ type CustomQuerier interface {
 	GetSalesManagerYearStatistic(ctx context.Context, arg GetSalesManagerYearStatisticParams) ([]GetSalesManagerYearStatisticRow, error)
 	GetBranchYearStatistic(ctx context.Context, arg GetBranchYearStatisticParams) ([]GetBranchYearStatisticRow, error)
 	GetBranchRankedSalesManagers(ctx context.Context, arg GetBranchRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error)
-	GetRankedSalesManagers(ctx context.Context, arg GetRankedSalesManagersParams) ([]GetRankedSalesManagersRow, error)
 }
 
 func NewCustomQuerier(db *sql.DB) CustomQuerier {
@@ -23,15 +22,22 @@ type DBCustomQuerier struct {
 }
 
 const getSalesManagerYearStatistic = `-- name: GetSalesManagerYearStatistic :many
-SELECT st.id AS sale_type,
-       CAST(EXTRACT(MONTH FROM s.sale_date) AS INTEGER) AS month_number,
-       SUM(s.amount) AS total_amount
-FROM sales AS s
-         JOIN sale_types AS st ON s.sale_type_id = st.id
-WHERE s.sales_manager_id = $1
-  AND DATE_PART('year', s.sale_date)::integer = $2
-GROUP BY st.id, EXTRACT (MONTH FROM s.sale_date)
-ORDER BY month_number, st.id
+SELECT 
+    EXTRACT(MONTH FROM s.sale_date) AS month_number,
+    s.sale_type_id as sale_type,
+    COALESCE(g.amount, 0) AS goal,
+    SUM(s.amount) AS total_amount
+FROM 
+    sales s
+LEFT JOIN 
+    sales_manager_goals_by_types g ON g.sales_manager_id = s.sales_manager_id AND g.type_id = s.sale_type_id
+WHERE 
+    s.sales_manager_id = $1 
+    AND EXTRACT(YEAR FROM s.sale_date) = $2
+GROUP BY 
+    month_number,
+    s.sale_type_id,
+    goal;
 `
 
 type GetSalesManagerYearStatisticParams struct {
@@ -43,6 +49,7 @@ type GetSalesManagerYearStatisticRow struct {
 	SaleType    int32 `json:"sale_type"`
 	MonthNumber int32 `json:"month_number"`
 	TotalAmount int64 `json:"total_amount"`
+	Goal        int64 `json:"goal"`
 }
 
 func (d DBCustomQuerier) GetSalesManagerYearStatistic(ctx context.Context, arg GetSalesManagerYearStatisticParams) ([]GetSalesManagerYearStatisticRow, error) {
@@ -54,7 +61,7 @@ func (d DBCustomQuerier) GetSalesManagerYearStatistic(ctx context.Context, arg G
 	var items []GetSalesManagerYearStatisticRow
 	for rows.Next() {
 		var i GetSalesManagerYearStatisticRow
-		if err := rows.Scan(&i.SaleType, &i.MonthNumber, &i.TotalAmount); err != nil {
+		if err := rows.Scan(&i.SaleType, &i.MonthNumber, &i.TotalAmount, &i.Goal); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

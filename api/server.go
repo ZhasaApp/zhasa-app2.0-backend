@@ -110,7 +110,7 @@ func NewServer(ctx context.Context) *Server {
 
 	router.GET("branch/dashboard", server.getBranchDashboardStatistic).Use(verifyToken(server.tokenService))
 
-	router.GET("rating/managers", server.getRankedSalesManager).Use(verifyToken(server.tokenService))
+	router.GET("rating/managers", server.GetSalesManagers).Use(verifyToken(server.tokenService))
 
 	server.router = router
 	return server

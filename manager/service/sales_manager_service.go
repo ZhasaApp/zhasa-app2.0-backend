@@ -22,12 +22,18 @@ type SalesManagerService interface {
 	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
 	UpdateRatio(smId SalesManagerId, period Period) (Percent, error)
 	GetRatio(smId SalesManagerId, period Period) (Percent, error)
+	GetSalesManagersOrderedByRatio(pagination Pagination, period Period) (*[]SalesManager, error)
 }
 
 type DBSalesManagerService struct {
 	repo          repository.SalesManagerRepository
 	statisticRepo repository.SalesManagerStatisticRepository
 	repository2.SaleTypeRepository
+}
+
+func (dbs DBSalesManagerService) GetSalesManagersOrderedByRatio(pagination Pagination, period Period) (*[]SalesManager, error) {
+	from, to := period.ConvertToTime()
+	return dbs.repo.GetSalesManagersListOrderedByRatio(pagination, from, to)
 }
 
 func (dbs DBSalesManagerService) GetRatio(smId SalesManagerId, period Period) (Percent, error) {
