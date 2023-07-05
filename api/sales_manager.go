@@ -379,8 +379,8 @@ func (server Server) GetSalesManagers(ctx *gin.Context) {
 		Year:        monthPagination.Year,
 	}
 	salesManagers, err := server.salesManagerService.GetSalesManagersOrderedByRatio(base.Pagination{
-		PageSize: 0,
-		Page:     0,
+		PageSize: monthPagination.PageSize,
+		Page:     monthPagination.Page,
 	}, period)
 
 	if err != nil {
