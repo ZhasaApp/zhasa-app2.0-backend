@@ -109,7 +109,7 @@ func (p PostgresSalesManagerRepository) GetSalesManagersListOrderedByRatio(pagin
 				Description: "",
 				Key:         "",
 			},
-			Ratio:       Percent(item.Ratio),
+			Ratio:       Percent(item.Ratio).GetRounded(),
 			RatingPlace: RatingPlace((pagination.Page)*pagination.PageSize + int32(index) + int32(1)),
 			UserId:      UserId(item.UserID),
 		})

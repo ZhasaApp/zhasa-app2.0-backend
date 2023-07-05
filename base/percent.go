@@ -17,6 +17,11 @@ func NewPercent(achieved int64, goal int64) Percent {
 	return Percent(roundedPercent * 100)
 }
 
+func (p Percent) GetRounded() Percent {
+	roundedPercent := math.Round(float64(p)*100) / 100
+	return Percent(roundedPercent * 100)
+}
+
 func (p Percent) Print() string {
 	return fmt.Sprintf("%.2f", p)
 }
