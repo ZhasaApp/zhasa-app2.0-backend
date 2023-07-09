@@ -103,6 +103,11 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 
 	data, err := server.branchService.GetBranchSalesSums(fromDate, toDate, branch.BranchId)
 
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
 	for st, sum := range *data {
 		salesStatisticItemsByTypes = append(salesStatisticItemsByTypes, SalesStatisticsByTypesItem{
 			Color:    st.Color,
