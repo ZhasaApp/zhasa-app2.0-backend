@@ -175,12 +175,12 @@ func (d DBCustomQuerier) GetBranchRankedSalesManagers(ctx context.Context, arg G
 }
 
 const getBranchSumByType = `-- name: GetBranchSumByType :one
-SELECT COALESCE(SUM(s.amount), 0) AS total_sales, b.id AS branch_id, st.id AS type_id, st.title
+SELECT COALESCE(SUM(s.amount), 0) AS total_sales
 FROM sales AS s
          JOIN sales_managers AS sm ON s.sales_manager_id = sm.id
          JOIN branches AS b ON sm.branch_id = b.id
          JOIN sale_types AS st ON s.sale_type_id = st.id
-WHERE branch_id = $1
+WHERE b.id = $1
   AND st.id = $4
   AND s.sale_date BETWEEN $2 AND $3
 `
@@ -193,10 +193,7 @@ type GetBranchSumByTypeParams struct {
 }
 
 type GetBranchSumByTypeRow struct {
-	TotalSales int64  `json:"total_sales"`
-	BranchID   int32  `json:"branch_id"`
-	TypeID     int32  `json:"type_id"`
-	Title      string `json:"title"`
+	TotalSales int64 `json:"total_sales"`
 }
 
 func (d DBCustomQuerier) GetBranchSumByType(ctx context.Context, arg GetBranchSumByTypeParams) (GetBranchSumByTypeRow, error) {
@@ -209,9 +206,6 @@ func (d DBCustomQuerier) GetBranchSumByType(ctx context.Context, arg GetBranchSu
 	var i GetBranchSumByTypeRow
 	err := row.Scan(
 		&i.TotalSales,
-		&i.BranchID,
-		&i.TypeID,
-		&i.Title,
 	)
 	return i, err
 }

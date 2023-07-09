@@ -99,8 +99,8 @@ func (br DBBranchRepository) GetBranchSalesSums(from, to time.Time, branchId Bra
 		}
 
 		sums = append(sums, SumsByTypeRow{
-			SaleTypeID:    res.TypeID,
-			SaleTypeTitle: res.Title,
+			SaleTypeID:    int32(t.Id),
+			SaleTypeTitle: t.Title,
 			TotalSales:    res.TotalSales,
 		})
 	}
