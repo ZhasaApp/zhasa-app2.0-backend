@@ -52,7 +52,7 @@ func (server *Server) getBranches(ctx *gin.Context) {
 
 func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	var requestBody BranchMonthStatisticRequestBody
-	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+	if err := ctx.ShouldBindQuery(&requestBody); err != nil {
 		ctx.Status(http.StatusBadRequest)
 		return
 	}
