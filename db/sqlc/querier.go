@@ -23,8 +23,6 @@ type Querier interface {
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
 	GetBranchDirectorByUserId(ctx context.Context, userID int32) (BranchDirectorsView, error)
 	GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error)
-	// get the sales sums for a specific branch and each sale type within the given period.
-	GetBranchSumsByType(ctx context.Context, arg GetBranchSumsByTypeParams) ([]GetBranchSumsByTypeRow, error)
 	GetManagerSales(ctx context.Context, arg GetManagerSalesParams) ([]GetManagerSalesRow, error)
 	GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSalesByPeriodParams) ([]GetManagerSalesByPeriodRow, error)
 	GetOrderedSalesManagers(ctx context.Context, arg GetOrderedSalesManagersParams) ([]GetOrderedSalesManagersRow, error)

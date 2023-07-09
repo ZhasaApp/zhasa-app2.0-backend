@@ -33,12 +33,13 @@ type BranchDirectorsView struct {
 	BranchTitle      string `json:"branch_title"`
 }
 
-type BranchGoal struct {
+type BranchGoalsByType struct {
 	ID       int32     `json:"id"`
 	FromDate time.Time `json:"from_date"`
 	ToDate   time.Time `json:"to_date"`
 	Amount   int64     `json:"amount"`
 	BranchID int32     `json:"branch_id"`
+	TypeID   int32     `json:"type_id"`
 }
 
 type Sale struct {

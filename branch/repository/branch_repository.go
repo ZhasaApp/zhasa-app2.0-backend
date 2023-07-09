@@ -36,10 +36,10 @@ type DBBranchRepository struct {
 }
 
 func (br DBBranchRepository) GetBranchRankedSalesManagers(from, to time.Time, branchId BranchId, pagination Pagination) (*[]SalesManager, error) {
-	params := handmade.GetBranchRankedSalesManagersParams{
-		BranchID: int32(branchId),
+	params := generated.GetOrderedSalesManagersOfBranchParams{
 		FromDate: from,
 		ToDate:   to,
+		BranchID: int32(branchId),
 		Limit:    pagination.PageSize,
 		Offset:   pagination.Page,
 	}
@@ -50,9 +50,7 @@ func (br DBBranchRepository) GetBranchRankedSalesManagers(from, to time.Time, br
 		return nil, err
 	}
 
-	data, err := br.customQuerier.GetBranchRankedSalesManagers(br.ctx, params)
-
-	log.Println(params)
+	data, err := br.querier.GetOrderedSalesManagersOfBranch(br.ctx, params)
 
 	result := make([]SalesManager, 0)
 	if err == sql.ErrNoRows {
@@ -63,40 +61,47 @@ func (br DBBranchRepository) GetBranchRankedSalesManagers(from, to time.Time, br
 		return nil, err
 	}
 
-	for _, row := range data {
+	for index, row := range data {
 		log.Println(row)
 		result = append(result, SalesManager{
 			Id:          SalesManagerId(row.SalesManagerID),
-			UserId:      UserId(row.UserId),
+			UserId:      UserId(row.UserID),
 			FirstName:   row.FirstName,
 			LastName:    row.LastName,
-			AvatarUrl:   "",
+			AvatarUrl:   row.AvatarUrl,
 			Branch:      *branch,
 			Ratio:       Percent(row.Ratio),
-			RatingPlace: RatingPlace(row.RatingPosition),
+			RatingPlace: RatingPlace((pagination.Page)*pagination.PageSize + int32(index) + int32(1)),
 		})
 	}
 	return &result, nil
 }
 
 func (br DBBranchRepository) GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error) {
-	arg := generated.GetBranchSumsByTypeParams{
-		SaleDate:   from,
-		SaleDate_2: to,
-		BranchID:   int32(branchId),
-	}
-	data, err := br.querier.GetBranchSumsByType(br.ctx, arg)
-
+	types, err := br.GetSaleTypes()
 	if err != nil {
 		return nil, err
 	}
+
 	sums := make([]SumsByTypeRow, 0)
 
-	for _, item := range data {
+	for _, t := range *types {
+		arg := handmade.GetBranchSumByTypeParams{
+			SaleDate:   from,
+			SaleDate_2: to,
+			ID:         int32(t.Id),
+			BranchID:   int32(branchId),
+		}
+
+		res, err := br.customQuerier.GetBranchSumByType(br.ctx, arg)
+		if err != nil {
+			return nil, err
+		}
+
 		sums = append(sums, SumsByTypeRow{
-			SaleTypeID:    item.SaleTypeID,
-			SaleTypeTitle: item.SaleTypeTitle,
-			TotalSales:    item.TotalSales,
+			SaleTypeID:    res.TypeID,
+			SaleTypeTitle: res.Title,
+			TotalSales:    res.TotalSales,
 		})
 	}
 

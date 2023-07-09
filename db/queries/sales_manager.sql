@@ -99,6 +99,7 @@ SELECT
     v.last_name,
     v.avatar_url,
     v.branch_title,
+    v.user_id,
     COALESCE(r.ratio, 0.0) AS ratio
 FROM
     sales_managers_view v
@@ -108,4 +109,4 @@ FROM
     AND v.branch_id = $3
 ORDER BY
     ratio DESC
-    LIMIT $3 OFFSET $4;
+    LIMIT $4 OFFSET $5;

@@ -305,6 +305,10 @@ func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(smId SalesMa
 
 	result := make([]MonthlyYearStatistic, 0)
 
+	if err == sql.ErrNoRows {
+		return &result, nil
+	}
+
 	if err != nil {
 		return nil, err
 	}

@@ -68,14 +68,15 @@ CREATE TABLE sales_manager_goals_ratio_by_period
     UNIQUE (from_date, to_date, sales_manager_id)
 );
 
-CREATE TABLE branch_goals
+CREATE TABLE branch_goals_by_types
 (
     id        SERIAL PRIMARY KEY,
     from_date TIMESTAMP                                          NOT NULL,
     to_date   TIMESTAMP                                          NOT NULL,
     amount    BIGINT                                             NOT NULL,
     branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
-    UNIQUE (from_date, to_date, branch_id)
+    type_id          INTEGER REFERENCES sale_types (id) ON DELETE CASCADE     NOT NULL,
+    UNIQUE (from_date, to_date, branch_id, type_id)
 );
 
 CREATE TABLE sales

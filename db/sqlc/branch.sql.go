@@ -47,70 +47,28 @@ func (q *Queries) GetBranchById(ctx context.Context, id int32) (Branch, error) {
 
 const getBranchGoalByGivenDateRange = `-- name: GetBranchGoalByGivenDateRange :one
 SELECT COALESCE(bg.amount, 0) AS goal_amount
-FROM branch_goals bg
+FROM branch_goals_by_types bg
 WHERE bg.id = $1
   AND bg.from_date = $2
   AND bg.to_date = $3
+  AND bg.type_id = $4
 `
 
 type GetBranchGoalByGivenDateRangeParams struct {
 	ID       int32     `json:"id"`
 	FromDate time.Time `json:"from_date"`
 	ToDate   time.Time `json:"to_date"`
+	TypeID   int32     `json:"type_id"`
 }
 
 func (q *Queries) GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getBranchGoalByGivenDateRange, arg.ID, arg.FromDate, arg.ToDate)
+	row := q.db.QueryRowContext(ctx, getBranchGoalByGivenDateRange,
+		arg.ID,
+		arg.FromDate,
+		arg.ToDate,
+		arg.TypeID,
+	)
 	var goal_amount int64
 	err := row.Scan(&goal_amount)
 	return goal_amount, err
-}
-
-const getBranchSumsByType = `-- name: GetBranchSumsByType :many
-SELECT st.id         AS sale_type_id,
-       st.title      AS sale_type_title,
-       SUM(s.amount) AS total_sales
-FROM sale_types st
-         JOIN sales s ON st.id = s.sale_type_id
-         JOIN sales_managers sm ON s.sales_manager_id = sm.id
-WHERE sm.branch_id = $1
-  AND s.sale_date BETWEEN $2 AND $3
-GROUP BY st.id
-ORDER BY st.id ASC
-`
-
-type GetBranchSumsByTypeParams struct {
-	BranchID   int32     `json:"branch_id"`
-	SaleDate   time.Time `json:"sale_date"`
-	SaleDate_2 time.Time `json:"sale_date_2"`
-}
-
-type GetBranchSumsByTypeRow struct {
-	SaleTypeID    int32  `json:"sale_type_id"`
-	SaleTypeTitle string `json:"sale_type_title"`
-	TotalSales    int64  `json:"total_sales"`
-}
-
-// get the sales sums for a specific branch and each sale type within the given period.
-func (q *Queries) GetBranchSumsByType(ctx context.Context, arg GetBranchSumsByTypeParams) ([]GetBranchSumsByTypeRow, error) {
-	rows, err := q.db.QueryContext(ctx, getBranchSumsByType, arg.BranchID, arg.SaleDate, arg.SaleDate_2)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetBranchSumsByTypeRow
-	for rows.Next() {
-		var i GetBranchSumsByTypeRow
-		if err := rows.Scan(&i.SaleTypeID, &i.SaleTypeTitle, &i.TotalSales); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }

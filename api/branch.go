@@ -101,6 +101,16 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 		})
 	}
 
+	data, err := server.branchService.GetBranchSalesSums(fromDate, toDate, branch.BranchId)
+
+	for st, sum := range *data {
+		salesStatisticItemsByTypes = append(salesStatisticItemsByTypes, SalesStatisticsByTypesItem{
+			Color:    st.Color,
+			Title:    st.Title,
+			Achieved: int64(sum),
+			Goal:     0,
+		})
+	}
 	dr := BranchDashboardResponse{
 		SaleStatisticsByTypes: salesStatisticItemsByTypes,
 		BestSalesManagers:     bestSalesManagers,

@@ -253,6 +253,7 @@ SELECT
     v.last_name,
     v.avatar_url,
     v.branch_title,
+    v.user_id,
     COALESCE(r.ratio, 0.0) AS ratio
 FROM
     sales_managers_view v
@@ -262,12 +263,13 @@ FROM
     AND v.branch_id = $3
 ORDER BY
     ratio DESC
-    LIMIT $3 OFFSET $4
+    LIMIT $4 OFFSET $5
 `
 
 type GetOrderedSalesManagersOfBranchParams struct {
 	FromDate time.Time `json:"from_date"`
 	ToDate   time.Time `json:"to_date"`
+	BranchID int32     `json:"branch_id"`
 	Limit    int32     `json:"limit"`
 	Offset   int32     `json:"offset"`
 }
@@ -278,6 +280,7 @@ type GetOrderedSalesManagersOfBranchRow struct {
 	LastName       string  `json:"last_name"`
 	AvatarUrl      string  `json:"avatar_url"`
 	BranchTitle    string  `json:"branch_title"`
+	UserID         int32   `json:"user_id"`
 	Ratio          float64 `json:"ratio"`
 }
 
@@ -285,6 +288,7 @@ func (q *Queries) GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOr
 	rows, err := q.db.QueryContext(ctx, getOrderedSalesManagersOfBranch,
 		arg.FromDate,
 		arg.ToDate,
+		arg.BranchID,
 		arg.Limit,
 		arg.Offset,
 	)
@@ -301,6 +305,7 @@ func (q *Queries) GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOr
 			&i.LastName,
 			&i.AvatarUrl,
 			&i.BranchTitle,
+			&i.UserID,
 			&i.Ratio,
 		); err != nil {
 			return nil, err
