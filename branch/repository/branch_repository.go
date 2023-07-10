@@ -70,7 +70,7 @@ func (br DBBranchRepository) GetBranchRankedSalesManagers(from, to time.Time, br
 			LastName:    row.LastName,
 			AvatarUrl:   row.AvatarUrl,
 			Branch:      *branch,
-			Ratio:       Percent(row.Ratio),
+			Ratio:       Percent(row.Ratio).GetRounded(),
 			RatingPlace: RatingPlace((pagination.Page)*pagination.PageSize + int32(index) + int32(1)),
 		})
 	}
