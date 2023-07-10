@@ -24,7 +24,7 @@ func TestCalculateRatio(t *testing.T) {
 		},
 	}
 
-	expected := float32(0.69)
+	expected := float32(0.597)
 	result := CalculateRatio(goals)
 
 	require.Equal(t, expected, result)

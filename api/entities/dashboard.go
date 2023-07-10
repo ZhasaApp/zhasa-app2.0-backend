@@ -40,9 +40,15 @@ type SalesManagersListResponse struct {
 	HasNext bool
 }
 
+type BranchModelResponse struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
 type BranchDashboardResponse struct {
 	SaleStatisticsByTypes []SalesStatisticsByTypesItem `json:"sale_statistics_by_types"`
 	BestSalesManagers     []SalesManagerBranchItem     `json:"best_sales_managers"`
+	Branch                BranchModelResponse          `json:"branch"`
 }
 
 type SaleItemResponse struct {

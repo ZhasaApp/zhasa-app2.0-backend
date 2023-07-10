@@ -18,8 +18,8 @@ type SalesManagerYearStatisticRequestBody struct {
 }
 
 type BranchYearStatisticRequestBody struct {
-	BranchId int32 `json:"branch_id"`
-	Year     int32 `json:"year"`
+	BranchId int32 `json:"branch_id" form:"branch_id"`
+	Year     int32 `json:"year" form:"year"`
 }
 
 type SaleTypeResponse struct {

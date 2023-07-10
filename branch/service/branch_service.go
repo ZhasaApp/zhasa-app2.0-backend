@@ -6,7 +6,7 @@ import (
 	. "zhasa2.0/branch/entities"
 	"zhasa2.0/branch/repository"
 	. "zhasa2.0/manager/entities"
-	sale "zhasa2.0/sale/entities"
+	. "zhasa2.0/sale/entities"
 	. "zhasa2.0/statistic"
 	. "zhasa2.0/statistic/entities"
 )
@@ -17,7 +17,7 @@ type BranchService interface {
 	GetBranchYearStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error)
 	GetBranchById(id BranchId) (*Branch, error)
 	GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error)
-	GetBranchGoal(from, to time.Time, id BranchId) (sale.SaleAmount, error)
+	GetBranchGoal(from, to time.Time, id BranchId, typeId SaleTypeId) (SaleAmount, error)
 	GetBranchRankedSalesManagers(from, to time.Time, branchId BranchId, pagination Pagination) (*[]SalesManager, error)
 }
 
@@ -29,8 +29,8 @@ func (ds DBBranchService) GetBranchRankedSalesManagers(from, to time.Time, branc
 	return ds.repo.GetBranchRankedSalesManagers(from, to, branchId, pagination)
 }
 
-func (ds DBBranchService) GetBranchGoal(from, to time.Time, id BranchId) (sale.SaleAmount, error) {
-	return ds.repo.GetBranchGoal(from, to, id)
+func (ds DBBranchService) GetBranchGoal(from, to time.Time, id BranchId, typeId SaleTypeId) (SaleAmount, error) {
+	return ds.repo.GetBranchGoal(from, to, id, typeId)
 }
 
 func (ds DBBranchService) GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error) {

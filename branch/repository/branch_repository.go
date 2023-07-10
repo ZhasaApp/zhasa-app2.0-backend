@@ -23,7 +23,7 @@ type BranchRepository interface {
 	GetBranches() ([]Branch, error)
 	GetBranchYearMonthlyStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error)
 	GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error)
-	GetBranchGoal(from, to time.Time, branchId BranchId) (SaleAmount, error)
+	GetBranchGoal(from, to time.Time, branchId BranchId, typeId SaleTypeId) (SaleAmount, error)
 	GetBranchRankedSalesManagers(from, to time.Time, branchId BranchId, pagination Pagination) (*[]SalesManager, error)
 }
 
@@ -109,11 +109,12 @@ func (br DBBranchRepository) GetBranchSalesSums(from, to time.Time, branchId Bra
 	return &result, err
 }
 
-func (br DBBranchRepository) GetBranchGoal(from, to time.Time, branchId BranchId) (SaleAmount, error) {
+func (br DBBranchRepository) GetBranchGoal(from, to time.Time, branchId BranchId, typeId SaleTypeId) (SaleAmount, error) {
 	arg := generated.GetBranchGoalByGivenDateRangeParams{
 		ID:       int32(branchId),
 		FromDate: from,
 		ToDate:   to,
+		TypeID:   int32(typeId),
 	}
 	data, err := br.querier.GetBranchGoalByGivenDateRange(br.ctx, arg)
 	if err == sql.ErrNoRows {

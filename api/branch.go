@@ -95,7 +95,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 			Id:          int32(sm.UserId),
 			Avatar:      nil,
 			FullName:    sm.FirstName + " " + sm.LastName,
-			Ratio:       float64(sm.Ratio),
+			Ratio:       float64(sm.Ratio.GetRounded()),
 			BranchTitle: string(sm.Branch.Title),
 			BranchId:    int32(sm.Branch.BranchId),
 		})
@@ -109,23 +109,32 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	}
 
 	for st, sum := range *data {
+		goal, err := server.branchService.GetBranchGoal(fromDate, toDate, branch.BranchId, st.Id)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
 		salesStatisticItemsByTypes = append(salesStatisticItemsByTypes, SalesStatisticsByTypesItem{
 			Color:    st.Color,
 			Title:    st.Title,
 			Achieved: int64(sum),
-			Goal:     0,
+			Goal:     int64(goal),
 		})
 	}
 	dr := BranchDashboardResponse{
 		SaleStatisticsByTypes: salesStatisticItemsByTypes,
 		BestSalesManagers:     bestSalesManagers,
+		Branch: BranchModelResponse{
+			Title:       string(branch.Title),
+			Description: string(branch.Description),
+		},
 	}
 	ctx.JSON(http.StatusOK, dr)
 }
 
 func (server *Server) getBranchYearStatistic(ctx *gin.Context) {
 	var requestBody BranchYearStatisticRequestBody
-	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
+	if err := ctx.ShouldBindQuery(&requestBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -141,7 +150,7 @@ func (server *Server) getBranchYearStatistic(ctx *gin.Context) {
 		response = append(response, YearStatisticResponse{
 			SaleType: SaleTypeResponse{
 				Title: item.SaleType.Title,
-				Color: "",
+				Color: item.SaleType.Color,
 			},
 			Month:  int32(item.Month),
 			Amount: int64(item.Amount),
