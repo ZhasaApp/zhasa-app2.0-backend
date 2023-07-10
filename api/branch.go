@@ -109,6 +109,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	}
 
 	for st, sum := range *data {
+		log.Println(st.Id)
 		goal, err := server.branchService.GetBranchGoal(fromDate, toDate, branch.BranchId, st.Id)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
