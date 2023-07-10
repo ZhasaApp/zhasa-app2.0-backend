@@ -79,7 +79,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 
 	bestSalesManagers := make([]SalesManagerBranchItem, 0)
 
-	salesManagers, err := server.branchService.GetBranchRankedSalesManagers(fromDate, toDate, branch.BranchId, Pagination{
+	salesManagers, err := server.branchService.GetBranchRankedSalesManagers(period, branch.BranchId, Pagination{
 		PageSize: 3,
 		Page:     0,
 	})

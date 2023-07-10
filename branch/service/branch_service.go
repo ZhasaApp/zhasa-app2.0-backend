@@ -18,14 +18,15 @@ type BranchService interface {
 	GetBranchById(id BranchId) (*Branch, error)
 	GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error)
 	GetBranchGoal(from, to time.Time, id BranchId, typeId SaleTypeId) (SaleAmount, error)
-	GetBranchRankedSalesManagers(from, to time.Time, branchId BranchId, pagination Pagination) (*[]SalesManager, error)
+	GetBranchRankedSalesManagers(period Period, branchId BranchId, pagination Pagination) (*[]SalesManager, error)
 }
 
 type DBBranchService struct {
 	repo repository.BranchRepository
 }
 
-func (ds DBBranchService) GetBranchRankedSalesManagers(from, to time.Time, branchId BranchId, pagination Pagination) (*[]SalesManager, error) {
+func (ds DBBranchService) GetBranchRankedSalesManagers(period Period, branchId BranchId, pagination Pagination) (*[]SalesManager, error) {
+	from, to := period.ConvertToTime()
 	return ds.repo.GetBranchRankedSalesManagers(from, to, branchId, pagination)
 }
 

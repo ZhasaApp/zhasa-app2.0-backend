@@ -10,6 +10,7 @@ import (
 	. "zhasa2.0/api/entities"
 	. "zhasa2.0/api/entities/sm"
 	"zhasa2.0/base"
+	. "zhasa2.0/branch/entities"
 	. "zhasa2.0/manager/entities"
 	"zhasa2.0/manager/service"
 	. "zhasa2.0/sale/entities"
@@ -378,10 +379,19 @@ func (server Server) GetSalesManagers(ctx *gin.Context) {
 		MonthNumber: monthPagination.Month,
 		Year:        monthPagination.Year,
 	}
-	salesManagers, err := server.salesManagerService.GetSalesManagersOrderedByRatio(base.Pagination{
-		PageSize: monthPagination.PageSize,
-		Page:     monthPagination.Page,
-	}, period)
+	var salesManagers *[]SalesManager
+	var err error
+	if monthPagination.BranchId == nil {
+		salesManagers, err = server.salesManagerService.GetSalesManagersOrderedByRatio(base.Pagination{
+			PageSize: monthPagination.PageSize,
+			Page:     monthPagination.Page,
+		}, period)
+	} else {
+		salesManagers, err = server.branchService.GetBranchRankedSalesManagers(period, BranchId(*monthPagination.BranchId), base.Pagination{
+			PageSize: monthPagination.PageSize,
+			Page:     monthPagination.Page,
+		})
+	}
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
