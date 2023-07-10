@@ -111,7 +111,7 @@ func (br DBBranchRepository) GetBranchSalesSums(from, to time.Time, branchId Bra
 
 func (br DBBranchRepository) GetBranchGoal(from, to time.Time, branchId BranchId, typeId SaleTypeId) (SaleAmount, error) {
 	arg := generated.GetBranchGoalByGivenDateRangeParams{
-		ID:       int32(branchId),
+		BranchID: int32(branchId),
 		FromDate: from,
 		ToDate:   to,
 		TypeID:   int32(typeId),
