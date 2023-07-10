@@ -116,6 +116,7 @@ func (br DBBranchRepository) GetBranchGoal(from, to time.Time, branchId BranchId
 		ToDate:   to,
 		TypeID:   int32(typeId),
 	}
+	log.Println(arg)
 	data, err := br.querier.GetBranchGoalByGivenDateRange(br.ctx, arg)
 	if err == sql.ErrNoRows {
 		log.Println(err)
