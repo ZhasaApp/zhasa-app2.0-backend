@@ -48,14 +48,14 @@ func (q *Queries) GetBranchById(ctx context.Context, id int32) (Branch, error) {
 const getBranchGoalByGivenDateRange = `-- name: GetBranchGoalByGivenDateRange :one
 SELECT COALESCE(bg.amount, 0) AS goal_amount
 FROM branch_goals_by_types bg
-WHERE bg.id = $1
+WHERE bg.branch_id = $1
   AND bg.from_date = $2
   AND bg.to_date = $3
   AND bg.type_id = $4
 `
 
 type GetBranchGoalByGivenDateRangeParams struct {
-	ID       int32     `json:"id"`
+	BranchID int32     `json:"branch_id"`
 	FromDate time.Time `json:"from_date"`
 	ToDate   time.Time `json:"to_date"`
 	TypeID   int32     `json:"type_id"`
@@ -63,7 +63,7 @@ type GetBranchGoalByGivenDateRangeParams struct {
 
 func (q *Queries) GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getBranchGoalByGivenDateRange,
-		arg.ID,
+		arg.BranchID,
 		arg.FromDate,
 		arg.ToDate,
 		arg.TypeID,
