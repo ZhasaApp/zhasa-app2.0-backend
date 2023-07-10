@@ -110,7 +110,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 
 	for st, sum := range *data {
 		log.Println(st.Id)
-		goal, err := server.branchService.GetBranchGoal(fromDate, toDate, branch.BranchId, st.Id)
+		goal, err := server.branchService.GetBranchGoal(period, branch.BranchId, st.Id)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
@@ -148,6 +148,14 @@ func (server *Server) getBranchYearStatistic(ctx *gin.Context) {
 
 	response := make([]YearStatisticResponse, 0)
 	for _, item := range *data {
+		goal, err := server.branchService.GetBranchGoal(MonthPeriod{
+			MonthNumber: int32(item.Month),
+			Year:        requestBody.Year,
+		}, BranchId(requestBody.BranchId), item.SaleType.Id)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
 		response = append(response, YearStatisticResponse{
 			SaleType: SaleTypeResponse{
 				Title: item.SaleType.Title,
@@ -155,6 +163,7 @@ func (server *Server) getBranchYearStatistic(ctx *gin.Context) {
 			},
 			Month:  int32(item.Month),
 			Amount: int64(item.Amount),
+			Goal:   int64(goal),
 		})
 	}
 

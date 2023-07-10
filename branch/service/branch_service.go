@@ -17,7 +17,7 @@ type BranchService interface {
 	GetBranchYearStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error)
 	GetBranchById(id BranchId) (*Branch, error)
 	GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error)
-	GetBranchGoal(from, to time.Time, id BranchId, typeId SaleTypeId) (SaleAmount, error)
+	GetBranchGoal(period Period, id BranchId, typeId SaleTypeId) (SaleAmount, error)
 	GetBranchRankedSalesManagers(period Period, branchId BranchId, pagination Pagination) (*[]SalesManager, error)
 }
 
@@ -30,7 +30,8 @@ func (ds DBBranchService) GetBranchRankedSalesManagers(period Period, branchId B
 	return ds.repo.GetBranchRankedSalesManagers(from, to, branchId, pagination)
 }
 
-func (ds DBBranchService) GetBranchGoal(from, to time.Time, id BranchId, typeId SaleTypeId) (SaleAmount, error) {
+func (ds DBBranchService) GetBranchGoal(period Period, id BranchId, typeId SaleTypeId) (SaleAmount, error) {
+	from, to := period.ConvertToTime()
 	return ds.repo.GetBranchGoal(from, to, id, typeId)
 }
 
