@@ -47,19 +47,9 @@ func (d DBCustomQuerier) GetSalesManagerYearStatistic(ctx context.Context, arg G
 		return nil, err
 	}
 	defer rows.Close()
-	var items GetSalesManagerYearStatisticRow
-	for rows.Next() {
-		var i GetSalesManagerYearStatisticRow
-		if err := rows.Scan(&i.TotalAmount); err != nil {
-			return nil, err
-		}
-		return &items, nil
-	}
-	if err := rows.Close(); err != nil {
+	var i GetSalesManagerYearStatisticRow
+	if err := rows.Scan(&i.TotalAmount); err != nil {
 		return nil, err
 	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return &items, nil
+	return &i, nil
 }

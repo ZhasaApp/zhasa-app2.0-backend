@@ -32,21 +32,12 @@ func (d DBCustomQuerier) GetBranchYearStatistic(ctx context.Context, arg GetBran
 		return nil, err
 	}
 	defer rows.Close()
-	var items GetBranchYearStatisticRow
-	for rows.Next() {
-		var i GetBranchYearStatisticRow
-		if err := rows.Scan(&i.TotalAmount); err != nil {
-			return nil, err
-		}
-		return &items, nil
-	}
-	if err := rows.Close(); err != nil {
+	var i GetBranchYearStatisticRow
+
+	if err := rows.Scan(&i.TotalAmount); err != nil {
 		return nil, err
 	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return &items, nil
+	return &i, nil
 }
 
 const getBranchSumByType = `-- name: GetBranchSumByType :one
