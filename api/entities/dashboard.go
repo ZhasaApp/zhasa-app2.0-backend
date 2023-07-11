@@ -30,7 +30,7 @@ type SalesManagerBranchItem struct {
 	Avatar      *string `json:"avatar"`
 	FullName    string  `json:"full_name"`
 	Ratio       float64 `json:"goal_achievement_percent"`
-	BranchTitle string  `json:"branch_title"`
+	BranchTitle string  `json:"branch"`
 	BranchId    int32   `json:"branch_id"`
 }
 

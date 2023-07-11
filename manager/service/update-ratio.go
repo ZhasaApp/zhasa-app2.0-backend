@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	. "zhasa2.0/base"
 	"zhasa2.0/manager/entities"
 	. "zhasa2.0/sale/entities"
@@ -25,10 +24,7 @@ func (dbs DBSalesManagerService) UpdateRatio(smId entities.SalesManagerId, perio
 
 	for _, item := range *types {
 		sum, _ := dbs.statisticRepo.GetSalesSumBySaleTypeAndManager(smId, item.Id, from, to)
-		goal, err := dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(smId, item.Id, from, to)
-		if err != nil || goal == 0 {
-			return 0, errors.New("no Goal found for given sale type: " + string(item.Id))
-		}
+		goal, _ := dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(smId, item.Id, from, to)
 
 		ratioRows = append(ratioRows, RatioRow{
 			Amount:  sum,
@@ -49,7 +45,10 @@ func CalculateRatio(rows []RatioRow) float32 {
 	var totalGravity int32
 
 	for _, row := range rows {
-		ratio := float32(row.Amount) / float32(row.Goal)
+		var ratio float32
+		if row.Goal != 0 {
+			ratio = float32(row.Amount) / float32(row.Goal)
+		}
 		weightedRatio := ratio * float32(row.Gravity)
 		totalWeightedRatio += weightedRatio
 		totalGravity += row.Gravity
