@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"time"
 	. "zhasa2.0/base"
 	. "zhasa2.0/branch/entities"
@@ -306,35 +307,46 @@ func (p PostgresSalesManagerStatisticRepository) GetSalesGoalBySaleTypeAndManage
 }
 
 func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error) {
-	params := GetSalesManagerYearStatisticParams{
-		SalesManagerID: int32(smId),
-		Year:           year,
-	}
-	data, err := p.customQuerier.GetSalesManagerYearStatistic(p.ctx, params)
 
 	result := make([]MonthlyYearStatistic, 0)
 
-	if err == sql.ErrNoRows {
-		return &result, nil
-	}
-
+	saleTypes, err := p.GetSaleTypes()
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while getting sale types")
 	}
 
-	for _, row := range data {
-		saleType, err := p.GetSaleType(SaleTypeId(row.SaleType))
-		if err != nil {
-			return nil, errors.New("no sale type found for given sale type id" + string(row.SaleType))
-		}
+	for _, saleType := range *saleTypes {
+		for month := 1; month <= 12; month++ {
+			period := MonthPeriod{
+				MonthNumber: int32(month),
+				Year:        year,
+			}
+			from, to := period.ConvertToTime()
+			goal, _ := p.querier.GetSalesManagerGoalByGivenDateRangeAndSaleType(p.ctx, generated.GetSalesManagerGoalByGivenDateRangeAndSaleTypeParams{
+				SalesManagerID: int32(smId),
+				FromDate:       from,
+				ToDate:         to,
+				TypeID:         int32(saleType.Id),
+			})
 
-		stat := MonthlyYearStatistic{
-			SaleType: *saleType,
-			Month:    MonthNumber(row.MonthNumber),
-			Amount:   SaleAmount(row.TotalAmount),
-			Goal:     SaleAmount(row.Goal),
+			sum, err := p.customQuerier.GetSalesManagerYearStatistic(p.ctx, GetSalesManagerYearStatisticParams{
+				SalesManagerID: int32(smId),
+				Year:           year,
+				Month:          int32(month),
+			})
+			if err != nil {
+				log.Println(err)
+			}
+
+			stat := MonthlyYearStatistic{
+				SaleType: saleType,
+				Month:    MonthNumber(month),
+				Amount:   SaleAmount(sum.TotalAmount),
+				Goal:     SaleAmount(goal),
+			}
+			result = append(result, stat)
 		}
-		result = append(result, stat)
 	}
+
 	return &result, nil
 }
