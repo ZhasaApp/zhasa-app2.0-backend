@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"time"
 	. "zhasa2.0/base"
 	. "zhasa2.0/branch/entities"
@@ -324,6 +325,7 @@ func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(smId SalesMa
 	}
 
 	for _, row := range data {
+		log.Println(row.SaleType)
 		saleType, err := p.GetSaleType(SaleTypeId(row.SaleType))
 		if err != nil {
 			return nil, errors.New("no sale type found for given sale type id" + string(row.SaleType))
