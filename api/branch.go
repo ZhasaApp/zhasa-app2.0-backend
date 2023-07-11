@@ -122,8 +122,8 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 		})
 	}
 	dr := BranchDashboardResponse{
-		SaleStatisticsByTypes: salesStatisticItemsByTypes,
-		BestSalesManagers:     bestSalesManagers,
+		SalesStatisticsByTypes: salesStatisticItemsByTypes,
+		BestSalesManagers:      bestSalesManagers,
 		Branch: BranchModelResponse{
 			Title:       string(branch.Title),
 			Description: string(branch.Description),

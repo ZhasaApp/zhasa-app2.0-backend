@@ -48,11 +48,10 @@ func (q *Queries) AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplacePara
 const changeSaleById = `-- name: ChangeSaleById :exec
 UPDATE sales
 SET sale_type_id = $2,
-    sale_date = $3,
-    amount = $4,
-    description = $5
-WHERE id = $1
-    RETURNING id, sales_manager_id, sale_date, amount, sale_type_id, description, created_at
+    sale_date    = $3,
+    amount       = $4,
+    description  = $5
+WHERE id = $1 RETURNING id, sales_manager_id, sale_date, amount, sale_type_id, description, created_at
 `
 
 type ChangeSaleByIdParams struct {
@@ -89,14 +88,25 @@ func (q *Queries) CreateSalesManager(ctx context.Context, arg CreateSalesManager
 	return err
 }
 
-const deleteSaleById = `-- name: DeleteSaleById :exec
-DELETE FROM sales
-WHERE id = $1
+const deleteSaleById = `-- name: DeleteSaleById :one
+DELETE
+FROM sales
+WHERE id = $1 RETURNING id, sales_manager_id, sale_date, amount, sale_type_id, description, created_at
 `
 
-func (q *Queries) DeleteSaleById(ctx context.Context, id int32) error {
-	_, err := q.db.ExecContext(ctx, deleteSaleById, id)
-	return err
+func (q *Queries) DeleteSaleById(ctx context.Context, id int32) (Sale, error) {
+	row := q.db.QueryRowContext(ctx, deleteSaleById, id)
+	var i Sale
+	err := row.Scan(
+		&i.ID,
+		&i.SalesManagerID,
+		&i.SaleDate,
+		&i.Amount,
+		&i.SaleTypeID,
+		&i.Description,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getManagerSales = `-- name: GetManagerSales :many
@@ -211,23 +221,20 @@ func (q *Queries) GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSal
 }
 
 const getOrderedSalesManagers = `-- name: GetOrderedSalesManagers :many
-SELECT
-    v.sales_manager_id,
-    v.first_name,
-    v.last_name,
-    v.avatar_url,
-    v.branch_title,
-    v.branch_id,
-    v.user_id,
-    COALESCE(r.ratio, 0.0) AS ratio
-FROM
-    sales_managers_view v
-        LEFT JOIN
-    sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
-        AND r.from_date >= $1 AND r.to_date <= $2
-ORDER BY
-    ratio DESC
-    LIMIT $3 OFFSET $4
+SELECT v.sales_manager_id,
+       v.first_name,
+       v.last_name,
+       v.avatar_url,
+       v.branch_title,
+       v.branch_id,
+       v.user_id,
+       COALESCE(r.ratio, 0.0) AS ratio
+FROM sales_managers_view v
+         LEFT JOIN
+     sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
+         AND r.from_date >= $1 AND r.to_date <= $2
+ORDER BY ratio DESC LIMIT $3
+OFFSET $4
 `
 
 type GetOrderedSalesManagersParams struct {
@@ -286,23 +293,20 @@ func (q *Queries) GetOrderedSalesManagers(ctx context.Context, arg GetOrderedSal
 }
 
 const getOrderedSalesManagersOfBranch = `-- name: GetOrderedSalesManagersOfBranch :many
-SELECT
-    v.sales_manager_id,
-    v.first_name,
-    v.last_name,
-    v.avatar_url,
-    v.branch_title,
-    v.user_id,
-    COALESCE(r.ratio, 0.0) AS ratio
-FROM
-    sales_managers_view v
-        LEFT JOIN
-    sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
-        AND r.from_date >= $1 AND r.to_date <= $2
-    AND v.branch_id = $3
-ORDER BY
-    ratio DESC
-    LIMIT $4 OFFSET $5
+SELECT v.sales_manager_id,
+       v.first_name,
+       v.last_name,
+       v.avatar_url,
+       v.branch_title,
+       v.user_id,
+       COALESCE(r.ratio, 0.0) AS ratio
+FROM sales_managers_view v
+         LEFT JOIN
+     sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
+         AND r.from_date >= $1 AND r.to_date <= $2
+         AND v.branch_id = $3
+ORDER BY ratio DESC LIMIT $4
+OFFSET $5
 `
 
 type GetOrderedSalesManagersOfBranchParams struct {

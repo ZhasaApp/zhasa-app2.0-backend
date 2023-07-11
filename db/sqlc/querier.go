@@ -20,7 +20,7 @@ type Querier interface {
 	CreateSalesManagerGoalByType(ctx context.Context, arg CreateSalesManagerGoalByTypeParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
-	DeleteSaleById(ctx context.Context, id int32) error
+	DeleteSaleById(ctx context.Context, id int32) (Sale, error)
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
 	GetBranchDirectorByUserId(ctx context.Context, userID int32) (BranchDirectorsView, error)

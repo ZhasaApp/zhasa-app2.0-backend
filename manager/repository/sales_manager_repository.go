@@ -30,7 +30,7 @@ type SalesManagerRepository interface {
 	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, from time.Time, to time.Time) (*[]Sale, error)
 	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
 	GetSalesManagersListOrderedByRatio(pagination Pagination, from time.Time, to time.Time) (*[]SalesManager, error)
-	DeleteSale(saleId SaleId) error
+	DeleteSale(saleId SaleId) (*Sale, error)
 }
 
 type SalesManagerStatisticRepository interface {
@@ -83,8 +83,19 @@ type PostgresSalesManagerRepository struct {
 	customQuerier CustomQuerier
 }
 
-func (p PostgresSalesManagerRepository) DeleteSale(saleId SaleId) error {
-	return p.querier.DeleteSaleById(p.ctx, int32(saleId))
+func (p PostgresSalesManagerRepository) DeleteSale(saleId SaleId) (*Sale, error) {
+	row, err := p.querier.DeleteSaleById(p.ctx, int32(saleId))
+	if err != nil {
+		return nil, err
+	}
+	return &Sale{
+		Id:              SaleId(row.ID),
+		SaleManagerId:   SalesManagerId(row.SalesManagerID),
+		SaleType:        SaleType{},
+		SalesAmount:     0,
+		SaleDate:        row.SaleDate,
+		SaleDescription: "",
+	}, nil
 }
 
 func (p PostgresSalesManagerRepository) GetSalesManagersListOrderedByRatio(pagination Pagination, from time.Time, to time.Time) (*[]SalesManager, error) {

@@ -23,7 +23,7 @@ type SalesManagerService interface {
 	UpdateRatio(smId SalesManagerId, period Period) (Percent, error)
 	GetRatio(smId SalesManagerId, period Period) (Percent, error)
 	GetSalesManagersOrderedByRatio(pagination Pagination, period Period) (*[]SalesManager, error)
-	DeleteSale(saleId sale.SaleId) error
+	DeleteSale(saleId sale.SaleId) (*sale.Sale, error)
 }
 
 type DBSalesManagerService struct {
@@ -32,7 +32,7 @@ type DBSalesManagerService struct {
 	repository2.SaleTypeRepository
 }
 
-func (dbs DBSalesManagerService) DeleteSale(saleId sale.SaleId) error {
+func (dbs DBSalesManagerService) DeleteSale(saleId sale.SaleId) (*sale.Sale, error) {
 	return dbs.repo.DeleteSale(saleId)
 }
 

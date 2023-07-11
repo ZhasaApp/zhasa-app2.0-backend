@@ -106,6 +106,8 @@ func NewServer(ctx context.Context) *Server {
 		directorRoute.POST("/goal/new", server.createSaleGoalForSalesManager)
 	}
 
+	router.DELETE("sales/delete", server.DeleteSale).Use(verifyToken(server.tokenService))
+
 	router.GET("sales-manager/dashboard", server.getSalesManagerDashboardStatistic).Use(verifyToken(server.tokenService))
 
 	router.GET("branch/dashboard", server.getBranchDashboardStatistic).Use(verifyToken(server.tokenService))
