@@ -62,7 +62,7 @@ func (d DBCustomQuerier) GetSalesManagerYearStatistic(ctx context.Context, arg G
 	var items []GetSalesManagerYearStatisticRow
 	for rows.Next() {
 		var i GetSalesManagerYearStatisticRow
-		if err := rows.Scan(&i.SaleType, &i.MonthNumber, &i.TotalAmount, &i.Goal); err != nil {
+		if err := rows.Scan(&i.MonthNumber, &i.SaleType, &i.TotalAmount, &i.Goal); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
