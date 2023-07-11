@@ -110,3 +110,16 @@ FROM
 ORDER BY
     ratio DESC
     LIMIT $4 OFFSET $5;
+
+-- name: DeleteSaleById :exec
+DELETE FROM sales
+WHERE id = $1;
+
+-- name: ChangeSaleById :exec
+UPDATE sales
+SET sale_type_id = $2,
+    sale_date = $3,
+    amount = $4,
+    description = $5
+WHERE id = $1
+    RETURNING *;

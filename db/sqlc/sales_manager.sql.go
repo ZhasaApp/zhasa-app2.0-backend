@@ -45,6 +45,35 @@ func (q *Queries) AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplacePara
 	return i, err
 }
 
+const changeSaleById = `-- name: ChangeSaleById :exec
+UPDATE sales
+SET sale_type_id = $2,
+    sale_date = $3,
+    amount = $4,
+    description = $5
+WHERE id = $1
+    RETURNING id, sales_manager_id, sale_date, amount, sale_type_id, description, created_at
+`
+
+type ChangeSaleByIdParams struct {
+	ID          int32     `json:"id"`
+	SaleTypeID  int32     `json:"sale_type_id"`
+	SaleDate    time.Time `json:"sale_date"`
+	Amount      int64     `json:"amount"`
+	Description string    `json:"description"`
+}
+
+func (q *Queries) ChangeSaleById(ctx context.Context, arg ChangeSaleByIdParams) error {
+	_, err := q.db.ExecContext(ctx, changeSaleById,
+		arg.ID,
+		arg.SaleTypeID,
+		arg.SaleDate,
+		arg.Amount,
+		arg.Description,
+	)
+	return err
+}
+
 const createSalesManager = `-- name: CreateSalesManager :exec
 INSERT INTO sales_managers (user_id, branch_id)
 VALUES ($1, $2)
@@ -57,6 +86,16 @@ type CreateSalesManagerParams struct {
 
 func (q *Queries) CreateSalesManager(ctx context.Context, arg CreateSalesManagerParams) error {
 	_, err := q.db.ExecContext(ctx, createSalesManager, arg.UserID, arg.BranchID)
+	return err
+}
+
+const deleteSaleById = `-- name: DeleteSaleById :exec
+DELETE FROM sales
+WHERE id = $1
+`
+
+func (q *Queries) DeleteSaleById(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteSaleById, id)
 	return err
 }
 

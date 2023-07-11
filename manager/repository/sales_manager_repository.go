@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"time"
 	. "zhasa2.0/base"
 	. "zhasa2.0/branch/entities"
@@ -28,6 +29,7 @@ type SalesManagerRepository interface {
 	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, from time.Time, to time.Time) (*[]Sale, error)
 	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
 	GetSalesManagersListOrderedByRatio(pagination Pagination, from time.Time, to time.Time) (*[]SalesManager, error)
+	DeleteSale(saleId SaleId) error
 }
 
 type SalesManagerStatisticRepository interface {
@@ -78,6 +80,11 @@ type PostgresSalesManagerRepository struct {
 	ctx           context.Context
 	querier       generated.Querier
 	customQuerier CustomQuerier
+}
+
+func (p PostgresSalesManagerRepository) DeleteSale(saleId SaleId) error {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (p PostgresSalesManagerRepository) GetSalesManagersListOrderedByRatio(pagination Pagination, from time.Time, to time.Time) (*[]SalesManager, error) {
@@ -243,6 +250,9 @@ func (p PostgresSalesManagerRepository) SaveSale(salesManagerId SalesManagerId, 
 
 func (p PostgresSalesManagerRepository) GetSalesManagerByUserId(userId int32) (*SalesManager, error) {
 	data, err := p.querier.GetSalesManagerByUserId(p.ctx, userId)
+	if err == sql.ErrNoRows {
+		return nil, errors.New("sales manager not found")
+	}
 	if err != nil {
 		return nil, err
 	}
