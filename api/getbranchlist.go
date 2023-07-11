@@ -13,11 +13,12 @@ func (server *Server) GetBranchList(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	//
-	//period := MonthPeriod{
-	//	MonthNumber: monthPagination.Month,
-	//	Year:        monthPagination.Year,
-	//}
-	//
+
+	period := MonthPeriod{
+		MonthNumber: monthPagination.Month,
+		Year:        monthPagination.Year,
+	}
+
+	period.ConvertToTime()
 
 }
