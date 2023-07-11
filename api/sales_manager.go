@@ -415,7 +415,7 @@ func (server Server) GetSalesManagers(ctx *gin.Context) {
 			avatar = &item.AvatarUrl
 		}
 		itemsResponse = append(itemsResponse, SalesManagerRatingItem{
-			ID:                     int32(item.Id),
+			ID:                     int32(item.UserId),
 			Avatar:                 avatar,
 			FullName:               item.FirstName + " " + item.LastName,
 			Branch:                 string(item.Branch.Title),

@@ -134,3 +134,14 @@ SELECT u.id         AS user_id,
 FROM user_avatar_view u
          JOIN branch_directors bd ON u.id = bd.user_id
          JOIN branches b ON bd.branch_id = b.id;
+
+
+CREATE TABLE branches_goals_ratio_by_period
+(
+    from_date TIMESTAMP NOT NULL,
+    to_date   TIMESTAMP NOT NULL,
+    ratio FLOAT NOT NULL,
+    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
+    UNIQUE (from_date, to_date, branch_id)
+);
+
