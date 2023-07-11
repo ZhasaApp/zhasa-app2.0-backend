@@ -7,7 +7,7 @@ type SalesManagerMonthStatisticRequestBody struct {
 }
 
 type BranchMonthStatisticRequestBody struct {
-	BranchId int32 `form:"branch_id" json:"branch_id"`
+	BranchId int32 `form:"branch_id" json:"id"`
 	Month    int32 `form:"month" json:"month"`
 	Year     int32 `form:"year" json:"year"`
 }
