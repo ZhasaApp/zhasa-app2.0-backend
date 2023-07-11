@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 	"time"
 	. "zhasa2.0/base"
@@ -21,7 +22,7 @@ type BranchRepository interface {
 	CreateBranch(request CreateBranchRequest) error
 	GetBranchById(id BranchId) (*Branch, error)
 	GetBranches() ([]Branch, error)
-	GetBranchYearMonthlyStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error)
+	GetBranchYearMonthlyStatistic(bId BranchId, year int32) (*[]MonthlyYearStatistic, error)
 	GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error)
 	GetBranchGoal(from, to time.Time, branchId BranchId, typeId SaleTypeId) (SaleAmount, error)
 	GetBranchRankedSalesManagers(from, to time.Time, branchId BranchId, pagination Pagination) (*[]SalesManager, error)
@@ -129,33 +130,50 @@ func (br DBBranchRepository) GetBranchGoal(from, to time.Time, branchId BranchId
 	return SaleAmount(data), nil
 }
 
-func (br DBBranchRepository) GetBranchYearMonthlyStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error) {
-	params := handmade.GetBranchYearStatisticParams{
-		BranchID:   int32(id),
-		YearNumber: year,
-	}
-	data, err := br.customQuerier.GetBranchYearStatistic(br.ctx, params)
+func (br DBBranchRepository) GetBranchYearMonthlyStatistic(bId BranchId, year int32) (*[]MonthlyYearStatistic, error) {
 
-	ans := make([]MonthlyYearStatistic, 0)
-	if err == sql.ErrNoRows {
-		return &ans, nil
-	}
+	result := make([]MonthlyYearStatistic, 0)
+
+	saleTypes, err := br.GetSaleTypes()
 	if err != nil {
-		return nil, err
+		return nil, errors.New("error while getting sale types")
 	}
 
-	for _, item := range data {
-		saleType, err := br.GetSaleType(SaleTypeId(item.SaleTypeId))
-		if err != nil {
-			return nil, err
+	for _, saleType := range *saleTypes {
+		for month := 1; month <= 12; month++ {
+			period := MonthPeriod{
+				MonthNumber: int32(month),
+				Year:        year,
+			}
+			from, to := period.ConvertToTime()
+			goal, _ := br.querier.GetBranchGoalByGivenDateRange(br.ctx, generated.GetBranchGoalByGivenDateRangeParams{
+				BranchID: int32(bId),
+				FromDate: from,
+				ToDate:   to,
+				TypeID:   int32(saleType.Id),
+			})
+
+			sum, err := br.customQuerier.GetBranchYearStatistic(br.ctx, handmade.GetBranchYearStatisticParams{
+				BranchId: int32(bId),
+				TypeId:   int32(saleType.Id),
+				Year:     year,
+				Month:    int32(month),
+			})
+			if err != nil {
+				log.Println(err)
+			}
+
+			stat := MonthlyYearStatistic{
+				SaleType: saleType,
+				Month:    MonthNumber(month),
+				Amount:   SaleAmount(sum.TotalAmount),
+				Goal:     SaleAmount(goal),
+			}
+			result = append(result, stat)
 		}
-		ans = append(ans, MonthlyYearStatistic{
-			SaleType: *saleType,
-			Month:    MonthNumber(item.MonthNumber),
-			Amount:   SaleAmount(item.TotalAmount),
-		})
 	}
-	return &ans, nil
+
+	return &result, nil
 }
 
 func NewBranchRepository(ctx context.Context, querier generated.Querier, customQ handmade.CustomQuerier, sTypeRepo SaleTypeRepository) BranchRepository {

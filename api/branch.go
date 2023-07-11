@@ -95,7 +95,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 			Id:          int32(sm.UserId),
 			Avatar:      nil,
 			FullName:    sm.FirstName + " " + sm.LastName,
-			Ratio:       float64(sm.Ratio.GetRounded()),
+			Ratio:       float64(sm.Ratio),
 			BranchTitle: string(sm.Branch.Title),
 			BranchId:    int32(sm.Branch.BranchId),
 		})
