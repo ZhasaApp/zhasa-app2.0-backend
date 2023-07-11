@@ -46,9 +46,12 @@ type BranchModelResponse struct {
 }
 
 type BranchDashboardResponse struct {
-	SaleStatisticsByTypes []SalesStatisticsByTypesItem `json:"sale_statistics_by_types"`
-	BestSalesManagers     []SalesManagerBranchItem     `json:"best_sales_managers"`
-	Branch                BranchModelResponse          `json:"branch"`
+	SaleStatisticsByTypes  []SalesStatisticsByTypesItem `json:"sale_statistics_by_types"`
+	BestSalesManagers      []SalesManagerBranchItem     `json:"best_sales_managers"`
+	Branch                 BranchModelResponse          `json:"branch"`
+	GoalAchievementPercent float32                      `json:"goal_achievement_percent"`
+	Rating                 int32                        `json:"rating"`
+	Profile                SimpleProfile                `json:"profile"`
 }
 
 type SaleItemResponse struct {
@@ -84,4 +87,9 @@ type SalesManagerDashboardProfile struct {
 	Avatar   *string `json:"avatar"`
 	FullName string  `json:"full_name"`
 	Branch   string  `json:"branch"`
+}
+
+type SimpleProfile struct {
+	Avatar   *string `json:"avatar"`
+	FullName string  `json:"full_name"`
 }

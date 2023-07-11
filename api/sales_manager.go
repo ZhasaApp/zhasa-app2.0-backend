@@ -150,9 +150,10 @@ func (server *Server) getSales(ctx *gin.Context) {
 			Date:   item.SaleDate.Format("2006-01-02 15:04:05"),
 			Amount: int64(item.SalesAmount),
 			Type: SaleTypeResponse{
-				Id:    int32(item.SaleType.Id),
-				Title: item.SaleType.Title,
-				Color: item.SaleType.Color,
+				Id:        int32(item.SaleType.Id),
+				Title:     item.SaleType.Title,
+				Color:     item.SaleType.Color,
+				ValueType: "count",
 			},
 		})
 	}
@@ -240,9 +241,10 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		Date:   saleRes.SaleDate.Format("2006-01-02 15:04:05"),
 		Amount: int64(saleRes.SalesAmount),
 		Type: SaleTypeResponse{
-			Id:    int32(saleRes.SaleType.Id),
-			Title: saleRes.SaleType.Title,
-			Color: saleRes.SaleType.Color,
+			Id:        int32(saleRes.SaleType.Id),
+			Title:     saleRes.SaleType.Title,
+			Color:     saleRes.SaleType.Color,
+			ValueType: "count",
 		},
 	})
 }
@@ -307,9 +309,10 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 				Date:   item.SaleDate.Format("2006-01-02 15:04:05"),
 				Amount: int64(item.SalesAmount),
 				Type: SaleTypeResponse{
-					Id:    int32(item.SaleType.Id),
-					Title: item.SaleType.Title,
-					Color: item.SaleType.Color,
+					Id:        int32(item.SaleType.Id),
+					Title:     item.SaleType.Title,
+					Color:     item.SaleType.Color,
+					ValueType: "count",
 				},
 			})
 		}
@@ -354,9 +357,10 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 	for _, item := range *data {
 		response = append(response, YearStatisticResponse{
 			SaleType: SaleTypeResponse{
-				Id:    int32(item.SaleType.Id),
-				Title: item.SaleType.Title,
-				Color: item.SaleType.Color,
+				Id:        int32(item.SaleType.Id),
+				Title:     item.SaleType.Title,
+				Color:     item.SaleType.Color,
+				ValueType: "count",
 			},
 			Month:  int32(item.Month),
 			Amount: int64(item.Amount),

@@ -23,9 +23,10 @@ type BranchYearStatisticRequestBody struct {
 }
 
 type SaleTypeResponse struct {
-	Id    int32  `json:"id"`
-	Title string `json:"title"`
-	Color string `json:"color"`
+	Id        int32  `json:"id"`
+	Title     string `json:"title"`
+	Color     string `json:"color"`
+	ValueType string `json:"value_type"`
 }
 
 type SaleTypesResponse struct {

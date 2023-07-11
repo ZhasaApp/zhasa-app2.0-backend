@@ -128,6 +128,10 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 			Title:       string(branch.Title),
 			Description: string(branch.Description),
 		},
+		Profile: SimpleProfile{
+			Avatar:   nil,
+			FullName: "Test test",
+		},
 	}
 	ctx.JSON(http.StatusOK, dr)
 }
@@ -157,9 +161,10 @@ func (server *Server) getBranchYearStatistic(ctx *gin.Context) {
 		}
 		response = append(response, YearStatisticResponse{
 			SaleType: SaleTypeResponse{
-				Title: item.SaleType.Title,
-				Color: item.SaleType.Color,
-				Id:    int32(item.SaleType.Id),
+				Title:     item.SaleType.Title,
+				Color:     item.SaleType.Color,
+				Id:        int32(item.SaleType.Id),
+				ValueType: "count",
 			},
 			Month:  int32(item.Month),
 			Amount: int64(item.Amount),
