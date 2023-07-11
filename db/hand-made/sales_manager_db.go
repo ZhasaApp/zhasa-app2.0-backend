@@ -42,7 +42,7 @@ type GetSalesManagerYearStatisticRow struct {
 }
 
 func (d DBCustomQuerier) GetSalesManagerYearStatistic(ctx context.Context, arg GetSalesManagerYearStatisticParams) (*GetSalesManagerYearStatisticRow, error) {
-	rows := d.db.QueryRowContext(ctx, getSalesManagerYearStatistic, arg.Year, arg.Month, arg.SalesManagerID, arg.TypeId)
+	rows := d.db.QueryRowContext(ctx, getSalesManagerYearStatistic, arg.Month, arg.Year, arg.SalesManagerID, arg.TypeId)
 	var i GetSalesManagerYearStatisticRow
 	if err := rows.Scan(&i.TotalAmount); err != nil {
 		return nil, err
