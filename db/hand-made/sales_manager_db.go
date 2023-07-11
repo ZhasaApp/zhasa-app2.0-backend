@@ -27,7 +27,7 @@ SELECT
     EXTRACT(MONTH FROM s.sale_date) AS month_number,
     s.sale_type_id as sale_type,
     COALESCE(g.amount, 0) AS goal,
-    SUM(s.amount) AS total_amount
+    COALESCE(SUM(s.amount),0) AS total_amount
 FROM 
     sales s
 LEFT JOIN 

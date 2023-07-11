@@ -83,8 +83,7 @@ type PostgresSalesManagerRepository struct {
 }
 
 func (p PostgresSalesManagerRepository) DeleteSale(saleId SaleId) error {
-	//TODO implement me
-	panic("implement me")
+	return p.querier.DeleteSaleById(p.ctx, int32(saleId))
 }
 
 func (p PostgresSalesManagerRepository) GetSalesManagersListOrderedByRatio(pagination Pagination, from time.Time, to time.Time) (*[]SalesManager, error) {
