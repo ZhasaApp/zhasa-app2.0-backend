@@ -27,11 +27,8 @@ type GetBranchYearStatisticRow struct {
 }
 
 func (d DBCustomQuerier) GetBranchYearStatistic(ctx context.Context, arg GetBranchYearStatisticParams) (*GetBranchYearStatisticRow, error) {
-	rows, err := d.db.QueryContext(ctx, getBranchYearStatistic, arg.Year, arg.Month, arg.BranchId, arg.TypeId)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+	rows := d.db.QueryRowContext(ctx, getBranchYearStatistic, arg.Year, arg.Month, arg.BranchId, arg.TypeId)
+
 	var i GetBranchYearStatisticRow
 
 	if err := rows.Scan(&i.TotalAmount); err != nil {
