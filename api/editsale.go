@@ -4,7 +4,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
+	. "zhasa2.0/api/entities"
 	. "zhasa2.0/manager/entities"
+	. "zhasa2.0/sale/entities"
 	. "zhasa2.0/statistic/entities"
 )
 
@@ -49,5 +51,18 @@ func (server Server) EditSale(ctx *gin.Context) {
 		Year:        int32(deletedSale.SaleDate.Year()),
 	})
 
-	ctx.Status(http.StatusNoContent)
+	sType, err := server.saleTypeService.GetSaleType(SaleTypeId(requestBody.TypeID))
+
+	ctx.JSON(http.StatusOK, SaleItemResponse{
+		Id:     requestBody.ID,
+		Title:  requestBody.Title,
+		Date:   requestBody.Date,
+		Amount: requestBody.Value,
+		Type: SaleTypeResponse{
+			Id:        requestBody.TypeID,
+			Title:     sType.Title,
+			Color:     sType.Color,
+			ValueType: "count",
+		},
+	})
 }
