@@ -107,6 +107,7 @@ func NewServer(ctx context.Context) *Server {
 	}
 
 	router.DELETE("sales/delete", server.DeleteSale).Use(verifyToken(server.tokenService))
+	router.POST("sales/edit", server.EditSale).Use(verifyToken(server.tokenService))
 
 	router.GET("sales-manager/dashboard", server.getSalesManagerDashboardStatistic).Use(verifyToken(server.tokenService))
 

@@ -27,6 +27,7 @@ type SalesManagers []SalesManager
 type SalesManagerResponse struct {
 	Id SalesManagerId `json:"id"`
 }
+
 type EditSaleBody struct {
 	ID     int32     `json:"id"`
 	Date   time.Time `json:"date"`

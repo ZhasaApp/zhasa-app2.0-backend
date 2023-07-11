@@ -5,7 +5,7 @@ import (
 	. "zhasa2.0/base"
 	. "zhasa2.0/manager/entities"
 	"zhasa2.0/manager/repository"
-	sale "zhasa2.0/sale/entities"
+	. "zhasa2.0/sale/entities"
 	repository2 "zhasa2.0/sale/repository"
 	. "zhasa2.0/statistic/entities"
 )
@@ -13,17 +13,18 @@ import (
 type SalesManagerService interface {
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	CreateSalesManager(userId int32, branchId int32) error
-	SaveSale(sale sale.Sale) (*sale.Sale, error)
-	GetSalesManagerGoalByType(from, to time.Time, salesManagerId SalesManagerId, typeId sale.SaleTypeId) (sale.SaleAmount, error)
-	GetSalesManagerSumsByType(from, to time.Time, salesManagerId SalesManagerId, typeId sale.SaleTypeId) (sale.SaleAmount, error)
+	SaveSale(sale Sale) (*Sale, error)
+	GetSalesManagerGoalByType(from, to time.Time, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error)
+	GetSalesManagerSumsByType(from, to time.Time, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error)
 	GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
-	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]sale.Sale, error)
-	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, period Period) (*[]sale.Sale, error)
+	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error)
+	GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, period Period) (*[]Sale, error)
 	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
 	UpdateRatio(smId SalesManagerId, period Period) (Percent, error)
 	GetRatio(smId SalesManagerId, period Period) (Percent, error)
 	GetSalesManagersOrderedByRatio(pagination Pagination, period Period) (*[]SalesManager, error)
-	DeleteSale(saleId sale.SaleId) (*sale.Sale, error)
+	DeleteSale(saleId SaleId) (*Sale, error)
+	EditSale(editBody EditSaleBody) (*Sale, error)
 }
 
 type DBSalesManagerService struct {
@@ -32,7 +33,11 @@ type DBSalesManagerService struct {
 	repository2.SaleTypeRepository
 }
 
-func (dbs DBSalesManagerService) DeleteSale(saleId sale.SaleId) (*sale.Sale, error) {
+func (dbs DBSalesManagerService) EditSale(editBody EditSaleBody) (*Sale, error) {
+	return dbs.repo.EditSale(editBody)
+}
+
+func (dbs DBSalesManagerService) DeleteSale(saleId SaleId) (*Sale, error) {
 	return dbs.repo.DeleteSale(saleId)
 }
 
@@ -46,7 +51,7 @@ func (dbs DBSalesManagerService) GetRatio(smId SalesManagerId, period Period) (P
 	return dbs.statisticRepo.GetSalesManagerRatioByPeriod(smId, from, to)
 }
 
-func (dbs DBSalesManagerService) GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, period Period) (*[]sale.Sale, error) {
+func (dbs DBSalesManagerService) GetManagerSalesByPeriod(salesManagerId SalesManagerId, pagination Pagination, period Period) (*[]Sale, error) {
 	from, to := period.ConvertToTime()
 	return dbs.repo.GetManagerSalesByPeriod(salesManagerId, pagination, from, to)
 }
@@ -55,11 +60,11 @@ func (dbs DBSalesManagerService) GetSalesManagerSalesCount(salesManagerId SalesM
 	return dbs.repo.GetSalesManagerSalesCount(salesManagerId)
 }
 
-func (dbs DBSalesManagerService) GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]sale.Sale, error) {
+func (dbs DBSalesManagerService) GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error) {
 	return dbs.repo.GetManagerSales(salesManagerId, pagination)
 }
 
-func (dbs DBSalesManagerService) SaveSale(sale sale.Sale) (*sale.Sale, error) {
+func (dbs DBSalesManagerService) SaveSale(sale Sale) (*Sale, error) {
 	return dbs.repo.SaveSale(sale.SaleManagerId, sale.SaleDate, sale.SalesAmount, sale.SaleType.Id, sale.SaleDescription)
 }
 
@@ -87,11 +92,11 @@ func (dbs DBSalesManagerService) GetSalesManagerByUserId(userId int32) (*SalesMa
 	return dbs.repo.GetSalesManagerByUserId(userId)
 }
 
-func (dbs DBSalesManagerService) GetSalesManagerGoalByType(fromDate time.Time, to time.Time, salesManagerId SalesManagerId, typeId sale.SaleTypeId) (sale.SaleAmount, error) {
+func (dbs DBSalesManagerService) GetSalesManagerGoalByType(fromDate time.Time, to time.Time, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error) {
 	return dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(salesManagerId, typeId, fromDate, to)
 }
 
-func (dbs DBSalesManagerService) GetSalesManagerSumsByType(from, to time.Time, salesManagerId SalesManagerId, typeId sale.SaleTypeId) (sale.SaleAmount, error) {
+func (dbs DBSalesManagerService) GetSalesManagerSumsByType(from, to time.Time, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error) {
 	return dbs.statisticRepo.GetSalesSumBySaleTypeAndManager(salesManagerId, typeId, from, to)
 }
 

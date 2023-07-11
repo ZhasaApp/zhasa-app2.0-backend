@@ -20,7 +20,7 @@ type Querier interface {
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
 	DeleteSaleById(ctx context.Context, id int32) (Sale, error)
-	EditSaleById(ctx context.Context, arg EditSaleByIdParams) error
+	EditSaleById(ctx context.Context, arg EditSaleByIdParams) (Sale, error)
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
 	GetBranchDirectorByUserId(ctx context.Context, userID int32) (BranchDirectorsView, error)

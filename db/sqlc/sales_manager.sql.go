@@ -81,7 +81,7 @@ func (q *Queries) DeleteSaleById(ctx context.Context, id int32) (Sale, error) {
 	return i, err
 }
 
-const editSaleById = `-- name: EditSaleById :exec
+const editSaleById = `-- name: EditSaleById :one
 UPDATE sales
 SET sale_type_id = $2,
     sale_date    = $3,
@@ -98,15 +98,25 @@ type EditSaleByIdParams struct {
 	Description string    `json:"description"`
 }
 
-func (q *Queries) EditSaleById(ctx context.Context, arg EditSaleByIdParams) error {
-	_, err := q.db.ExecContext(ctx, editSaleById,
+func (q *Queries) EditSaleById(ctx context.Context, arg EditSaleByIdParams) (Sale, error) {
+	row := q.db.QueryRowContext(ctx, editSaleById,
 		arg.ID,
 		arg.SaleTypeID,
 		arg.SaleDate,
 		arg.Amount,
 		arg.Description,
 	)
-	return err
+	var i Sale
+	err := row.Scan(
+		&i.ID,
+		&i.SalesManagerID,
+		&i.SaleDate,
+		&i.Amount,
+		&i.SaleTypeID,
+		&i.Description,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const getManagerSales = `-- name: GetManagerSales :many
