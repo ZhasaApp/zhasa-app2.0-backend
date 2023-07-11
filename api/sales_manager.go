@@ -9,17 +9,17 @@ import (
 	"time"
 	. "zhasa2.0/api/entities"
 	. "zhasa2.0/api/entities/sm"
-	"zhasa2.0/base"
+	. "zhasa2.0/base"
 	. "zhasa2.0/branch/entities"
 	. "zhasa2.0/manager/entities"
-	"zhasa2.0/manager/service"
+	. "zhasa2.0/manager/service"
 	. "zhasa2.0/sale/entities"
 	. "zhasa2.0/statistic/entities"
 	"zhasa2.0/user/entities"
 	tokenservice "zhasa2.0/user/service"
 )
 
-func getSalesManager(service tokenservice.TokenService, salesManagerService service.SalesManagerService) gin.HandlerFunc {
+func getSalesManager(service tokenservice.TokenService, salesManagerService SalesManagerService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := tokenservice.Token(ctx.GetHeader("Authorization"))
 		userData, err := service.VerifyToken(token)
@@ -132,7 +132,7 @@ func (server *Server) getSales(ctx *gin.Context) {
 		return
 	}
 
-	sales, err := server.salesManagerService.GetManagerSalesByPeriod(salesManager.Id, base.Pagination{
+	sales, err := server.salesManagerService.GetManagerSalesByPeriod(salesManager.Id, Pagination{
 		PageSize: monthPagination.PageSize,
 		Page:     monthPagination.Page,
 	}, period)
@@ -273,7 +273,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 
 	types, err := server.saleTypeService.GetSaleTypes()
 	salesStatisticItemsByTypes := make([]SalesStatisticsByTypesItem, 0)
-
+	ratioRows := make([]RatioRow, 0)
 	for _, row := range *types {
 		sumByType, _ := server.salesManagerService.GetSalesManagerSumsByType(fromDate, toDate, salesManager.Id, row.Id)
 
@@ -285,6 +285,11 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 			Achieved: int64(sumByType),
 			Goal:     int64(goal),
 		}
+		ratioRows = append(ratioRows, RatioRow{
+			Amount:  sumByType,
+			Goal:    goal,
+			Gravity: row.Gravity,
+		})
 		salesStatisticItemsByTypes = append(salesStatisticItemsByTypes, item)
 	}
 
@@ -293,7 +298,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 		return
 	}
 
-	sales, err := server.salesManagerService.GetManagerSales(salesManager.Id, base.Pagination{
+	sales, err := server.salesManagerService.GetManagerSales(salesManager.Id, Pagination{
 		PageSize: 5,
 		Page:     0,
 	})
@@ -318,7 +323,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 		}
 	}
 
-	goalAchievement, err := server.salesManagerService.GetRatio(salesManager.Id, period)
+	goalAchievement := Percent(CalculateRatio(ratioRows)).GetRounded()
 
 	dr := SalesManagerDashboardResponse{
 		Profile: SalesManagerDashboardProfile{
@@ -327,7 +332,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 			Branch:   string(salesManager.Branch.Title),
 		},
 		SalesStatisticsByTypes: salesStatisticItemsByTypes,
-		GoalAchievementPercent: float32(goalAchievement * 100),
+		GoalAchievementPercent: float32(goalAchievement),
 		LastSales:              salesResponse,
 		Rating:                 int32(1),
 	}
@@ -387,12 +392,12 @@ func (server Server) GetSalesManagers(ctx *gin.Context) {
 	var salesManagers *[]SalesManager
 	var err error
 	if monthPagination.BranchId == nil {
-		salesManagers, err = server.salesManagerService.GetSalesManagersOrderedByRatio(base.Pagination{
+		salesManagers, err = server.salesManagerService.GetSalesManagersOrderedByRatio(Pagination{
 			PageSize: monthPagination.PageSize,
 			Page:     monthPagination.Page,
 		}, period)
 	} else {
-		salesManagers, err = server.branchService.GetBranchRankedSalesManagers(period, BranchId(*monthPagination.BranchId), base.Pagination{
+		salesManagers, err = server.branchService.GetBranchRankedSalesManagers(period, BranchId(*monthPagination.BranchId), Pagination{
 			PageSize: monthPagination.PageSize,
 			Page:     monthPagination.Page,
 		})

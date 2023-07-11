@@ -9,9 +9,9 @@ import (
 )
 
 type RatioRow struct {
-	amount  SaleAmount
-	goal    SaleAmount
-	gravity int32
+	Amount  SaleAmount
+	Goal    SaleAmount
+	Gravity int32
 }
 
 func (dbs DBSalesManagerService) UpdateRatio(smId entities.SalesManagerId, period Period) (Percent, error) {
@@ -27,13 +27,13 @@ func (dbs DBSalesManagerService) UpdateRatio(smId entities.SalesManagerId, perio
 		sum, _ := dbs.statisticRepo.GetSalesSumBySaleTypeAndManager(smId, item.Id, from, to)
 		goal, err := dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(smId, item.Id, from, to)
 		if err != nil || goal == 0 {
-			return 0, errors.New("no goal found for given sale type: " + string(item.Id))
+			return 0, errors.New("no Goal found for given sale type: " + string(item.Id))
 		}
 
 		ratioRows = append(ratioRows, RatioRow{
-			amount:  sum,
-			goal:    goal,
-			gravity: item.Gravity,
+			Amount:  sum,
+			Goal:    goal,
+			Gravity: item.Gravity,
 		})
 	}
 
@@ -49,10 +49,10 @@ func CalculateRatio(rows []RatioRow) float32 {
 	var totalGravity int32
 
 	for _, row := range rows {
-		ratio := float32(row.amount) / float32(row.goal)
-		weightedRatio := ratio * float32(row.gravity)
+		ratio := float32(row.Amount) / float32(row.Goal)
+		weightedRatio := ratio * float32(row.Gravity)
 		totalWeightedRatio += weightedRatio
-		totalGravity += row.gravity
+		totalGravity += row.Gravity
 	}
 
 	return totalWeightedRatio / float32(totalGravity)
