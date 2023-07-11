@@ -110,7 +110,7 @@ DELETE
 FROM sales
 WHERE id = $1 RETURNING *;
 
--- name: ChangeSaleById :exec
+-- name: EditSaleById :exec
 UPDATE sales
 SET sale_type_id = $2,
     sale_date    = $3,
