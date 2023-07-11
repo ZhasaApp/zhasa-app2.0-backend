@@ -331,6 +331,7 @@ func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(smId SalesMa
 
 			sum, err := p.customQuerier.GetSalesManagerYearStatistic(p.ctx, GetSalesManagerYearStatisticParams{
 				SalesManagerID: int32(smId),
+				TypeId:         int32(saleType.Id),
 				Year:           year,
 				Month:          int32(month),
 			})

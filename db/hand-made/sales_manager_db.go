@@ -27,11 +27,13 @@ SELECT SUM(amount) AS total_sales
 FROM sales
 WHERE EXTRACT(MONTH FROM sale_date) = $1
   AND EXTRACT(YEAR FROM sale_date) = $2
-  AND sale_type_id = $3;
+  AND sales_manager_id = $3
+  AND sale_type_id = $4;
 `
 
 type GetSalesManagerYearStatisticParams struct {
 	SalesManagerID int32 `json:"sales_manager_id"`
+	TypeId         int32 `json:"type_id"`
 	Year           int32 `json:"year"`
 	Month          int32 `json:"month"`
 }
@@ -41,7 +43,7 @@ type GetSalesManagerYearStatisticRow struct {
 }
 
 func (d DBCustomQuerier) GetSalesManagerYearStatistic(ctx context.Context, arg GetSalesManagerYearStatisticParams) (*GetSalesManagerYearStatisticRow, error) {
-	rows, err := d.db.QueryContext(ctx, getSalesManagerYearStatistic, arg.SalesManagerID, arg.Year)
+	rows, err := d.db.QueryContext(ctx, getSalesManagerYearStatistic, arg.Year, arg.Month, arg.SalesManagerID, arg.TypeId)
 	if err != nil {
 		return nil, err
 	}
