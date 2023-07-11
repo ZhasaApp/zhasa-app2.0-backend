@@ -340,13 +340,15 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 
 	salesManager, err := server.salesManagerService.GetSalesManagerByUserId(requestBody.UserId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("sales manager not found")))
 		return
 	}
 
 	data, err := server.salesManagerService.GetSalesManagerYearMonthlyStatistic(salesManager.Id, requestBody.Year)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		log.Println(salesManager.Id)
+		log.Println(requestBody.Year)
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("no data found")))
 		return
 	}
 
