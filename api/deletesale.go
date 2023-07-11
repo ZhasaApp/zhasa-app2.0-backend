@@ -30,5 +30,5 @@ func (server Server) DeleteSale(ctx *gin.Context) {
 		Year:        int32(deletedSale.SaleDate.Year()),
 	})
 
-	ctx.Status(http.StatusOK)
+	ctx.Status(http.StatusNoContent)
 }
