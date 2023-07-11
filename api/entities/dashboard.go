@@ -46,7 +46,7 @@ type BranchModelResponse struct {
 }
 
 type BranchDashboardResponse struct {
-	SalesStatisticsByTypes []SalesStatisticsByTypesItem `json:"sale_statistics_by_types"`
+	SalesStatisticsByTypes []SalesStatisticsByTypesItem `json:"sales_statistics_by_types"`
 	BestSalesManagers      []SalesManagerBranchItem     `json:"best_sales_managers"`
 	Branch                 BranchModelResponse          `json:"branch"`
 	GoalAchievementPercent float32                      `json:"goal_achievement_percent"`
