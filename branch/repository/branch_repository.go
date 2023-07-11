@@ -205,7 +205,7 @@ func (br DBBranchRepository) GetBranchById(id BranchId) (*Branch, error) {
 
 	branchDb, err := br.querier.GetBranchById(br.ctx, int32(id))
 	if err != nil {
-		return nil, err
+		return nil, errors.New("no branch found for given id")
 	}
 
 	newBranch := &Branch{
