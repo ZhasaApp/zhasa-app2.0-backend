@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	. "zhasa2.0/api/entities"
-	. "zhasa2.0/statistic/entities"
 )
 
 type BranchRatingItem struct {
