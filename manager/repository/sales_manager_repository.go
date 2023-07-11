@@ -326,7 +326,7 @@ func (p PostgresSalesManagerRepository) GetMonthlyYearSaleStatistic(smId SalesMa
 	for _, row := range data {
 		saleType, err := p.GetSaleType(SaleTypeId(row.SaleType))
 		if err != nil {
-			return nil, err
+			return nil, errors.New("no sale type found for given sale type id" + string(row.SaleType))
 		}
 
 		stat := MonthlyYearStatistic{
