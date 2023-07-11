@@ -42,6 +42,13 @@ type BranchGoalsByType struct {
 	TypeID   int32     `json:"type_id"`
 }
 
+type BranchesGoalsRatioByPeriod struct {
+	FromDate time.Time `json:"from_date"`
+	ToDate   time.Time `json:"to_date"`
+	Ratio    float64   `json:"ratio"`
+	BranchID int32     `json:"branch_id"`
+}
+
 type Sale struct {
 	ID             int32     `json:"id"`
 	SalesManagerID int32     `json:"sales_manager_id"`

@@ -72,3 +72,63 @@ func (q *Queries) GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBran
 	err := row.Scan(&goal_amount)
 	return goal_amount, err
 }
+
+const getOrderedBranchesByGivenPeriod = `-- name: GetOrderedBranchesByGivenPeriod :many
+SELECT b.title,
+       b.id,
+       b.description,
+       COALESCE(r.ratio, 0.0) AS ratio
+FROM branches b
+         LEFT JOIN
+     branches_goals_ratio_by_period r ON b.id = r.branch_id
+         AND r.from_date >= $1 AND r.to_date <= $2
+ORDER BY ratio DESC LIMIT $3
+OFFSET $4
+`
+
+type GetOrderedBranchesByGivenPeriodParams struct {
+	FromDate time.Time `json:"from_date"`
+	ToDate   time.Time `json:"to_date"`
+	Limit    int32     `json:"limit"`
+	Offset   int32     `json:"offset"`
+}
+
+type GetOrderedBranchesByGivenPeriodRow struct {
+	Title       string  `json:"title"`
+	ID          int32   `json:"id"`
+	Description string  `json:"description"`
+	Ratio       float64 `json:"ratio"`
+}
+
+func (q *Queries) GetOrderedBranchesByGivenPeriod(ctx context.Context, arg GetOrderedBranchesByGivenPeriodParams) ([]GetOrderedBranchesByGivenPeriodRow, error) {
+	rows, err := q.db.QueryContext(ctx, getOrderedBranchesByGivenPeriod,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOrderedBranchesByGivenPeriodRow
+	for rows.Next() {
+		var i GetOrderedBranchesByGivenPeriodRow
+		if err := rows.Scan(
+			&i.Title,
+			&i.ID,
+			&i.Description,
+			&i.Ratio,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

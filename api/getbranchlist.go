@@ -7,6 +7,19 @@ import (
 	. "zhasa2.0/statistic/entities"
 )
 
+type BranchRatingItem struct {
+	ID                     int     `json:"id"`
+	Title                  string  `json:"title"`
+	Description            string  `json:"description"`
+	GoalAchievementPercent float32 `json:"goal_achievement_percent"`
+}
+
+type BranchesResponse struct {
+	Result  []BranchRatingItem `json:"result"`
+	Count   int32              `json:"count"`
+	HasNext bool               `json:"has_next"`
+}
+
 func (server *Server) GetBranchList(ctx *gin.Context) {
 	var monthPagination MonthPaginationRequest
 	if err := ctx.ShouldBindQuery(&monthPagination); err != nil {
@@ -14,11 +27,5 @@ func (server *Server) GetBranchList(ctx *gin.Context) {
 		return
 	}
 
-	period := MonthPeriod{
-		MonthNumber: monthPagination.Month,
-		Year:        monthPagination.Year,
-	}
-
-	period.ConvertToTime()
-
+	ctx.JSON(http.StatusOK, BranchesResponse{})
 }
