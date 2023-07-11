@@ -23,7 +23,7 @@ type DBCustomQuerier struct {
 }
 
 const getSalesManagerYearStatistic = `-- name: GetSalesManagerYearStatistic :many
-SELECT SUM(amount) AS total_sales
+SELECT COALESCE(SUM(amount),0) AS total_sales
 FROM sales
 WHERE EXTRACT(MONTH FROM sale_date) = $1
   AND EXTRACT(YEAR FROM sale_date) = $2
