@@ -354,6 +354,7 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 	for _, item := range *data {
 		response = append(response, YearStatisticResponse{
 			SaleType: SaleTypeResponse{
+				Id:    int32(item.SaleType.Id),
 				Title: item.SaleType.Title,
 				Color: item.SaleType.Color,
 			},
