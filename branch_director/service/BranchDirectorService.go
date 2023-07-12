@@ -6,6 +6,8 @@ import (
 	entities3 "zhasa2.0/branch/entities"
 	"zhasa2.0/branch_director/entities"
 	"zhasa2.0/branch_director/repo"
+	. "zhasa2.0/manager/entities"
+	. "zhasa2.0/statistic/entities"
 	entities2 "zhasa2.0/user/entities"
 )
 
@@ -23,12 +25,9 @@ func (bd BranchDirectorService) CreateBranchDirector(userId entities2.UserId, br
 	return bd.repo.CreateBranchDirector(userId, branchId)
 }
 
-func (bd BranchDirectorService) CreateSalesManagerGoal(goal entities.SalesManagerGoal) error {
-	err := bd.repo.CreateSalesManagerGoal(goal)
-	if err != nil {
-		return errors.New("db error")
-	}
-	return nil
+func (bd BranchDirectorService) SetSmGoal(period Period, smId int32, typeId int32, amount int64) error {
+	from, to := period.ConvertToTime()
+	return bd.repo.SetSalesManagerGoal(from, to, smId, typeId, amount)
 }
 
 func (bd BranchDirectorService) GetBranchDirectorByUserId(userId entities2.UserId) (*entities.BranchDirector, error) {

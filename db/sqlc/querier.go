@@ -30,6 +30,7 @@ type Querier interface {
 	GetOrderedBranchesByGivenPeriod(ctx context.Context, arg GetOrderedBranchesByGivenPeriodParams) ([]GetOrderedBranchesByGivenPeriodRow, error)
 	GetOrderedSalesManagers(ctx context.Context, arg GetOrderedSalesManagersParams) ([]GetOrderedSalesManagersRow, error)
 	GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOrderedSalesManagersOfBranchParams) ([]GetOrderedSalesManagersOfBranchRow, error)
+	GetSMGoal(ctx context.Context, arg GetSMGoalParams) (int64, error)
 	GetSMRatio(ctx context.Context, arg GetSMRatioParams) (float64, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
 	GetSalesByDate(ctx context.Context, saleDate time.Time) ([]Sale, error)
@@ -42,6 +43,7 @@ type Querier interface {
 	GetUserById(ctx context.Context, id int32) (User, error)
 	GetUserByPhone(ctx context.Context, phone string) (User, error)
 	SetSMRatio(ctx context.Context, arg SetSMRatioParams) error
+	SetSmGoalBySaleType(ctx context.Context, arg SetSmGoalBySaleTypeParams) error
 }
 
 var _ Querier = (*Queries)(nil)

@@ -52,7 +52,8 @@ func (q *Queries) CreateSalesManagerGoalByType(ctx context.Context, arg CreateSa
 }
 
 const getBranchDirectorByUserId = `-- name: GetBranchDirectorByUserId :one
-SELECT user_id, phone, first_name, last_name, avatar_url, branch_director_id, branch_id, branch_title FROM branch_directors_view bdv
+SELECT user_id, phone, first_name, last_name, avatar_url, branch_director_id, branch_id, branch_title
+FROM branch_directors_view bdv
 WHERE bdv.user_id = $1
 `
 
@@ -70,4 +71,58 @@ func (q *Queries) GetBranchDirectorByUserId(ctx context.Context, userID int32) (
 		&i.BranchTitle,
 	)
 	return i, err
+}
+
+const getSMGoal = `-- name: GetSMGoal :one
+SELECT COALESCE(amount, 0)
+FROM sales_manager_goals_by_types
+WHERE from_date = $1
+  AND to_date = $2
+  AND sales_manager_id = $3
+  AND type_id = $4
+`
+
+type GetSMGoalParams struct {
+	FromDate       time.Time `json:"from_date"`
+	ToDate         time.Time `json:"to_date"`
+	SalesManagerID int32     `json:"sales_manager_id"`
+	TypeID         int32     `json:"type_id"`
+}
+
+func (q *Queries) GetSMGoal(ctx context.Context, arg GetSMGoalParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getSMGoal,
+		arg.FromDate,
+		arg.ToDate,
+		arg.SalesManagerID,
+		arg.TypeID,
+	)
+	var amount int64
+	err := row.Scan(&amount)
+	return amount, err
+}
+
+const setSmGoalBySaleType = `-- name: SetSmGoalBySaleType :exec
+INSERT INTO sales_manager_goals_by_types (from_date, to_date, amount, sales_manager_id, type_id)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (from_date, to_date, sales_manager_id, type_id)
+DO
+UPDATE SET amount = EXCLUDED.amount
+`
+
+type SetSmGoalBySaleTypeParams struct {
+	FromDate       time.Time `json:"from_date"`
+	ToDate         time.Time `json:"to_date"`
+	Amount         int64     `json:"amount"`
+	SalesManagerID int32     `json:"sales_manager_id"`
+	TypeID         int32     `json:"type_id"`
+}
+
+func (q *Queries) SetSmGoalBySaleType(ctx context.Context, arg SetSmGoalBySaleTypeParams) error {
+	_, err := q.db.ExecContext(ctx, setSmGoalBySaleType,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Amount,
+		arg.SalesManagerID,
+		arg.TypeID,
+	)
+	return err
 }

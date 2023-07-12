@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"time"
 	. "zhasa2.0/branch/entities"
 	"zhasa2.0/branch_director/entities"
 	generated "zhasa2.0/db/sqlc"
@@ -10,8 +11,8 @@ import (
 
 type BranchDirectorRepository interface {
 	CreateBranchDirector(userId entities2.UserId, branchId BranchId) (entities.BranchDirectorId, error)
-	CreateSalesManagerGoal(goal entities.SalesManagerGoal) error
 	GetBranchDirectorByUserId(userId entities2.UserId) (*entities.BranchDirector, error)
+	SetSalesManagerGoal(from, to time.Time, smId int32, saleTypeId int32, amount int64) error
 }
 
 func NewBranchDirectorRepository(ctx context.Context, querier generated.Querier) BranchDirectorRepository {
@@ -19,6 +20,18 @@ func NewBranchDirectorRepository(ctx context.Context, querier generated.Querier)
 		ctx:     ctx,
 		querier: querier,
 	}
+}
+
+func (bdr DbBranchDirectorRepository) SetSalesManagerGoal(from, to time.Time, smId int32, saleTypeId int32, amount int64) error {
+	params := generated.SetSmGoalBySaleTypeParams{
+		FromDate:       from,
+		ToDate:         to,
+		Amount:         amount,
+		SalesManagerID: smId,
+		TypeID:         saleTypeId,
+	}
+
+	return bdr.querier.SetSmGoalBySaleType(bdr.ctx, params)
 }
 
 type DbBranchDirectorRepository struct {
@@ -36,16 +49,6 @@ func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId entities2.User
 		return -1, err
 	}
 	return entities.BranchDirectorId(id), nil
-}
-
-func (bdr DbBranchDirectorRepository) CreateSalesManagerGoal(goal entities.SalesManagerGoal) error {
-	params := generated.CreateSalesManagerGoalByTypeParams{
-		FromDate:       goal.FromDate,
-		ToDate:         goal.ToDate,
-		Amount:         int64(goal.Amount),
-		SalesManagerID: int32(goal.SalesManagerId),
-	}
-	return bdr.querier.CreateSalesManagerGoalByType(bdr.ctx, params)
 }
 
 func (bdr DbBranchDirectorRepository) GetBranchDirectorByUserId(userId entities2.UserId) (*entities.BranchDirector, error) {
