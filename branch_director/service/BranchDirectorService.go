@@ -6,7 +6,6 @@ import (
 	entities3 "zhasa2.0/branch/entities"
 	"zhasa2.0/branch_director/entities"
 	"zhasa2.0/branch_director/repo"
-	. "zhasa2.0/manager/entities"
 	. "zhasa2.0/statistic/entities"
 	entities2 "zhasa2.0/user/entities"
 )
