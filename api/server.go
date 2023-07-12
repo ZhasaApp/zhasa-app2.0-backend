@@ -103,7 +103,7 @@ func NewServer(ctx context.Context) *Server {
 	router.DELETE("sales/delete", server.DeleteSale).Use(verifyToken(server.tokenService))
 	router.POST("sales/edit", server.EditSale).Use(verifyToken(server.tokenService))
 
-	router.POST("sales-manager/goal", server.SetSmGoal).Use(getBranchDirector(server.tokenService, server.directorService))
+	router.POST("director/sales-manager/goal", server.SetSmGoal).Use(getBranchDirector(server.tokenService, server.directorService))
 
 	router.GET("sales-manager/dashboard", server.getSalesManagerDashboardStatistic).Use(verifyToken(server.tokenService))
 

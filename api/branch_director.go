@@ -19,15 +19,15 @@ func getBranchDirector(service token_service.TokenService, branchDirectorService
 			return
 		}
 
-		salesManager, err := branchDirectorService.GetBranchDirectorByUserId(entities.UserId(userData.Id))
+		director, err := branchDirectorService.GetBranchDirectorByUserId(entities.UserId(userData.Id))
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, errorResponse(err))
 			return
 		}
 
-		log.Println(salesManager.Id)
+		log.Println(director.Id)
 
-		ctx.Set("sales_manager_id", int(salesManager.Id))
+		ctx.Set("director_id", int(director.Id))
 		ctx.Next()
 	}
 }
