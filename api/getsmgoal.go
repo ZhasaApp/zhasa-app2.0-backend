@@ -16,7 +16,7 @@ type GetGoalRequest struct {
 }
 
 type GetGoalResponse struct {
-	Value *int64 `json:"value,omitempty"`
+	Value *int64 `json:"value"`
 }
 
 func (server *Server) GetSmGoal(ctx *gin.Context) {
