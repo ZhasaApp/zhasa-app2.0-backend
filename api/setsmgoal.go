@@ -7,23 +7,12 @@ import (
 	"zhasa2.0/statistic/entities"
 )
 
-type GetGoalRequest struct {
-	UserID     int32 `json:"user_id" form:"user_id"`
-	Month      int32 `json:"month" form:"month"`
-	Year       int32 `json:"year" form:"year"`
-	SaleTypeID int32 `json:"sale_type_id" form:"sale_type_id"`
-}
-
 type SetGoalRequest struct {
 	UserID     int32 `json:"user_id"`
 	Value      int64 `json:"value"`
 	Month      int32 `json:"month"`
 	Year       int32 `json:"year"`
 	SaleTypeID int32 `json:"sale_type_id"`
-}
-
-type GetGoalResponse struct {
-	Value *int `json:"value,omitempty"`
 }
 
 func (server *Server) SetSmGoal(ctx *gin.Context) {

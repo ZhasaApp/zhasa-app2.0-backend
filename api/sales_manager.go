@@ -205,9 +205,7 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		int32(parsedTime.Year()),
 	}
 
-	from, to := period.ConvertToTime()
-
-	goal, err := server.salesManagerService.GetSalesManagerGoalByType(from, to, SalesManagerId(salesManagerId), saleType.Id)
+	goal, err := server.salesManagerService.GetSalesManagerGoalByType(period, SalesManagerId(salesManagerId), saleType.Id)
 
 	if err != nil || goal == 0 {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("не создана цель по типу продажи на данный месяц")))
@@ -277,7 +275,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 	for _, row := range *types {
 		sumByType, _ := server.salesManagerService.GetSalesManagerSumsByType(fromDate, toDate, salesManager.Id, row.Id)
 
-		goal, _ := server.salesManagerService.GetSalesManagerGoalByType(fromDate, toDate, salesManager.Id, row.Id)
+		goal, _ := server.salesManagerService.GetSalesManagerGoalByType(period, salesManager.Id, row.Id)
 
 		item := SalesStatisticsByTypesItem{
 			Color:    row.Color,

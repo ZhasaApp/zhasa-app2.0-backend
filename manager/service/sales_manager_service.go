@@ -14,7 +14,7 @@ type SalesManagerService interface {
 	GetSalesManagerByUserId(userId int32) (*SalesManager, error)
 	CreateSalesManager(userId int32, branchId int32) error
 	SaveSale(sale Sale) (*Sale, error)
-	GetSalesManagerGoalByType(from, to time.Time, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error)
+	GetSalesManagerGoalByType(period Period, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error)
 	GetSalesManagerSumsByType(from, to time.Time, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error)
 	GetSalesManagerYearMonthlyStatistic(smId SalesManagerId, year int32) (*[]MonthlyYearStatistic, error)
 	GetManagerSales(salesManagerId SalesManagerId, pagination Pagination) (*[]Sale, error)
@@ -92,8 +92,9 @@ func (dbs DBSalesManagerService) GetSalesManagerByUserId(userId int32) (*SalesMa
 	return dbs.repo.GetSalesManagerByUserId(userId)
 }
 
-func (dbs DBSalesManagerService) GetSalesManagerGoalByType(fromDate time.Time, to time.Time, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error) {
-	return dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(salesManagerId, typeId, fromDate, to)
+func (dbs DBSalesManagerService) GetSalesManagerGoalByType(period Period, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error) {
+	from, to := period.ConvertToTime()
+	return dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(salesManagerId, typeId, from, to)
 }
 
 func (dbs DBSalesManagerService) GetSalesManagerSumsByType(from, to time.Time, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error) {
