@@ -336,6 +336,10 @@ func (p PostgresSalesManagerStatisticRepository) GetSalesGoalBySaleTypeAndManage
 	}
 	data, err := p.querier.GetSalesManagerGoalByGivenDateRangeAndSaleType(p.ctx, arg)
 
+	if err == sql.ErrNoRows {
+		return 0, nil
+	}
+
 	if err != nil {
 		return 0, err
 	}

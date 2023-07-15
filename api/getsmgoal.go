@@ -41,7 +41,7 @@ func (server *Server) GetSmGoal(ctx *gin.Context) {
 	goal, err := server.salesManagerService.GetSalesManagerGoalByType(period, sm.Id, SaleTypeId(request.SaleTypeID))
 
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
