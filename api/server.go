@@ -98,6 +98,7 @@ func NewServer(ctx context.Context) *Server {
 	branchRoute := router.Group("branch/").Use(verifyToken(server.tokenService))
 	{
 		branchRoute.GET("/year-statistic", server.getBranchYearStatistic)
+		branchRoute.GET("/sales-managers", server.GetBranchSalesManagerList)
 	}
 
 	router.DELETE("sales/delete", server.DeleteSale).Use(verifyToken(server.tokenService))
