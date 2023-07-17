@@ -28,7 +28,7 @@ func (q *Queries) CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) 
 }
 
 const getSaleTypeById = `-- name: GetSaleTypeById :one
-SELECT id, title, description, created_at, color, gravity FROM sale_types
+SELECT id, title, description, created_at, color, gravity, value_type FROM sale_types
 WHERE id = $1
 `
 
@@ -42,12 +42,13 @@ func (q *Queries) GetSaleTypeById(ctx context.Context, id int32) (SaleType, erro
 		&i.CreatedAt,
 		&i.Color,
 		&i.Gravity,
+		&i.ValueType,
 	)
 	return i, err
 }
 
 const getSalesTypes = `-- name: GetSalesTypes :many
-SELECT id, title, description, created_at, color, gravity FROM sale_types
+SELECT id, title, description, created_at, color, gravity, value_type FROM sale_types
 `
 
 func (q *Queries) GetSalesTypes(ctx context.Context) ([]SaleType, error) {
@@ -66,6 +67,7 @@ func (q *Queries) GetSalesTypes(ctx context.Context) ([]SaleType, error) {
 			&i.CreatedAt,
 			&i.Color,
 			&i.Gravity,
+			&i.ValueType,
 		); err != nil {
 			return nil, err
 		}

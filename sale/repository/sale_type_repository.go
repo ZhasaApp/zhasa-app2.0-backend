@@ -38,6 +38,7 @@ func (str DBSaleTypeRepository) GetSaleTypes() (*[]SaleType, error) {
 			Description: row.Description,
 			Color:       row.Color,
 			Gravity:     row.Gravity,
+			ValueType:   string(row.ValueType),
 		})
 	}
 
@@ -98,6 +99,7 @@ func (str DBSaleTypeRepository) GetSaleType(id SaleTypeId) (*SaleType, error) {
 		Title:       saleTypeDb.Title,
 		Description: saleTypeDb.Description,
 		Color:       saleTypeDb.Color,
+		ValueType:   string(saleTypeDb.ValueType),
 	}
 
 	return newSaleType, nil

@@ -38,6 +38,8 @@ CREATE TABLE sales_managers
     created_at TIMESTAMP                                              NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TYPE value_type AS ENUM ('sum', 'count');
+
 CREATE TABLE sale_types
 (
     id          SERIAL PRIMARY KEY,
@@ -45,7 +47,8 @@ CREATE TABLE sale_types
     description TEXT         NOT NULL,
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     color       VARCHAR(255) NOT NULL,
-    gravity     INTEGER      NOT NULL
+    gravity     INTEGER      NOT NULL,
+    value_type  value_type   NOT NULL DEFAULT ('count')
 );
 
 CREATE TABLE sales_manager_goals_by_types
@@ -61,9 +64,9 @@ CREATE TABLE sales_manager_goals_by_types
 
 CREATE TABLE sales_manager_goals_ratio_by_period
 (
-    from_date TIMESTAMP NOT NULL,
-    to_date   TIMESTAMP NOT NULL,
-    ratio FLOAT NOT NULL,
+    from_date        TIMESTAMP                                                NOT NULL,
+    to_date          TIMESTAMP                                                NOT NULL,
+    ratio            FLOAT                                                    NOT NULL,
     sales_manager_id INTEGER REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (from_date, to_date, sales_manager_id)
 );
@@ -71,11 +74,11 @@ CREATE TABLE sales_manager_goals_ratio_by_period
 CREATE TABLE branch_goals_by_types
 (
     id        SERIAL PRIMARY KEY,
-    from_date TIMESTAMP                                          NOT NULL,
-    to_date   TIMESTAMP                                          NOT NULL,
-    amount    BIGINT                                             NOT NULL,
-    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
-    type_id          INTEGER REFERENCES sale_types (id) ON DELETE CASCADE     NOT NULL,
+    from_date TIMESTAMP                                            NOT NULL,
+    to_date   TIMESTAMP                                            NOT NULL,
+    amount    BIGINT                                               NOT NULL,
+    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE   NOT NULL,
+    type_id   INTEGER REFERENCES sale_types (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (from_date, to_date, branch_id, type_id)
 );
 
@@ -138,9 +141,9 @@ FROM user_avatar_view u
 
 CREATE TABLE branches_goals_ratio_by_period
 (
-    from_date TIMESTAMP NOT NULL,
-    to_date   TIMESTAMP NOT NULL,
-    ratio FLOAT NOT NULL,
+    from_date TIMESTAMP                                          NOT NULL,
+    to_date   TIMESTAMP                                          NOT NULL,
+    ratio     FLOAT                                              NOT NULL,
     branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (from_date, to_date, branch_id)
 );

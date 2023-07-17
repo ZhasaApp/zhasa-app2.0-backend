@@ -315,7 +315,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 					Id:        int32(item.SaleType.Id),
 					Title:     item.SaleType.Title,
 					Color:     item.SaleType.Color,
-					ValueType: "count",
+					ValueType: item.SaleType.ValueType,
 				},
 			})
 		}

@@ -13,6 +13,7 @@ type SaleType struct {
 	Description string
 	Color       string
 	Gravity     int32
+	ValueType   string
 }
 
 type SumsByTypeRow struct {

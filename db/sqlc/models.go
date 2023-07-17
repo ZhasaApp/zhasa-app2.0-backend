@@ -5,8 +5,52 @@
 package generated
 
 import (
+	"database/sql/driver"
+	"fmt"
 	"time"
 )
+
+type ValueType string
+
+const (
+	ValueTypeSum   ValueType = "sum"
+	ValueTypeCount ValueType = "count"
+)
+
+func (e *ValueType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ValueType(s)
+	case string:
+		*e = ValueType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ValueType: %T", src)
+	}
+	return nil
+}
+
+type NullValueType struct {
+	ValueType ValueType
+	Valid     bool // Valid is true if ValueType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullValueType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ValueType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ValueType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullValueType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ValueType), nil
+}
 
 type Branch struct {
 	ID          int32     `json:"id"`
@@ -66,6 +110,7 @@ type SaleType struct {
 	CreatedAt   time.Time `json:"created_at"`
 	Color       string    `json:"color"`
 	Gravity     int32     `json:"gravity"`
+	ValueType   ValueType `json:"value_type"`
 }
 
 type SalesManager struct {
