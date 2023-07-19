@@ -38,7 +38,7 @@ CREATE TABLE sales_managers
     created_at TIMESTAMP                                              NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TYPE value_type AS ENUM ('sum', 'count');
+CREATE TYPE value_type AS ENUM ('amount', 'count');
 
 CREATE TABLE sale_types
 (

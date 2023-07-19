@@ -325,6 +325,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 
 	dr := SalesManagerDashboardResponse{
 		Profile: SalesManagerDashboardProfile{
+			Id:       int32(salesManager.UserId),
 			Avatar:   nil,
 			FullName: salesManager.FirstName + " " + salesManager.LastName,
 			Branch:   string(salesManager.Branch.Title),

@@ -84,6 +84,7 @@ type SalesStatisticsByTypesItem struct {
 }
 
 type SalesManagerDashboardProfile struct {
+	Id       int32   `json:"id"`
 	Avatar   *string `json:"avatar"`
 	FullName string  `json:"full_name"`
 	Branch   string  `json:"branch"`
