@@ -364,7 +364,7 @@ func (server *Server) getYearStatistic(ctx *gin.Context) {
 				Id:        int32(item.SaleType.Id),
 				Title:     item.SaleType.Title,
 				Color:     item.SaleType.Color,
-				ValueType: "count",
+				ValueType: item.SaleType.ValueType,
 			},
 			Month:  int32(item.Month),
 			Amount: int64(item.Amount),
