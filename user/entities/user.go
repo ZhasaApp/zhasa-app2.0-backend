@@ -24,6 +24,10 @@ type User struct {
 	LastName  Name
 }
 
+func (u User) GetFullName() string {
+	return string(u.FirstName) + " " + string(u.LastName)
+}
+
 type UserAuth struct {
 	Code      OtpCode
 	UserId    UserId

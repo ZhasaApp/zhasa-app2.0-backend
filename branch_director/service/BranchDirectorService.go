@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
-	entities3 "zhasa2.0/branch/entities"
+	. "zhasa2.0/branch/entities"
 	"zhasa2.0/branch_director/entities"
 	"zhasa2.0/branch_director/repo"
 	. "zhasa2.0/statistic/entities"
@@ -20,7 +20,7 @@ func NewBranchDirectorService(repo repo.BranchDirectorRepository) BranchDirector
 	}
 }
 
-func (bd BranchDirectorService) CreateBranchDirector(userId entities2.UserId, branchId entities3.BranchId) (entities.BranchDirectorId, error) {
+func (bd BranchDirectorService) CreateBranchDirector(userId entities2.UserId, branchId BranchId) (entities.BranchDirectorId, error) {
 	return bd.repo.CreateBranchDirector(userId, branchId)
 }
 
@@ -33,6 +33,14 @@ func (bd BranchDirectorService) GetBranchDirectorByUserId(userId entities2.UserI
 	director, err := bd.repo.GetBranchDirectorByUserId(userId)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("director not found by given id userId: ", userId))
+	}
+	return director, nil
+}
+
+func (bd BranchDirectorService) GetBranchDirectorByBranchId(branchId BranchId) (*entities.BranchDirector, error) {
+	director, err := bd.repo.GetBranchDirectorByBranchId(branchId)
+	if err != nil {
+		return nil, errors.New(fmt.Sprintf("director not found by given id userId: ", branchId))
 	}
 	return director, nil
 }

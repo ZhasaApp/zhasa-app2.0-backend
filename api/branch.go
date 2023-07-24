@@ -121,6 +121,19 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 			Goal:     int64(goal),
 		})
 	}
+
+	director, err := server.directorService.GetBranchDirectorByBranchId(branch.BranchId)
+	var avatar *string
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	if len(director.Avatar.Url) != 0 {
+		avatar = &director.Avatar.Url
+	}
+
 	dr := BranchDashboardResponse{
 		SalesStatisticsByTypes: salesStatisticItemsByTypes,
 		BestSalesManagers:      bestSalesManagers,
@@ -129,8 +142,8 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 			Description: string(branch.Description),
 		},
 		Profile: SimpleProfile{
-			Avatar:   nil,
-			FullName: "Test test",
+			Avatar:   avatar,
+			FullName: director.GetFullName(),
 		},
 	}
 	ctx.JSON(http.StatusOK, dr)

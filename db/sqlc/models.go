@@ -13,8 +13,8 @@ import (
 type ValueType string
 
 const (
-	ValueTypeSum   ValueType = "sum"
-	ValueTypeCount ValueType = "count"
+	ValueTypeAmount ValueType = "amount"
+	ValueTypeCount  ValueType = "count"
 )
 
 func (e *ValueType) Scan(src interface{}) error {

@@ -51,6 +51,28 @@ func (q *Queries) CreateSalesManagerGoalByType(ctx context.Context, arg CreateSa
 	return err
 }
 
+const getBranchDirectorByBranchId = `-- name: GetBranchDirectorByBranchId :one
+SELECT user_id, phone, first_name, last_name, avatar_url, branch_director_id, branch_id, branch_title
+FROM branch_directors_view bdv
+WHERE bdv.branch_id = $1
+`
+
+func (q *Queries) GetBranchDirectorByBranchId(ctx context.Context, branchID int32) (BranchDirectorsView, error) {
+	row := q.db.QueryRowContext(ctx, getBranchDirectorByBranchId, branchID)
+	var i BranchDirectorsView
+	err := row.Scan(
+		&i.UserID,
+		&i.Phone,
+		&i.FirstName,
+		&i.LastName,
+		&i.AvatarUrl,
+		&i.BranchDirectorID,
+		&i.BranchID,
+		&i.BranchTitle,
+	)
+	return i, err
+}
+
 const getBranchDirectorByUserId = `-- name: GetBranchDirectorByUserId :one
 SELECT user_id, phone, first_name, last_name, avatar_url, branch_director_id, branch_id, branch_title
 FROM branch_directors_view bdv

@@ -11,6 +11,11 @@ SELECT *
 FROM branch_directors_view bdv
 WHERE bdv.user_id = $1;
 
+-- name: GetBranchDirectorByBranchId :one
+SELECT *
+FROM branch_directors_view bdv
+WHERE bdv.branch_id = $1;
+
 -- name: SetSmGoalBySaleType :exec
 INSERT INTO sales_manager_goals_by_types (from_date, to_date, amount, sales_manager_id, type_id)
 VALUES ($1, $2, $3, $4, $5) ON CONFLICT (from_date, to_date, sales_manager_id, type_id)
