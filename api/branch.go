@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
@@ -124,6 +125,22 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 		avatar = &director.Avatar.Url
 	}
 
+	branches, err := server.branchService.GetBranches(period)
+	var branchGoalAchievement Percent
+	rating := 1
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	if branches != nil {
+		for index, branch := range branches {
+			if branch.BranchId == branch.BranchId {
+				branchGoalAchievement = branch.GoalAchievement
+				rating = index + 1
+			}
+		}
+	}
+
 	dr := BranchDashboardResponse{
 		SalesStatisticsByTypes: salesStatisticItemsByTypes,
 		BestSalesManagers:      bestSalesManagers,
@@ -135,6 +152,8 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 			Avatar:   avatar,
 			FullName: director.GetFullName(),
 		},
+		GoalAchievementPercent: float32(branchGoalAchievement),
+		Rating:                 int32(rating),
 	}
 	ctx.JSON(http.StatusOK, dr)
 }
