@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 	. "zhasa2.0/base"
@@ -335,6 +336,8 @@ func (p PostgresSalesManagerStatisticRepository) GetSalesGoalBySaleTypeAndManage
 		TypeID:         int32(typeId),
 	}
 	data, err := p.querier.GetSalesManagerGoalByGivenDateRangeAndSaleType(p.ctx, arg)
+
+	fmt.Println(arg)
 
 	if err == sql.ErrNoRows {
 		return 0, nil
