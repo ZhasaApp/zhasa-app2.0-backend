@@ -177,6 +177,10 @@ func (server *Server) saveSale(ctx *gin.Context) {
 	}
 
 	salesManagerId := ctx.GetInt("sales_manager_id")
+	if salesManagerId == 0 {
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("no sm found")))
+		return
+	}
 
 	saleTypeId := saveSaleBody.SaleTypeId
 
