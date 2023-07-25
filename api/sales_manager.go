@@ -209,6 +209,9 @@ func (server *Server) saveSale(ctx *gin.Context) {
 
 	if err != nil || goal == 0 {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("не создана цель по типу продажи на данный месяц")))
+		if err != nil {
+			fmt.Println(err)
+		}
 		return
 	}
 
