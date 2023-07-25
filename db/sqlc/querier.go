@@ -26,6 +26,7 @@ type Querier interface {
 	GetBranchDirectorByBranchId(ctx context.Context, branchID int32) (BranchDirectorsView, error)
 	GetBranchDirectorByUserId(ctx context.Context, userID int32) (BranchDirectorsView, error)
 	GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error)
+	GetBranches(ctx context.Context) ([]Branch, error)
 	GetManagerSales(ctx context.Context, arg GetManagerSalesParams) ([]GetManagerSalesRow, error)
 	GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSalesByPeriodParams) ([]GetManagerSalesByPeriodRow, error)
 	GetOrderedBranchesByGivenPeriod(ctx context.Context, arg GetOrderedBranchesByGivenPeriodParams) ([]GetOrderedBranchesByGivenPeriodRow, error)

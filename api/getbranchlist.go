@@ -4,10 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	. "zhasa2.0/api/entities"
+	. "zhasa2.0/statistic/entities"
 )
 
 type BranchRatingItem struct {
-	ID                     int     `json:"id"`
+	ID                     int32   `json:"id"`
 	Title                  string  `json:"title"`
 	Description            string  `json:"description"`
 	GoalAchievementPercent float32 `json:"goal_achievement_percent"`
@@ -26,5 +27,30 @@ func (server *Server) GetBranchList(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, BranchesResponse{})
+	branchesResponseList := make([]BranchRatingItem, 0)
+
+	branches, err := server.branchService.GetBranches(MonthPeriod{
+		MonthNumber: monthPagination.Month,
+		Year:        monthPagination.Year,
+	})
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	for _, branch := range branches {
+		branchesResponseList = append(branchesResponseList, BranchRatingItem{
+			ID:                     int32(branch.BranchId),
+			Title:                  string(branch.Title),
+			Description:            string(branch.Description),
+			GoalAchievementPercent: float32(branch.GoalAchievement),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, BranchesResponse{
+		Result:  branchesResponseList,
+		Count:   int32(len(branchesResponseList)),
+		HasNext: false,
+	})
 }

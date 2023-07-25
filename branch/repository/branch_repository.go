@@ -11,6 +11,7 @@ import (
 	handmade "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/manager/entities"
+	. "zhasa2.0/manager/service"
 	. "zhasa2.0/sale/entities"
 	. "zhasa2.0/sale/repository"
 	. "zhasa2.0/statistic"
@@ -21,7 +22,7 @@ import (
 type BranchRepository interface {
 	CreateBranch(request CreateBranchRequest) error
 	GetBranchById(id BranchId) (*Branch, error)
-	GetBranches() ([]Branch, error)
+	GetBranches(period Period) ([]Branch, error)
 	GetBranchYearMonthlyStatistic(bId BranchId, year int32) (*[]MonthlyYearStatistic, error)
 	GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error)
 	GetBranchGoal(from, to time.Time, branchId BranchId, typeId SaleTypeId) (SaleAmount, error)
@@ -219,9 +220,61 @@ func (br DBBranchRepository) GetBranchById(id BranchId) (*Branch, error) {
 	return newBranch, nil
 }
 
-func (br DBBranchRepository) GetBranches() ([]Branch, error) {
+func (br DBBranchRepository) GetBranches(period Period) ([]Branch, error) {
 
 	branchList := make([]Branch, 0)
+
+	rows, err := br.querier.GetBranches(br.ctx)
+
+	if err == sql.ErrNoRows {
+		return branchList, nil
+	}
+
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	saleTypes, err := br.GetSaleTypes()
+
+	if err != nil {
+		return nil, err
+	}
+
+	from, to := period.ConvertToTime()
+	ratioRows := make([]RatioRow, 0)
+
+	for _, row := range rows {
+		for _, sType := range *saleTypes {
+			goal, _ := br.querier.GetBranchGoalByGivenDateRange(br.ctx, generated.GetBranchGoalByGivenDateRangeParams{
+				BranchID: row.ID,
+				FromDate: from,
+				ToDate:   to,
+				TypeID:   int32(sType.Id),
+			})
+
+			sum, _ := br.customQuerier.GetBranchSumByType(br.ctx, handmade.GetBranchSumByTypeParams{
+				BranchID:   row.ID,
+				SaleDate:   from,
+				SaleDate_2: to,
+				ID:         int32(sType.Id),
+			})
+
+			ratioRows = append(ratioRows, RatioRow{
+				Amount:  SaleAmount(sum.TotalSales),
+				Goal:    SaleAmount(goal),
+				Gravity: sType.Gravity,
+			})
+		}
+		percent := CalculateRatio(ratioRows)
+		branchList = append(branchList, Branch{
+			BranchId:        BranchId(row.ID),
+			Title:           BranchTitle(row.Title),
+			Description:     BranchDescription(row.Description),
+			Key:             BranchKey(row.BranchKey),
+			GoalAchievement: Percent(percent).GetRounded(),
+		})
+	}
 
 	return branchList, nil
 }

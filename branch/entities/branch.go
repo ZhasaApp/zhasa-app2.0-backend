@@ -1,12 +1,15 @@
 package entities
 
+import "zhasa2.0/base"
+
 type BranchId int32
 
 type Branch struct {
-	BranchId    BranchId
-	Title       BranchTitle
-	Description BranchDescription
-	Key         BranchKey
+	BranchId        BranchId
+	Title           BranchTitle
+	Description     BranchDescription
+	Key             BranchKey
+	GoalAchievement base.Percent
 }
 
 type CreateBranchRequest struct {

@@ -40,16 +40,6 @@ func (server *Server) createBranch(ctx *gin.Context) {
 	ctx.Status(http.StatusOK)
 }
 
-func (server *Server) getBranches(ctx *gin.Context) {
-	branches, err := server.branchService.GetBranches()
-	if err != nil {
-		ctx.JSON(http.StatusBadGateway, errorResponse(err))
-		return
-	}
-
-	ctx.JSON(http.StatusOK, branches)
-}
-
 func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	var requestBody BranchMonthStatisticRequestBody
 	if err := ctx.ShouldBindQuery(&requestBody); err != nil {

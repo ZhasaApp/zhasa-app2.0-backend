@@ -13,7 +13,7 @@ import (
 
 type BranchService interface {
 	CreateBranch(request CreateBranchRequest) error
-	GetBranches() ([]Branch, error)
+	GetBranches(period Period) ([]Branch, error)
 	GetBranchYearStatistic(id BranchId, year int32) (*[]MonthlyYearStatistic, error)
 	GetBranchById(id BranchId) (*Branch, error)
 	GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error)
@@ -47,8 +47,8 @@ func (ds DBBranchService) CreateBranch(request CreateBranchRequest) error {
 	return ds.repo.CreateBranch(request)
 }
 
-func (ds DBBranchService) GetBranches() ([]Branch, error) {
-	return ds.repo.GetBranches()
+func (ds DBBranchService) GetBranches(period Period) ([]Branch, error) {
+	return ds.repo.GetBranches(period)
 }
 
 func (ds DBBranchService) GetBranchById(id BranchId) (*Branch, error) {

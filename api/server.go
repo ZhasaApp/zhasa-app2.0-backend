@@ -82,13 +82,13 @@ func NewServer(ctx context.Context) *Server {
 		adminRoute.POST("/branch/new", server.createBranch)
 		adminRoute.POST("/sale-type/new", server.createSaleType)
 		adminRoute.POST("/branch-director/new", server.createBranchDirector)
-		adminRoute.GET("/branch/list", server.getBranches)
+		adminRoute.GET("/branch/list", server.GetBranchList)
 		adminRoute.GET("sale-type/list", server.getSaleTypes)
 	}
 
 	smRoute := router.Group("sales-manager/")
 	smRoute.POST("/sale/new", server.saveSale).Use(verifyToken(server.tokenService))
-	smRoute.GET("/branch/list", server.getBranches).Use(verifyToken(server.tokenService))
+	smRoute.GET("/branch/list", server.GetBranchList).Use(verifyToken(server.tokenService))
 	smRoute.GET("/year-statistic", server.getYearStatistic).Use(verifyToken(server.tokenService))
 	smRoute.GET("/sale/list", server.getSales).Use(verifyToken(server.tokenService))
 

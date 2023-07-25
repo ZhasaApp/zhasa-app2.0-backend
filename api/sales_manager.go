@@ -242,7 +242,7 @@ func (server *Server) saveSale(ctx *gin.Context) {
 			Id:        int32(saleRes.SaleType.Id),
 			Title:     saleRes.SaleType.Title,
 			Color:     saleRes.SaleType.Color,
-			ValueType: "count",
+			ValueType: saleRes.SaleType.ValueType,
 		},
 	})
 }

@@ -73,6 +73,39 @@ func (q *Queries) GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBran
 	return goal_amount, err
 }
 
+const getBranches = `-- name: GetBranches :many
+SELECT id, title, description, branch_key, created_at FROM branches
+`
+
+func (q *Queries) GetBranches(ctx context.Context) ([]Branch, error) {
+	rows, err := q.db.QueryContext(ctx, getBranches)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Branch
+	for rows.Next() {
+		var i Branch
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.BranchKey,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOrderedBranchesByGivenPeriod = `-- name: GetOrderedBranchesByGivenPeriod :many
 SELECT b.title,
        b.id,

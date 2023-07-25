@@ -15,6 +15,8 @@ WHERE bg.branch_id = $1
   AND bg.to_date = $3
   AND bg.type_id = $4;
 
+-- name: GetBranches :many
+SELECT * FROM branches;
 
 -- name: GetOrderedBranchesByGivenPeriod :many
 SELECT b.title,
