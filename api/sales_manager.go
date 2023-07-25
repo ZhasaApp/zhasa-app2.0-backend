@@ -201,8 +201,8 @@ func (server *Server) saveSale(ctx *gin.Context) {
 		return
 	}
 	period := MonthPeriod{
-		int32(parsedTime.Month()),
-		int32(parsedTime.Year()),
+		MonthNumber: int32(parsedTime.Month()),
+		Year:        int32(parsedTime.Year()),
 	}
 
 	goal, err := server.salesManagerService.GetSalesManagerGoalByType(period, SalesManagerId(salesManagerId), saleType.Id)

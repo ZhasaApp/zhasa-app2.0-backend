@@ -1,6 +1,7 @@
 package service
 
 import (
+	"log"
 	"time"
 	. "zhasa2.0/base"
 	. "zhasa2.0/manager/entities"
@@ -94,6 +95,7 @@ func (dbs DBSalesManagerService) GetSalesManagerByUserId(userId int32) (*SalesMa
 
 func (dbs DBSalesManagerService) GetSalesManagerGoalByType(period Period, salesManagerId SalesManagerId, typeId SaleTypeId) (SaleAmount, error) {
 	from, to := period.ConvertToTime()
+	log.Println(from, to)
 	return dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(salesManagerId, typeId, from, to)
 }
 
