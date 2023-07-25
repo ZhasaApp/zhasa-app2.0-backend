@@ -305,6 +305,7 @@ func (p PostgresSalesManagerRepository) GetSalesManagerByUserId(userId int32) (*
 			Description: "",
 			Key:         "",
 		},
+		UserId: UserId(userId),
 	}
 	return &salesManager, err
 }
