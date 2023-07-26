@@ -65,7 +65,7 @@ func (p PostgresSalesManagerStatisticRepository) GetSalesManagerRating(smId Sale
 		return 0, err
 	}
 
-	return int32(rating.Position) + 1, nil
+	return int32(rating.Position), nil
 }
 
 func (p PostgresSalesManagerStatisticRepository) SetRatioByPeriod(smId SalesManagerId, ratio Percent, from, to time.Time) error {
