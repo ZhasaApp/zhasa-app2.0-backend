@@ -374,6 +374,35 @@ func (q *Queries) GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOr
 	return items, nil
 }
 
+const getRating = `-- name: GetRating :one
+SELECT sales_manager_id,
+       ROW_NUMBER() OVER (ORDER BY ratio DESC) AS position
+FROM
+    sales_manager_goals_ratio_by_period
+WHERE
+    from_date >= $1
+  AND to_date <= $2
+  AND sales_manager_id = $3
+`
+
+type GetRatingParams struct {
+	FromDate       time.Time `json:"from_date"`
+	ToDate         time.Time `json:"to_date"`
+	SalesManagerID int32     `json:"sales_manager_id"`
+}
+
+type GetRatingRow struct {
+	SalesManagerID int32 `json:"sales_manager_id"`
+	Position       int64 `json:"position"`
+}
+
+func (q *Queries) GetRating(ctx context.Context, arg GetRatingParams) (GetRatingRow, error) {
+	row := q.db.QueryRowContext(ctx, getRating, arg.FromDate, arg.ToDate, arg.SalesManagerID)
+	var i GetRatingRow
+	err := row.Scan(&i.SalesManagerID, &i.Position)
+	return i, err
+}
+
 const getSMRatio = `-- name: GetSMRatio :one
 SELECT ratio
 FROM sales_manager_goals_ratio_by_period smgr

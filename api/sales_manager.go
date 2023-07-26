@@ -330,6 +330,8 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 
 	goalAchievement := Percent(CalculateRatio(ratioRows)).GetRounded()
 
+	rating, _ := server.salesManagerService.GetSalesManagerRating(period, salesManager.Id)
+
 	dr := SalesManagerDashboardResponse{
 		Profile: SalesManagerDashboardProfile{
 			Id:       int32(salesManager.UserId),
@@ -340,7 +342,7 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 		SalesStatisticsByTypes: salesStatisticItemsByTypes,
 		GoalAchievementPercent: float32(goalAchievement),
 		LastSales:              salesResponse,
-		Rating:                 int32(1),
+		Rating:                 rating,
 	}
 	ctx.JSON(http.StatusOK, dr)
 }

@@ -32,6 +32,7 @@ type Querier interface {
 	GetOrderedBranchesByGivenPeriod(ctx context.Context, arg GetOrderedBranchesByGivenPeriodParams) ([]GetOrderedBranchesByGivenPeriodRow, error)
 	GetOrderedSalesManagers(ctx context.Context, arg GetOrderedSalesManagersParams) ([]GetOrderedSalesManagersRow, error)
 	GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOrderedSalesManagersOfBranchParams) ([]GetOrderedSalesManagersOfBranchRow, error)
+	GetRating(ctx context.Context, arg GetRatingParams) (GetRatingRow, error)
 	GetSMGoal(ctx context.Context, arg GetSMGoalParams) (int64, error)
 	GetSMRatio(ctx context.Context, arg GetSMRatioParams) (float64, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)

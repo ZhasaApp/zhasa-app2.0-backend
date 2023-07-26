@@ -117,3 +117,13 @@ SET sale_type_id = $2,
     amount       = $4,
     description  = $5
 WHERE id = $1 RETURNING *;
+
+-- name: GetRating :one
+SELECT sales_manager_id,
+       ROW_NUMBER() OVER (ORDER BY ratio DESC) AS position
+FROM
+    sales_manager_goals_ratio_by_period
+WHERE
+    from_date >= $1
+  AND to_date <= $2
+  AND sales_manager_id = $3;

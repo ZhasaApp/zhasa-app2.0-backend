@@ -26,12 +26,18 @@ type SalesManagerService interface {
 	GetSalesManagersOrderedByRatio(pagination Pagination, period Period) (*[]SalesManager, error)
 	DeleteSale(saleId SaleId) (*Sale, error)
 	EditSale(editBody EditSaleBody) (*Sale, error)
+	GetSalesManagerRating(period Period, smId SalesManagerId) (int32, error)
 }
 
 type DBSalesManagerService struct {
 	repo          repository.SalesManagerRepository
 	statisticRepo repository.SalesManagerStatisticRepository
 	repository2.SaleTypeRepository
+}
+
+func (dbs DBSalesManagerService) GetSalesManagerRating(period Period, smId SalesManagerId) (int32, error) {
+	from, to := period.ConvertToTime()
+	return dbs.statisticRepo.GetSalesManagerRating(smId, from, to)
 }
 
 func (dbs DBSalesManagerService) EditSale(editBody EditSaleBody) (*Sale, error) {
