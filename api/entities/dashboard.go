@@ -91,6 +91,7 @@ type SalesManagerDashboardProfile struct {
 }
 
 type SimpleProfile struct {
+	Id       int32   `json:"id"`
 	Avatar   *string `json:"avatar"`
 	FullName string  `json:"full_name"`
 }

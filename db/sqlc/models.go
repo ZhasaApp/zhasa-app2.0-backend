@@ -93,6 +93,28 @@ type BranchesGoalsRatioByPeriod struct {
 	BranchID int32     `json:"branch_id"`
 }
 
+type Comment struct {
+	ID        int32     `json:"id"`
+	Body      string    `json:"body"`
+	UserID    int32     `json:"user_id"`
+	PostID    int32     `json:"post_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type Post struct {
+	ID        int32     `json:"id"`
+	Title     string    `json:"title"`
+	Body      string    `json:"body"`
+	UserID    int32     `json:"user_id"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type PostImage struct {
+	ID       int32  `json:"id"`
+	ImageUrl string `json:"image_url"`
+	PostID   int32  `json:"post_id"`
+}
+
 type Sale struct {
 	ID             int32     `json:"id"`
 	SalesManagerID int32     `json:"sales_manager_id"`

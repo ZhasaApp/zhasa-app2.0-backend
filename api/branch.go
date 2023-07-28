@@ -151,6 +151,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 		Profile: SimpleProfile{
 			Avatar:   avatar,
 			FullName: director.GetFullName(),
+			Id:       director.Id,
 		},
 		GoalAchievementPercent: float32(branchGoalAchievement),
 		Rating:                 int32(rating),

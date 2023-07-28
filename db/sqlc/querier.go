@@ -14,11 +14,13 @@ type Querier interface {
 	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) (Sale, error)
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
 	CreateBranchDirector(ctx context.Context, arg CreateBranchDirectorParams) (int32, error)
+	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
 	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
 	CreateSalesManager(ctx context.Context, arg CreateSalesManagerParams) error
 	CreateSalesManagerGoalByType(ctx context.Context, arg CreateSalesManagerGoalByTypeParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
+	DeleteComment(ctx context.Context, id int32) error
 	DeleteSaleById(ctx context.Context, id int32) (Sale, error)
 	EditSaleById(ctx context.Context, arg EditSaleByIdParams) (Sale, error)
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
@@ -27,6 +29,8 @@ type Querier interface {
 	GetBranchDirectorByUserId(ctx context.Context, userID int32) (BranchDirectorsView, error)
 	GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error)
 	GetBranches(ctx context.Context) ([]Branch, error)
+	GetCommentById(ctx context.Context, id int32) (Comment, error)
+	GetCommentsAndAuthorsByPostId(ctx context.Context, postID int32) ([]GetCommentsAndAuthorsByPostIdRow, error)
 	GetManagerSales(ctx context.Context, arg GetManagerSalesParams) ([]GetManagerSalesRow, error)
 	GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSalesByPeriodParams) ([]GetManagerSalesByPeriodRow, error)
 	GetOrderedBranchesByGivenPeriod(ctx context.Context, arg GetOrderedBranchesByGivenPeriodParams) ([]GetOrderedBranchesByGivenPeriodRow, error)

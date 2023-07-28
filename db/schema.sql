@@ -148,3 +148,27 @@ CREATE TABLE branches_goals_ratio_by_period
     UNIQUE (from_date, to_date, branch_id)
 );
 
+CREATE TABLE posts
+(
+    id         SERIAL PRIMARY KEY,
+    title      VARCHAR(256)              NOT NULL,
+    body       TEXT                      NOT NULL,
+    user_id    INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE  NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE comments
+(
+    id         SERIAL PRIMARY KEY,
+    body       TEXT                      NOT NULL,
+    user_id    INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+    post_id    INT REFERENCES posts (id) ON DELETE CASCADE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE  NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE post_images
+(
+    id        SERIAL PRIMARY KEY,
+    image_url TEXT                      NOT NULL,
+    post_id   INT REFERENCES posts (id) ON DELETE CASCADE NOT NULL
+);
