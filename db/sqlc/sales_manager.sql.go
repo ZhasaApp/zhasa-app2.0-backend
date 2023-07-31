@@ -375,14 +375,14 @@ func (q *Queries) GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOr
 }
 
 const getRating = `-- name: GetRating :one
-SELECT sales_manager_id,
-       ROW_NUMBER() OVER (ORDER BY ratio DESC) AS position
-FROM
-    sales_manager_goals_ratio_by_period
-WHERE
-    from_date >= $1
-  AND to_date <= $2
-  AND sales_manager_id = $3
+SELECT subquery.sales_manager_id, subquery.position
+FROM (
+         SELECT sales_manager_id,
+                RANK() OVER (ORDER BY ratio DESC) AS position
+         FROM sales_manager_goals_ratio_by_period
+         WHERE from_date >= $1 AND to_date <= $2
+     ) subquery
+WHERE sales_manager_id = $3
 `
 
 type GetRatingParams struct {
