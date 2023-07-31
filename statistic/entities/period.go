@@ -30,7 +30,7 @@ type MonthPeriod struct {
 
 func (m MonthPeriod) ConvertToTime() (time.Time, time.Time) {
 	from := time.Date(int(m.Year), time.Month(m.MonthNumber), 1, 0, 0, 0, 0, time.Local)
-	to := from.AddDate(0, 1, -1)
+	to := time.Date(int(m.Year), time.Month(m.MonthNumber+1), 0, 23, 59, 59, 0, time.Local)
 	return from, to
 }
 
