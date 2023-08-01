@@ -27,8 +27,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
 
 const createUserCode = `-- name: CreateUserCode :one
 INSERT INTO users_codes(user_id, code)
-VALUES ($1, $2)
-RETURNING id
+VALUES ($1, $2) RETURNING id
 `
 
 type CreateUserCodeParams struct {
@@ -97,4 +96,21 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (User, error
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const uploadUserAvatar = `-- name: UploadUserAvatar :exec
+INSERT INTO users_avatars(user_id, avatar_url)
+VALUES ($1, $2) ON CONFLICT (user_id)
+DO
+UPDATE SET avatar_url = EXCLUDED.avatar_url
+`
+
+type UploadUserAvatarParams struct {
+	UserID    int32  `json:"user_id"`
+	AvatarUrl string `json:"avatar_url"`
+}
+
+func (q *Queries) UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error {
+	_, err := q.db.ExecContext(ctx, uploadUserAvatar, arg.UserID, arg.AvatarUrl)
+	return err
 }

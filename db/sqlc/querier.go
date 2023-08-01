@@ -10,17 +10,22 @@ import (
 )
 
 type Querier interface {
+	AddLike(ctx context.Context, arg AddLikeParams) (Like, error)
 	// add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
 	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) (Sale, error)
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
 	CreateBranchDirector(ctx context.Context, arg CreateBranchDirectorParams) (int32, error)
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
+	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)
+	CreatePostImages(ctx context.Context, arg CreatePostImagesParams) error
 	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
 	CreateSalesManager(ctx context.Context, arg CreateSalesManagerParams) error
 	CreateSalesManagerGoalByType(ctx context.Context, arg CreateSalesManagerGoalByTypeParams) error
 	CreateUser(ctx context.Context, arg CreateUserParams) error
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
 	DeleteComment(ctx context.Context, id int32) error
+	DeleteLike(ctx context.Context, arg DeleteLikeParams) error
+	DeletePost(ctx context.Context, id int32) error
 	DeleteSaleById(ctx context.Context, id int32) (Sale, error)
 	EditSaleById(ctx context.Context, arg EditSaleByIdParams) (Sale, error)
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
@@ -36,6 +41,10 @@ type Querier interface {
 	GetOrderedBranchesByGivenPeriod(ctx context.Context, arg GetOrderedBranchesByGivenPeriodParams) ([]GetOrderedBranchesByGivenPeriodRow, error)
 	GetOrderedSalesManagers(ctx context.Context, arg GetOrderedSalesManagersParams) ([]GetOrderedSalesManagersRow, error)
 	GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOrderedSalesManagersOfBranchParams) ([]GetOrderedSalesManagersOfBranchRow, error)
+	GetPostById(ctx context.Context, id int32) (Post, error)
+	GetPostLikedUsers(ctx context.Context, arg GetPostLikedUsersParams) ([]GetPostLikedUsersRow, error)
+	GetPostLikesCount(ctx context.Context, postID int32) (int64, error)
+	GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error)
 	GetRating(ctx context.Context, arg GetRatingParams) (GetRatingRow, error)
 	GetSMGoal(ctx context.Context, arg GetSMGoalParams) (int64, error)
 	GetSMRatio(ctx context.Context, arg GetSMRatioParams) (float64, error)
@@ -49,8 +58,11 @@ type Querier interface {
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
 	GetUserById(ctx context.Context, id int32) (User, error)
 	GetUserByPhone(ctx context.Context, phone string) (User, error)
+	GetUserPostLike(ctx context.Context, arg GetUserPostLikeParams) (int32, error)
+	ListPosts(ctx context.Context) ([]Post, error)
 	SetSMRatio(ctx context.Context, arg SetSMRatioParams) error
 	SetSmGoalBySaleType(ctx context.Context, arg SetSmGoalBySaleTypeParams) error
+	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error
 }
 
 var _ Querier = (*Queries)(nil)

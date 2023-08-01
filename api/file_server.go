@@ -19,7 +19,7 @@ func generateRandomString(n int) string {
 	return string(s)
 }
 
-func (server Server) HandleUpload(c *gin.Context) {
+func (server Server) HandleAvatarUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -29,7 +29,7 @@ func (server Server) HandleUpload(c *gin.Context) {
 	}
 
 	// Make sure the images directory exists
-	err = os.MkdirAll("images", os.ModePerm)
+	err = os.MkdirAll("images/avatar", os.ModePerm)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -39,7 +39,7 @@ func (server Server) HandleUpload(c *gin.Context) {
 	rand.Seed(time.Now().UnixNano())
 	filename := generateRandomString(10) + filepath.Ext(file.Filename)
 
-	if err := c.SaveUploadedFile(file, "images/"+filename); err != nil {
+	if err := c.SaveUploadedFile(file, "images/avatar"+filename); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Unable to save the file.",
 		})

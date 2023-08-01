@@ -65,7 +65,9 @@ func NewServer(ctx context.Context) *Server {
 
 	router := gin.Default()
 
-	router.POST("/images/upload", server.HandleUpload)
+	router.POST("/image/avatar/upload", verifyToken(server.tokenService), server.HandleAvatarUpload)
+
+	router.POST("/user/avatar", verifyToken(server.tokenService), server.UploadUserAvatar)
 
 	authRoute := router.Group("auth/")
 	{

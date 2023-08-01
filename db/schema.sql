@@ -172,3 +172,9 @@ CREATE TABLE post_images
     image_url TEXT                      NOT NULL,
     post_id   INT REFERENCES posts (id) ON DELETE CASCADE NOT NULL
 );
+
+CREATE TABLE likes(
+                      user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+                      post_id INT REFERENCES posts(id) ON DELETE CASCADE NOT NULL,
+                      PRIMARY KEY(user_id, post_id)
+);

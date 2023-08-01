@@ -101,6 +101,11 @@ type Comment struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
+type Like struct {
+	UserID int32 `json:"user_id"`
+	PostID int32 `json:"post_id"`
+}
+
 type Post struct {
 	ID        int32     `json:"id"`
 	Title     string    `json:"title"`
