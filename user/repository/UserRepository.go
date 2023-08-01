@@ -14,11 +14,21 @@ type UserRepository interface {
 	AddUserCode(userId UserId, code OtpCode) (OtpId, error)
 	GetAuthCodeById(id OtpId) (*UserAuth, error)
 	UploadAvatar(userId UserId, avatarUrl string) error
+	DeleteAvatar(userId UserId) error
 }
 
 type PostgresUserRepository struct {
 	ctx     context.Context
 	querier db_generated.Querier
+}
+
+func (pur PostgresUserRepository) DeleteAvatar(userId UserId) error {
+	err := pur.querier.DeleteUserAvatar(pur.ctx, int32(userId))
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return err
 }
 
 func (pur PostgresUserRepository) UploadAvatar(userId UserId, avatarUrl string) error {

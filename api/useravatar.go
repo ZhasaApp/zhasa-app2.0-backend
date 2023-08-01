@@ -49,3 +49,21 @@ func (server *Server) UploadUserAvatar(ctx *gin.Context) {
 
 	ctx.Status(http.StatusNoContent)
 }
+
+func (server Server) DeleteAvatar(ctx *gin.Context) {
+	userId := ctx.GetInt("user_id")
+
+	if userId == 0 {
+		ctx.JSON(http.StatusUnauthorized, errors.New("user not found"))
+		return
+	}
+
+	err := server.userService.DeleteAvatar(UserId(userId))
+
+	if err != nil {
+		ctx.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}

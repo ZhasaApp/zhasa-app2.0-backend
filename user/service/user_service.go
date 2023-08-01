@@ -9,10 +9,15 @@ type UserService interface {
 	GetUserByPhone(phone Phone) (*User, error)
 	CreateUser(request CreateUserRequest) error
 	UploadAvatar(userId UserId, avatarUrl string) error
+	DeleteAvatar(userId UserId) error
 }
 
 type DBUserService struct {
 	repo repository.UserRepository
+}
+
+func (dus DBUserService) DeleteAvatar(userId UserId) error {
+	return dus.repo.DeleteAvatar(userId)
 }
 
 func (dus DBUserService) UploadAvatar(userId UserId, avatarUrl string) error {

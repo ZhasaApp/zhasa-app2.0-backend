@@ -27,6 +27,7 @@ type Querier interface {
 	DeleteLike(ctx context.Context, arg DeleteLikeParams) error
 	DeletePost(ctx context.Context, id int32) error
 	DeleteSaleById(ctx context.Context, id int32) (Sale, error)
+	DeleteUserAvatar(ctx context.Context, userID int32) error
 	EditSaleById(ctx context.Context, arg EditSaleByIdParams) (Sale, error)
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)

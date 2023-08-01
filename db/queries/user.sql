@@ -27,3 +27,7 @@ VALUES ($1, $2) ON CONFLICT (user_id)
 DO
 UPDATE SET avatar_url = EXCLUDED.avatar_url;
 
+-- name: DeleteUserAvatar :exec
+DELETE FROM users_avatars WHERE user_id = $1;
+
+

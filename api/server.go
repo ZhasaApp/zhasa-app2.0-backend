@@ -68,6 +68,7 @@ func NewServer(ctx context.Context) *Server {
 	router.POST("/image/avatar/upload", verifyToken(server.tokenService), server.HandleAvatarUpload)
 
 	router.POST("/user/avatar", verifyToken(server.tokenService), server.UploadUserAvatar)
+	router.DELETE("/user/avatar", verifyToken(server.tokenService), server.DeleteAvatar)
 
 	authRoute := router.Group("auth/")
 	{

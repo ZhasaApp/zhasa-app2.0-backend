@@ -42,6 +42,15 @@ func (q *Queries) CreateUserCode(ctx context.Context, arg CreateUserCodeParams) 
 	return id, err
 }
 
+const deleteUserAvatar = `-- name: DeleteUserAvatar :exec
+DELETE FROM users_avatars WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserAvatar(ctx context.Context, userID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteUserAvatar, userID)
+	return err
+}
+
 const getAuthCodeById = `-- name: GetAuthCodeById :one
 SELECT id, user_id, code, created_at
 FROM users_codes
