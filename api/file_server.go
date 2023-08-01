@@ -39,7 +39,7 @@ func (server Server) HandleAvatarUpload(c *gin.Context) {
 	rand.Seed(time.Now().UnixNano())
 	filename := generateRandomString(10) + filepath.Ext(file.Filename)
 
-	if err := c.SaveUploadedFile(file, "images/avatar"+filename); err != nil {
+	if err := c.SaveUploadedFile(file, "images/avatar/"+filename); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Unable to save the file.",
 		})
@@ -47,6 +47,6 @@ func (server Server) HandleAvatarUpload(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"url": "/images/" + filename,
+		"url": "/images/avatar/" + filename,
 	})
 }
