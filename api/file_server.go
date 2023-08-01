@@ -47,6 +47,6 @@ func (server Server) HandleAvatarUpload(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"url": "/images/avatar/" + filename,
+		"url": "http://185.182.219.170/images/avatar/" + filename,
 	})
 }
