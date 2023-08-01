@@ -34,9 +34,13 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	sm, err := server.salesManagerService.GetSalesManagerByUserId(userTokenData.Id)
 
 	if sm != nil {
+		var avatar *string
+		if len(sm.AvatarUrl) != 0 {
+			avatar = &sm.AvatarUrl
+		}
 		response := UserProfileResponse{
 			Id:       userTokenData.Id,
-			Avatar:   nil,
+			Avatar:   avatar,
 			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
 			Phone:    userTokenData.Phone,
 			Branch: BranchResponse{
@@ -52,9 +56,13 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 
 	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
 	if bd != nil {
+		var avatar *string
+		if len(bd.Avatar.Url) != 0 {
+			avatar = &sm.AvatarUrl
+		}
 		response := UserProfileResponse{
 			Id:       userTokenData.Id,
-			Avatar:   nil,
+			Avatar:   avatar,
 			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
 			Phone:    userTokenData.Phone,
 			Branch: BranchResponse{
