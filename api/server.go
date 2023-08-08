@@ -119,7 +119,7 @@ func NewServer(ctx context.Context) *Server {
 	router.GET("rating/managers", server.GetSalesManagers).Use(verifyToken(server.tokenService))
 
 	router.GET("news", verifyToken(server.tokenService), server.GetPosts)
-	router.GET("news/new", verifyToken(server.tokenService), server.CreatePost)
+	router.POST("news/new", verifyToken(server.tokenService), server.CreatePost)
 	router.GET("news/delete", verifyToken(server.tokenService), server.DeletePost)
 	server.router = router
 	return server
