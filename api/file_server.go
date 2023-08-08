@@ -71,7 +71,7 @@ func (server Server) HandleNewsUpload(c *gin.Context) {
 	rand.Seed(time.Now().UnixNano())
 	filename := generateRandomString(10) + filepath.Ext(file.Filename)
 
-	if err := c.SaveUploadedFile(file, "/images/avatar/"+filename); err != nil {
+	if err := c.SaveUploadedFile(file, "/images/news/"+filename); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Unable to save the file.",
 		})
@@ -79,6 +79,6 @@ func (server Server) HandleNewsUpload(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"url": "http://185.182.219.170/images/avatar/" + filename,
+		"url": "http://185.182.219.170/images/news/" + filename,
 	})
 }
