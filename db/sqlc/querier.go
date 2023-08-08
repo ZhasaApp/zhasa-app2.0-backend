@@ -57,8 +57,8 @@ type Querier interface {
 	// get the sales sums for a specific sales manager and each sale type within the given period.
 	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) (GetSalesManagerSumsByTypeRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
-	GetUserById(ctx context.Context, id int32) (User, error)
-	GetUserByPhone(ctx context.Context, phone string) (User, error)
+	GetUserById(ctx context.Context, id int32) (UserAvatarView, error)
+	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)
 	GetUserPostLike(ctx context.Context, arg GetUserPostLikeParams) (int32, error)
 	ListPosts(ctx context.Context) ([]Post, error)
 	SetSMRatio(ctx context.Context, arg SetSMRatioParams) error

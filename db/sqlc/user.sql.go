@@ -70,39 +70,39 @@ func (q *Queries) GetAuthCodeById(ctx context.Context, id int32) (UsersCode, err
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, phone, first_name, last_name, created_at
-FROM users
+SELECT id, phone, first_name, last_name, avatar_url
+FROM user_avatar_view
 WHERE id = $1
 `
 
-func (q *Queries) GetUserById(ctx context.Context, id int32) (User, error) {
+func (q *Queries) GetUserById(ctx context.Context, id int32) (UserAvatarView, error) {
 	row := q.db.QueryRowContext(ctx, getUserById, id)
-	var i User
+	var i UserAvatarView
 	err := row.Scan(
 		&i.ID,
 		&i.Phone,
 		&i.FirstName,
 		&i.LastName,
-		&i.CreatedAt,
+		&i.AvatarUrl,
 	)
 	return i, err
 }
 
 const getUserByPhone = `-- name: GetUserByPhone :one
-SELECT id, phone, first_name, last_name, created_at
-FROM users
+SELECT id, phone, first_name, last_name, avatar_url
+FROM user_avatar_view
 WHERE phone = $1
 `
 
-func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (User, error) {
+func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error) {
 	row := q.db.QueryRowContext(ctx, getUserByPhone, phone)
-	var i User
+	var i UserAvatarView
 	err := row.Scan(
 		&i.ID,
 		&i.Phone,
 		&i.FirstName,
 		&i.LastName,
-		&i.CreatedAt,
+		&i.AvatarUrl,
 	)
 	return i, err
 }

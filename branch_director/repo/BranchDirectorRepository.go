@@ -4,16 +4,16 @@ import (
 	"context"
 	"time"
 	. "zhasa2.0/branch/entities"
-	"zhasa2.0/branch_director/entities"
+	. "zhasa2.0/branch_director/entities"
 	generated "zhasa2.0/db/sqlc"
-	entities2 "zhasa2.0/user/entities"
+	. "zhasa2.0/user/entities"
 )
 
 type BranchDirectorRepository interface {
-	CreateBranchDirector(userId entities2.UserId, branchId BranchId) (entities.BranchDirectorId, error)
-	GetBranchDirectorByUserId(userId entities2.UserId) (*entities.BranchDirector, error)
+	CreateBranchDirector(userId UserId, branchId BranchId) (BranchDirectorId, error)
+	GetBranchDirectorByUserId(userId UserId) (*BranchDirector, error)
 	SetSalesManagerGoal(from, to time.Time, smId int32, saleTypeId int32, amount int64) error
-	GetBranchDirectorByBranchId(branch BranchId) (*entities.BranchDirector, error)
+	GetBranchDirectorByBranchId(branch BranchId) (*BranchDirector, error)
 }
 
 func NewBranchDirectorRepository(ctx context.Context, querier generated.Querier) BranchDirectorRepository {
@@ -40,22 +40,20 @@ type DbBranchDirectorRepository struct {
 	querier generated.Querier
 }
 
-func (bdr DbBranchDirectorRepository) GetBranchDirectorByBranchId(branch BranchId) (*entities.BranchDirector, error) {
+func (bdr DbBranchDirectorRepository) GetBranchDirectorByBranchId(branch BranchId) (*BranchDirector, error) {
 	data, err := bdr.querier.GetBranchDirectorByBranchId(bdr.ctx, int32(branch))
 	if err != nil {
 		return nil, err
 	}
-	director := entities.BranchDirector{
-		User: entities2.User{
-			Id:    data.UserID,
-			Phone: entities2.Phone(data.Phone),
-			Avatar: entities2.Avatar{
-				Url: data.AvatarUrl,
-			},
-			FirstName: entities2.Name(data.FirstName),
-			LastName:  entities2.Name(data.LastName),
+	director := BranchDirector{
+		User: User{
+			Id:        data.UserID,
+			Phone:     Phone(data.Phone),
+			Avatar:    &data.AvatarUrl,
+			FirstName: Name(data.FirstName),
+			LastName:  Name(data.LastName),
 		},
-		BranchDirectorId: entities.BranchDirectorId(data.BranchDirectorID),
+		BranchDirectorId: BranchDirectorId(data.BranchDirectorID),
 		Branch: Branch{
 			BranchId:    BranchId(data.BranchID),
 			Title:       BranchTitle(data.BranchTitle),
@@ -66,7 +64,7 @@ func (bdr DbBranchDirectorRepository) GetBranchDirectorByBranchId(branch BranchI
 	return &director, nil
 }
 
-func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId entities2.UserId, branchId BranchId) (entities.BranchDirectorId, error) {
+func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId UserId, branchId BranchId) (BranchDirectorId, error) {
 	params := generated.CreateBranchDirectorParams{
 		UserID:   int32(userId),
 		BranchID: int32(branchId),
@@ -75,25 +73,23 @@ func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId entities2.User
 	if err != nil {
 		return -1, err
 	}
-	return entities.BranchDirectorId(id), nil
+	return BranchDirectorId(id), nil
 }
 
-func (bdr DbBranchDirectorRepository) GetBranchDirectorByUserId(userId entities2.UserId) (*entities.BranchDirector, error) {
+func (bdr DbBranchDirectorRepository) GetBranchDirectorByUserId(userId UserId) (*BranchDirector, error) {
 	data, err := bdr.querier.GetBranchDirectorByUserId(bdr.ctx, int32(userId))
 	if err != nil {
 		return nil, err
 	}
-	director := entities.BranchDirector{
-		User: entities2.User{
-			Id:    data.UserID,
-			Phone: entities2.Phone(data.Phone),
-			Avatar: entities2.Avatar{
-				Url: data.AvatarUrl,
-			},
-			FirstName: entities2.Name(data.FirstName),
-			LastName:  entities2.Name(data.LastName),
+	director := BranchDirector{
+		User: User{
+			Id:        data.UserID,
+			Phone:     Phone(data.Phone),
+			Avatar:    &data.AvatarUrl,
+			FirstName: Name(data.FirstName),
+			LastName:  Name(data.LastName),
 		},
-		BranchDirectorId: entities.BranchDirectorId(data.BranchDirectorID),
+		BranchDirectorId: BranchDirectorId(data.BranchDirectorID),
 		Branch: Branch{
 			BranchId:    BranchId(data.BranchID),
 			Title:       BranchTitle(data.BranchTitle),

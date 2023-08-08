@@ -4,12 +4,12 @@ VALUES ($1, $2, $3);
 
 -- name: GetUserByPhone :one
 SELECT *
-FROM users
+FROM user_avatar_view
 WHERE phone = $1;
 
 -- name: GetUserById :one
 SELECT *
-FROM users
+FROM user_avatar_view
 WHERE id = $1;
 
 -- name: CreateUserCode :one

@@ -56,13 +56,10 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 
 	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
 	if bd != nil {
-		var avatar *string
-		if len(bd.Avatar.Url) != 0 {
-			avatar = &sm.AvatarUrl
-		}
+
 		response := UserProfileResponse{
 			Id:       userTokenData.Id,
-			Avatar:   avatar,
+			Avatar:   bd.Avatar,
 			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
 			Phone:    userTokenData.Phone,
 			Branch: BranchResponse{

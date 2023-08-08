@@ -114,15 +114,10 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	}
 
 	director, err := server.directorService.GetBranchDirectorByBranchId(branch.BranchId)
-	var avatar *string
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
-	}
-
-	if len(director.Avatar.Url) != 0 {
-		avatar = &director.Avatar.Url
 	}
 
 	branches, err := server.branchService.GetBranches(period)
@@ -149,7 +144,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 			Description: string(branch.Description),
 		},
 		Profile: SimpleProfile{
-			Avatar:   avatar,
+			Avatar:   director.Avatar,
 			FullName: director.GetFullName(),
 			Id:       director.Id,
 		},

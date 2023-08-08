@@ -16,6 +16,7 @@ import (
 	generated "zhasa2.0/db/sqlc"
 	repository2 "zhasa2.0/manager/repository"
 	service2 "zhasa2.0/manager/service"
+	. "zhasa2.0/news/repository"
 	"zhasa2.0/sale/repository"
 	service4 "zhasa2.0/sale/service"
 	. "zhasa2.0/statistic/repository"
@@ -35,6 +36,7 @@ type Server struct {
 	authService         service.AuthorizationService
 	directorService     service5.BranchDirectorService
 	analyticsService    service6.AnalyticsService
+	postRepository      PostRepository
 }
 
 func (server Server) InitSuperUser() error {
@@ -116,6 +118,9 @@ func NewServer(ctx context.Context) *Server {
 	router.GET("rating/branches", server.GetBranchList)
 	router.GET("rating/managers", server.GetSalesManagers).Use(verifyToken(server.tokenService))
 
+	router.GET("news", verifyToken(server.tokenService), server.GetPosts)
+	router.GET("news/new", verifyToken(server.tokenService), server.CreatePost)
+	router.GET("news/delete", verifyToken(server.tokenService), server.DeletePost)
 	server.router = router
 	return server
 }
@@ -138,7 +143,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	directorRepo := repo.NewBranchDirectorRepository(ctx, store)
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
 	salesManagerStatisticRepo := repository2.NewSalesManagerStatisticRepository(saleTypeRepo, ctx, store)
-
+	postRepo := NewPostRepository(ctx, store)
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
 	salesManagerService := service2.NewSalesManagerService(saleManagerRepo, salesManagerStatisticRepo, saleTypeRepo)
@@ -158,6 +163,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.authService = authService
 	server.directorService = directorService
 	server.analyticsService = analyticsService
+	server.postRepository = postRepo
 }
 
 // Start runs the HTTP server a specific address

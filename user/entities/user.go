@@ -6,10 +6,6 @@ import (
 	"time"
 )
 
-type Avatar struct {
-	Url string
-}
-
 type CreateUserRequest struct {
 	Phone     Phone
 	FirstName Name
@@ -19,7 +15,7 @@ type CreateUserRequest struct {
 type User struct {
 	Id        int32
 	Phone     Phone
-	Avatar    Avatar
+	Avatar    *string
 	FirstName Name
 	LastName  Name
 }

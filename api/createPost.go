@@ -18,5 +18,14 @@ func (server Server) CreatePost(ctx *gin.Context) {
 		return
 	}
 
+	userId := ctx.GetInt("user_id")
+
+	err := server.postRepository.CreatePost(req.Title, req.Body, int32(userId), req.ImageUrls)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	ctx.Status(http.StatusNoContent)
 	return
 }

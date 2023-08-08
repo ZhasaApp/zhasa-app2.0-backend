@@ -72,10 +72,15 @@ func (pur PostgresUserRepository) GetUserById(userId UserId) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	var avatar *string
+	if len(res.AvatarUrl) != 0 {
+		avatar = &res.AvatarUrl
+	}
 	user := User{
 		Id:        res.ID,
 		Phone:     Phone(res.Phone),
-		Avatar:    Avatar{},
+		Avatar:    avatar,
 		FirstName: Name(res.FirstName),
 		LastName:  Name(res.LastName),
 	}
@@ -91,10 +96,16 @@ func NewUserRepository(ctx context.Context, querier db_generated.Querier) UserRe
 
 func (pur PostgresUserRepository) GetUserByPhone(phone Phone) (*User, error) {
 	res, err := pur.querier.GetUserByPhone(pur.ctx, string(phone))
+
+	var avatar *string
+	if len(res.AvatarUrl) != 0 {
+		avatar = &res.AvatarUrl
+	}
+
 	user := User{
 		Id:        res.ID,
 		Phone:     Phone(res.Phone),
-		Avatar:    Avatar{},
+		Avatar:    avatar,
 		FirstName: Name(res.FirstName),
 		LastName:  Name(res.LastName),
 	}
