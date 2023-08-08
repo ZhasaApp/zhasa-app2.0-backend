@@ -36,7 +36,7 @@ type GetPostsRequest struct {
 
 func (server Server) GetPosts(ctx *gin.Context) {
 	var req *GetPostsRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
