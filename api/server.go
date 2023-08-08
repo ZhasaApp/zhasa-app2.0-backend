@@ -68,6 +68,7 @@ func NewServer(ctx context.Context) *Server {
 	router := gin.Default()
 
 	router.POST("/image/avatar/upload", verifyToken(server.tokenService), server.HandleAvatarUpload)
+	router.POST("/image/news/upload", verifyToken(server.tokenService), server.HandleNewsUpload)
 
 	router.POST("/user/avatar", verifyToken(server.tokenService), server.UploadUserAvatar)
 	router.DELETE("/user/avatar", verifyToken(server.tokenService), server.DeleteAvatar)
