@@ -66,7 +66,7 @@ func (server Server) GetPosts(ctx *gin.Context) {
 			Date:     post.CreatedDate.Format("2006-01-02 15:04:05"),
 			IsLiked:  post.IsLiked,
 			Likes:    post.LikesCount,
-			Comments: post.LikesCount,
+			Comments: post.CommentsCount,
 		})
 	}
 
