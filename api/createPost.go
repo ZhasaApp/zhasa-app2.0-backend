@@ -8,7 +8,7 @@ import (
 type createPostRequest struct {
 	Title     string   `json:"title" binding:"required"`
 	Body      string   `json:"body" binding:"required"`
-	ImageUrls []string `json:"image_urls"`
+	ImageUrls []string `json:"images"`
 }
 
 func (server Server) CreatePost(ctx *gin.Context) {

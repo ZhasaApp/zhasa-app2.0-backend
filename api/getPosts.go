@@ -9,7 +9,7 @@ import (
 type NewsListItem struct {
 	ID       int32    `json:"id"`
 	Author   Author   `json:"author"`
-	Images   []string `json:"image"`
+	Images   []string `json:"images"`
 	Title    string   `json:"title"`
 	Body     string   `json:"body"`
 	Date     string   `json:"date"`

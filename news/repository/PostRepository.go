@@ -64,7 +64,7 @@ func (db DBPostRepository) DeleteLike(userId int32, postId int32) error {
 
 func (db DBPostRepository) IsUserLikedPost(userId int32, postId int32) (bool, error) {
 	_, err := db.querier.GetUserPostLike(db.ctx, generated.GetUserPostLikeParams{
-		UserID: int32(userId),
+		UserID: userId,
 		PostID: postId,
 	})
 
