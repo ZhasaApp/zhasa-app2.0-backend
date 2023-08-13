@@ -16,7 +16,8 @@ FROM comments c
          JOIN user_avatar_view u
               ON c.user_id = u.id
 WHERE c.post_id = $1
-ORDER BY created_at;
+ORDER BY created_at LIMIT $2
+OFFSET $3;
 
 -- name: CreateComment :one
 INSERT INTO comments (body, user_id, post_id)

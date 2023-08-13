@@ -77,8 +77,15 @@ FROM comments c
          JOIN user_avatar_view u
               ON c.user_id = u.id
 WHERE c.post_id = $1
-ORDER BY created_at
+ORDER BY created_at LIMIT $2
+OFFSET $3
 `
+
+type GetCommentsAndAuthorsByPostIdParams struct {
+	PostID int32 `json:"post_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
 
 type GetCommentsAndAuthorsByPostIdRow struct {
 	CommentID int32     `json:"comment_id"`
@@ -91,8 +98,8 @@ type GetCommentsAndAuthorsByPostIdRow struct {
 	AvatarUrl string    `json:"avatar_url"`
 }
 
-func (q *Queries) GetCommentsAndAuthorsByPostId(ctx context.Context, postID int32) ([]GetCommentsAndAuthorsByPostIdRow, error) {
-	rows, err := q.db.QueryContext(ctx, getCommentsAndAuthorsByPostId, postID)
+func (q *Queries) GetCommentsAndAuthorsByPostId(ctx context.Context, arg GetCommentsAndAuthorsByPostIdParams) ([]GetCommentsAndAuthorsByPostIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getCommentsAndAuthorsByPostId, arg.PostID, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}

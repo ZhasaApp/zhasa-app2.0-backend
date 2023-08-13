@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"time"
 	. "zhasa2.0/base"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/news/entities"
@@ -12,16 +13,81 @@ import (
 
 type PostRepository interface {
 	CreatePost(postTitle, postBody string, authorId int32, imageUrls []string) error
+	CreateComment(userId int32, postId int32, message string) error
+	GetPostComments(postId int32, pagination Pagination) ([]Comment, error)
 	GetPosts(userId int32, pagination Pagination) ([]Post, error)
 	AddLike(userId int32, postId int32) error
 	DeleteLike(userId int32, postId int32) error
 	IsUserLikedPost(userId int32, postId int32) (bool, error)
 	DeletePost(postId int32) error
+	DeleteComment(commentId int32) error
 }
 
 type DBPostRepository struct {
 	ctx     context.Context
 	querier generated.Querier
+}
+
+func (db DBPostRepository) DeleteComment(commentId int32) error {
+	err := db.querier.DeleteComment(db.ctx, commentId)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
+}
+
+func (db DBPostRepository) GetPostComments(postId int32, pagination Pagination) ([]Comment, error) {
+	rows, err := db.querier.GetCommentsAndAuthorsByPostId(db.ctx, generated.GetCommentsAndAuthorsByPostIdParams{
+		PostID: postId,
+		Limit:  pagination.PageSize,
+		Offset: pagination.Page,
+	})
+
+	comments := make([]Comment, 0)
+
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	for _, row := range rows {
+		var avatarUrl *string
+		if len(row.AvatarUrl) == 0 {
+			avatarUrl = &row.AvatarUrl
+		}
+		comments = append(comments, Comment{
+			CommentId: row.CommentID,
+			Message:   row.Body,
+			User: User{
+				Id:        row.UserID,
+				Phone:     "",
+				Avatar:    avatarUrl,
+				FirstName: Name(row.FirstName),
+				LastName:  Name(row.LastName),
+			},
+			CreatedDate: time.Time{},
+			Id:          0,
+		})
+	}
+
+	return comments, nil
+}
+
+func (db DBPostRepository) CreateComment(userId int32, postId int32, message string) error {
+	_, err := db.querier.CreateComment(db.ctx, generated.CreateCommentParams{
+		Body:   message,
+		UserID: userId,
+		PostID: postId,
+	})
+
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
 }
 
 func (db DBPostRepository) DeletePost(postId int32) error {
