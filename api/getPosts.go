@@ -58,6 +58,7 @@ func (server Server) GetPosts(ctx *gin.Context) {
 		news = append(news, NewsListItem{
 			ID: post.Id,
 			Author: Author{
+				Id:       post.Author.Id,
 				Avatar:   post.Author.Avatar,
 				FullName: post.Author.GetFullName(),
 			},
