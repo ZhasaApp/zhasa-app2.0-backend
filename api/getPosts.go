@@ -27,6 +27,7 @@ type NewsListItemResponse struct {
 type Author struct {
 	Avatar   *string `json:"avatar"`
 	FullName string  `json:"full_name"`
+	Id       int32   `json:"id"`
 }
 
 type GetPostsRequest struct {
