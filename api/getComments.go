@@ -48,7 +48,7 @@ func (server Server) GetComments(ctx *gin.Context) {
 		comments = append(comments, CommentItem{
 			Author: Author{
 				Id:       row.User.Id,
-				Avatar:   row.User.Avatar,
+				Avatar:   row.User.AvatarPointer(),
 				FullName: row.User.GetFullName(),
 			},
 			Id:      row.Id,

@@ -15,9 +15,16 @@ type CreateUserRequest struct {
 type User struct {
 	Id        int32
 	Phone     Phone
-	Avatar    *string
+	Avatar    string
 	FirstName Name
 	LastName  Name
+}
+
+func (u User) AvatarPointer() *string {
+	if len(u.Avatar) == 0 {
+		return nil
+	}
+	return &u.Avatar
 }
 
 func (u User) GetFullName() string {

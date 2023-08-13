@@ -59,7 +59,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 
 		response := UserProfileResponse{
 			Id:       userTokenData.Id,
-			Avatar:   bd.Avatar,
+			Avatar:   bd.AvatarPointer(),
 			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
 			Phone:    userTokenData.Phone,
 			Branch: BranchResponse{

@@ -45,11 +45,12 @@ func (bdr DbBranchDirectorRepository) GetBranchDirectorByBranchId(branch BranchI
 	if err != nil {
 		return nil, err
 	}
+
 	director := BranchDirector{
 		User: User{
 			Id:        data.UserID,
 			Phone:     Phone(data.Phone),
-			Avatar:    &data.AvatarUrl,
+			Avatar:    data.AvatarUrl,
 			FirstName: Name(data.FirstName),
 			LastName:  Name(data.LastName),
 		},
@@ -85,7 +86,7 @@ func (bdr DbBranchDirectorRepository) GetBranchDirectorByUserId(userId UserId) (
 		User: User{
 			Id:        data.UserID,
 			Phone:     Phone(data.Phone),
-			Avatar:    &data.AvatarUrl,
+			Avatar:    data.AvatarUrl,
 			FirstName: Name(data.FirstName),
 			LastName:  Name(data.LastName),
 		},

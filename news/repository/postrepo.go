@@ -52,17 +52,13 @@ func (db DBPostRepository) GetPostComments(postId int32, pagination Pagination) 
 	}
 
 	for _, row := range rows {
-		var avatarUrl *string
-		if len(row.AvatarUrl) != 0 {
-			avatarUrl = &row.AvatarUrl
-		}
 		comments = append(comments, Comment{
 			CommentId: row.CommentID,
 			Message:   row.Body,
 			User: User{
 				Id:        row.UserID,
 				Phone:     "",
-				Avatar:    avatarUrl,
+				Avatar:    row.AvatarUrl,
 				FirstName: Name(row.FirstName),
 				LastName:  Name(row.LastName),
 			},
@@ -164,10 +160,6 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 	}
 
 	for _, row := range rows {
-		var avatarUrl *string
-		if len(row.AvatarUrl) != 0 {
-			avatarUrl = &row.AvatarUrl
-		}
 		posts = append(posts, Post{
 			Id:            row.ID,
 			Images:        row.ImageUrls,
@@ -178,7 +170,7 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 			IsLiked:       row.IsLiked,
 			Author: User{
 				Id:        row.UserID,
-				Avatar:    avatarUrl,
+				Avatar:    row.AvatarUrl,
 				FirstName: Name(row.FirstName),
 				LastName:  Name(row.LastName),
 			},

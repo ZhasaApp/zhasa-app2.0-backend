@@ -84,7 +84,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	for _, sm := range *salesManagers {
 		bestSalesManagers = append(bestSalesManagers, SalesManagerBranchItem{
 			Id:          int32(sm.UserId),
-			Avatar:      nil,
+			Avatar:      sm.GetAvatarPointer(),
 			FullName:    sm.FirstName + " " + sm.LastName,
 			Ratio:       float64(sm.Ratio),
 			BranchTitle: string(sm.Branch.Title),
@@ -144,7 +144,7 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 			Description: string(branch.Description),
 		},
 		Profile: SimpleProfile{
-			Avatar:   director.Avatar,
+			Avatar:   director.AvatarPointer(),
 			FullName: director.GetFullName(),
 			Id:       director.Id,
 		},

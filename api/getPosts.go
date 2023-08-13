@@ -59,7 +59,7 @@ func (server Server) GetPosts(ctx *gin.Context) {
 			ID: post.Id,
 			Author: Author{
 				Id:       post.Author.Id,
-				Avatar:   post.Author.Avatar,
+				Avatar:   post.Author.AvatarPointer(),
 				FullName: post.Author.GetFullName(),
 			},
 			Images:   post.Images,

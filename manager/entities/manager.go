@@ -22,6 +22,14 @@ type SalesManager struct {
 	UserId      UserId
 }
 
+func (sm SalesManager) GetAvatarPointer() *string {
+	if len(sm.AvatarUrl) == 0 {
+		return nil
+	}
+
+	return &sm.AvatarUrl
+}
+
 type SalesManagers []SalesManager
 
 type SalesManagerResponse struct {
