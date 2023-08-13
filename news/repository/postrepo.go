@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"time"
 	. "zhasa2.0/base"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/news/entities"
@@ -54,7 +53,7 @@ func (db DBPostRepository) GetPostComments(postId int32, pagination Pagination) 
 
 	for _, row := range rows {
 		var avatarUrl *string
-		if len(row.AvatarUrl) == 0 {
+		if len(row.AvatarUrl) != 0 {
 			avatarUrl = &row.AvatarUrl
 		}
 		comments = append(comments, Comment{
@@ -67,8 +66,8 @@ func (db DBPostRepository) GetPostComments(postId int32, pagination Pagination) 
 				FirstName: Name(row.FirstName),
 				LastName:  Name(row.LastName),
 			},
-			CreatedDate: time.Time{},
-			Id:          0,
+			CreatedDate: row.CreatedAt,
+			Id:          row.CommentID,
 		})
 	}
 
@@ -165,6 +164,10 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 	}
 
 	for _, row := range rows {
+		var avatarUrl *string
+		if len(row.AvatarUrl) != 0 {
+			avatarUrl = &row.AvatarUrl
+		}
 		posts = append(posts, Post{
 			Id:            row.ID,
 			Images:        row.ImageUrls,
@@ -175,7 +178,7 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 			IsLiked:       row.IsLiked,
 			Author: User{
 				Id:        row.UserID,
-				Avatar:    &row.AvatarUrl,
+				Avatar:    avatarUrl,
 				FirstName: Name(row.FirstName),
 				LastName:  Name(row.LastName),
 			},
