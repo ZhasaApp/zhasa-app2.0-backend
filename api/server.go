@@ -124,6 +124,10 @@ func NewServer(ctx context.Context) *Server {
 	router.DELETE("news/delete", verifyToken(server.tokenService), server.DeletePost)
 	router.POST("news/like-toggle", verifyToken(server.tokenService), server.ToggleLike)
 
+	router.GET("news/comments", verifyToken(server.tokenService), server.GetComments)
+	router.POST("news/comments/new", verifyToken(server.tokenService), server.CreateComment)
+	router.DELETE("news/comments/delete", verifyToken(server.tokenService), server.DeleteComment)
+
 	server.router = router
 	return server
 }
