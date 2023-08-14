@@ -2,6 +2,7 @@ package hand_made
 
 import (
 	"context"
+	"github.com/lib/pq"
 	"time"
 )
 
@@ -37,19 +38,19 @@ type GetPostsAndPostAuthorsParams struct {
 }
 
 type GetPostsAndPostAuthorsRow struct {
-	ID            int32     `json:"id"`
-	Title         string    `json:"title"`
-	Body          string    `json:"body"`
-	UserID        int32     `json:"user_id"`
-	CreatedAt     time.Time `json:"created_at"`
-	IsLiked       bool      `json:"is_liked"`
-	LikesCount    int64     `json:"likes_count"`
-	CommentsCount int64     `json:"comments_count"`
-	ImageUrls     []string  `json:"image_urls"`
-	UserID_2      int32     `json:"user_id_2"`
-	FirstName     string    `json:"first_name"`
-	LastName      string    `json:"last_name"`
-	AvatarUrl     string    `json:"avatar_url"`
+	ID            int32          `json:"id"`
+	Title         string         `json:"title"`
+	Body          string         `json:"body"`
+	UserID        int32          `json:"user_id"`
+	CreatedAt     time.Time      `json:"created_at"`
+	IsLiked       bool           `json:"is_liked"`
+	LikesCount    int64          `json:"likes_count"`
+	CommentsCount int64          `json:"comments_count"`
+	ImageUrls     pq.StringArray `json:"image_urls"`
+	UserID_2      int32          `json:"user_id_2"`
+	FirstName     string         `json:"first_name"`
+	LastName      string         `json:"last_name"`
+	AvatarUrl     string         `json:"avatar_url"`
 }
 
 func (q DBCustomQuerier) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error) {
