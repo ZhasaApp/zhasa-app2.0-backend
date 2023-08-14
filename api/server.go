@@ -150,7 +150,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	directorRepo := repo.NewBranchDirectorRepository(ctx, store)
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
 	salesManagerStatisticRepo := repository2.NewSalesManagerStatisticRepository(saleTypeRepo, ctx, store)
-	postRepo := NewPostRepository(ctx, store)
+	postRepo := NewPostRepository(ctx, store, customQuerier)
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
 	salesManagerService := service2.NewSalesManagerService(saleManagerRepo, salesManagerStatisticRepo, saleTypeRepo)

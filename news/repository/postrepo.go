@@ -207,7 +207,7 @@ func (db DBPostRepository) CreatePost(postTitle, postBody string, authorId int32
 	return nil
 }
 
-func NewPostRepository(ctx context.Context, querier generated.Querier) PostRepository {
+func NewPostRepository(ctx context.Context, querier generated.Querier, customQuerier CustomQuerier) PostRepository {
 	return DBPostRepository{
 		ctx:     ctx,
 		querier: querier,
