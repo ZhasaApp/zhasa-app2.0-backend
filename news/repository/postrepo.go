@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	. "zhasa2.0/base"
+	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/news/entities"
 	. "zhasa2.0/user/entities"
@@ -25,6 +26,7 @@ type PostRepository interface {
 type DBPostRepository struct {
 	ctx     context.Context
 	querier generated.Querier
+	customQ CustomQuerier
 }
 
 func (db DBPostRepository) DeleteComment(commentId int32) error {
@@ -142,7 +144,7 @@ func (db DBPostRepository) IsUserLikedPost(userId int32, postId int32) (bool, er
 }
 
 func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post, error) {
-	rows, err := db.querier.GetPostsAndPostAuthors(db.ctx, generated.GetPostsAndPostAuthorsParams{
+	rows, err := db.customQ.GetPostsAndPostAuthors(db.ctx, GetPostsAndPostAuthorsParams{
 		UserID: userId,
 		Limit:  pagination.PageSize,
 		Offset: pagination.Page,
