@@ -211,5 +211,6 @@ func NewPostRepository(ctx context.Context, querier generated.Querier, customQue
 	return DBPostRepository{
 		ctx:     ctx,
 		querier: querier,
+		customQ: customQuerier,
 	}
 }
