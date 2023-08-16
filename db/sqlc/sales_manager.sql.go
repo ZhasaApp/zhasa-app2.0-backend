@@ -314,7 +314,7 @@ FROM sales_managers_view v
          LEFT JOIN
      sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
          AND r.from_date >= $1 AND r.to_date <= $2
-         AND v.branch_id = $3
+WHERE v.branch_id = $3
 ORDER BY ratio DESC LIMIT $4
 OFFSET $5
 `
