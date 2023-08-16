@@ -17,6 +17,7 @@ import (
 	repository2 "zhasa2.0/manager/repository"
 	service2 "zhasa2.0/manager/service"
 	. "zhasa2.0/news/repository"
+	. "zhasa2.0/owner/repository"
 	"zhasa2.0/sale/repository"
 	service4 "zhasa2.0/sale/service"
 	. "zhasa2.0/statistic/repository"
@@ -37,6 +38,7 @@ type Server struct {
 	directorService     service5.BranchDirectorService
 	analyticsService    service6.AnalyticsService
 	postRepository      PostRepository
+	ownerRepository     OwnerRepository
 }
 
 func (server Server) InitSuperUser() error {
@@ -153,6 +155,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
 	salesManagerStatisticRepo := repository2.NewSalesManagerStatisticRepository(saleTypeRepo, ctx, store)
 	postRepo := NewPostRepository(ctx, store, customQuerier)
+	ownerRepo := NewOwnerRepo(ctx, store)
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
 	salesManagerService := service2.NewSalesManagerService(saleManagerRepo, salesManagerStatisticRepo, saleTypeRepo)
@@ -173,6 +176,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.directorService = directorService
 	server.analyticsService = analyticsService
 	server.postRepository = postRepo
+	server.ownerRepository = ownerRepo
 }
 
 // Start runs the HTTP server a specific address

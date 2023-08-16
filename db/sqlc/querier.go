@@ -42,6 +42,7 @@ type Querier interface {
 	GetOrderedBranchesByGivenPeriod(ctx context.Context, arg GetOrderedBranchesByGivenPeriodParams) ([]GetOrderedBranchesByGivenPeriodRow, error)
 	GetOrderedSalesManagers(ctx context.Context, arg GetOrderedSalesManagersParams) ([]GetOrderedSalesManagersRow, error)
 	GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOrderedSalesManagersOfBranchParams) ([]GetOrderedSalesManagersOfBranchRow, error)
+	GetOwnerByUserId(ctx context.Context, userID int32) (OwnersView, error)
 	GetPostById(ctx context.Context, id int32) (Post, error)
 	GetPostLikedUsers(ctx context.Context, arg GetPostLikedUsersParams) ([]GetPostLikedUsersRow, error)
 	GetPostLikesCount(ctx context.Context, postID int32) (int64, error)

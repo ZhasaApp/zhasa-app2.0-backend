@@ -72,6 +72,23 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
+
+	owner, err := server.ownerRepository.GetOwnerByUserId(userTokenData.Id)
+
+	if owner != nil {
+		response := UserProfileResponse{
+			Id:       userTokenData.Id,
+			Avatar:   owner.AvatarPointer(),
+			FullName: owner.GetFullName(),
+			Phone:    userTokenData.Phone,
+			Branch:   BranchResponse{},
+			Role:     "owner",
+		}
+
+		ctx.JSON(http.StatusOK, response)
+		return
+	}
+
 	response := UserProfileResponse{
 		Id:       userTokenData.Id,
 		Avatar:   nil,

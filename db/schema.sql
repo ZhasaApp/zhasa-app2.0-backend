@@ -178,3 +178,21 @@ CREATE TABLE likes(
                       post_id INT REFERENCES posts(id) ON DELETE CASCADE NOT NULL,
                       PRIMARY KEY(user_id, post_id)
 );
+
+
+CREATE TABLE owners
+(
+    id SERIAL PRIMARY KEY,
+    user_id INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+    UNIQUE (user_id)
+);
+
+CREATE VIEW owners_view AS
+SELECT u.id         AS user_id,
+       u.phone      AS phone,
+       u.first_name AS first_name,
+       u.last_name  AS last_name,
+       u.avatar_url AS avatar_url,
+       o.id         as owner_id
+FROM user_avatar_view u
+         JOIN owners o ON u.id = o.user_id;

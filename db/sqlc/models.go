@@ -106,6 +106,20 @@ type Like struct {
 	PostID int32 `json:"post_id"`
 }
 
+type Owner struct {
+	ID     int32 `json:"id"`
+	UserID int32 `json:"user_id"`
+}
+
+type OwnersView struct {
+	UserID    int32  `json:"user_id"`
+	Phone     string `json:"phone"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	AvatarUrl string `json:"avatar_url"`
+	OwnerID   int32  `json:"owner_id"`
+}
+
 type Post struct {
 	ID        int32     `json:"id"`
 	Title     string    `json:"title"`
