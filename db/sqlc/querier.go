@@ -34,6 +34,7 @@ type Querier interface {
 	GetBranchDirectorByBranchId(ctx context.Context, branchID int32) (BranchDirectorsView, error)
 	GetBranchDirectorByUserId(ctx context.Context, userID int32) ([]BranchDirectorsView, error)
 	GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error)
+	GetBranchGoalBySaleType(ctx context.Context, arg GetBranchGoalBySaleTypeParams) (int64, error)
 	GetBranches(ctx context.Context) ([]Branch, error)
 	GetCommentById(ctx context.Context, id int32) (Comment, error)
 	GetCommentsAndAuthorsByPostId(ctx context.Context, arg GetCommentsAndAuthorsByPostIdParams) ([]GetCommentsAndAuthorsByPostIdRow, error)
@@ -62,6 +63,7 @@ type Querier interface {
 	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)
 	GetUserPostLike(ctx context.Context, arg GetUserPostLikeParams) (int32, error)
 	ListPosts(ctx context.Context) ([]Post, error)
+	SetBranchGoalBySaleType(ctx context.Context, arg SetBranchGoalBySaleTypeParams) error
 	SetSMRatio(ctx context.Context, arg SetSMRatioParams) error
 	SetSmGoalBySaleType(ctx context.Context, arg SetSmGoalBySaleTypeParams) error
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error

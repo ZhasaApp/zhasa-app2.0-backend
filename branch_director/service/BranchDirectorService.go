@@ -29,6 +29,11 @@ func (bd BranchDirectorService) SetSmGoal(period Period, smId int32, typeId int3
 	return bd.repo.SetSalesManagerGoal(from, to, smId, typeId, amount)
 }
 
+func (bd BranchDirectorService) SetBranchGoal(period Period, branchId int32, typeId int32, amount int64) error {
+	from, to := period.ConvertToTime()
+	return bd.repo.SetBranchGoal(from, to, branchId, typeId, amount)
+}
+
 func (bd BranchDirectorService) GetBranchDirectorByUserId(userId entities2.UserId) ([]entities.BranchDirector, error) {
 	director, err := bd.repo.GetBranchesDirectorByUserId(userId)
 	if err != nil {

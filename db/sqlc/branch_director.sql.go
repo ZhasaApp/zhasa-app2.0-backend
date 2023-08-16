@@ -111,6 +111,34 @@ func (q *Queries) GetBranchDirectorByUserId(ctx context.Context, userID int32) (
 	return items, nil
 }
 
+const getBranchGoalBySaleType = `-- name: GetBranchGoalBySaleType :one
+SELECT COALESCE(amount, 0)
+FROM branch_goals_by_types
+WHERE from_date = $1
+  AND to_date = $2
+  AND branch_id = $3
+  AND type_id = $4
+`
+
+type GetBranchGoalBySaleTypeParams struct {
+	FromDate time.Time `json:"from_date"`
+	ToDate   time.Time `json:"to_date"`
+	BranchID int32     `json:"branch_id"`
+	TypeID   int32     `json:"type_id"`
+}
+
+func (q *Queries) GetBranchGoalBySaleType(ctx context.Context, arg GetBranchGoalBySaleTypeParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getBranchGoalBySaleType,
+		arg.FromDate,
+		arg.ToDate,
+		arg.BranchID,
+		arg.TypeID,
+	)
+	var amount int64
+	err := row.Scan(&amount)
+	return amount, err
+}
+
 const getSMGoal = `-- name: GetSMGoal :one
 SELECT COALESCE(amount, 0)
 FROM sales_manager_goals_by_types
@@ -137,6 +165,32 @@ func (q *Queries) GetSMGoal(ctx context.Context, arg GetSMGoalParams) (int64, er
 	var amount int64
 	err := row.Scan(&amount)
 	return amount, err
+}
+
+const setBranchGoalBySaleType = `-- name: SetBranchGoalBySaleType :exec
+INSERT INTO branch_goals_by_types (from_date, to_date, amount, branch_id, type_id)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (from_date, to_date, sales_manager_id, type_id)
+DO
+UPDATE SET amount = EXCLUDED.amount
+`
+
+type SetBranchGoalBySaleTypeParams struct {
+	FromDate time.Time `json:"from_date"`
+	ToDate   time.Time `json:"to_date"`
+	Amount   int64     `json:"amount"`
+	BranchID int32     `json:"branch_id"`
+	TypeID   int32     `json:"type_id"`
+}
+
+func (q *Queries) SetBranchGoalBySaleType(ctx context.Context, arg SetBranchGoalBySaleTypeParams) error {
+	_, err := q.db.ExecContext(ctx, setBranchGoalBySaleType,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Amount,
+		arg.BranchID,
+		arg.TypeID,
+	)
+	return err
 }
 
 const setSmGoalBySaleType = `-- name: SetSmGoalBySaleType :exec

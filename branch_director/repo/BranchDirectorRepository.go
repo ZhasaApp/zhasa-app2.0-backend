@@ -14,6 +14,7 @@ type BranchDirectorRepository interface {
 	GetBranchesDirectorByUserId(userId UserId) ([]BranchDirector, error)
 	SetSalesManagerGoal(from, to time.Time, smId int32, saleTypeId int32, amount int64) error
 	GetBranchDirectorByBranchId(branch BranchId) (*BranchDirector, error)
+	SetBranchGoal(from, to time.Time, branchId int32, saleTypeId int32, amount int64) error
 }
 
 func NewBranchDirectorRepository(ctx context.Context, querier generated.Querier) BranchDirectorRepository {
@@ -38,6 +39,18 @@ func (bdr DbBranchDirectorRepository) SetSalesManagerGoal(from, to time.Time, sm
 type DbBranchDirectorRepository struct {
 	ctx     context.Context
 	querier generated.Querier
+}
+
+func (bdr DbBranchDirectorRepository) SetBranchGoal(from, to time.Time, branchId int32, saleTypeId int32, amount int64) error {
+	params := generated.SetBranchGoalBySaleTypeParams{
+		FromDate: from,
+		ToDate:   to,
+		Amount:   amount,
+		BranchID: branchId,
+		TypeID:   saleTypeId,
+	}
+
+	return bdr.querier.SetBranchGoalBySaleType(bdr.ctx, params)
 }
 
 func (bdr DbBranchDirectorRepository) GetBranchDirectorByBranchId(branch BranchId) (*BranchDirector, error) {
