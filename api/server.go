@@ -52,7 +52,7 @@ func (server Server) InitSuperUser() error {
 		return nil
 	}
 
-	err = server.userService.CreateUser(request)
+	_, err = server.userService.CreateUser(request)
 	if err != nil {
 		return err
 	}
@@ -72,6 +72,7 @@ func NewServer(ctx context.Context) *Server {
 
 	router.POST("/user/avatar", verifyToken(server.tokenService), server.UploadUserAvatar)
 	router.DELETE("/user/avatar", verifyToken(server.tokenService), server.DeleteAvatar)
+	router.POST("/csv/managers", verifyToken(server.tokenService), server.HandleManagersUpload)
 
 	authRoute := router.Group("auth/")
 	{

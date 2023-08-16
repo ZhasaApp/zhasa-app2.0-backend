@@ -7,7 +7,7 @@ import (
 
 type UserService interface {
 	GetUserByPhone(phone Phone) (*User, error)
-	CreateUser(request CreateUserRequest) error
+	CreateUser(request CreateUserRequest) (int32, error)
 	UploadAvatar(userId UserId, avatarUrl string) error
 	DeleteAvatar(userId UserId) error
 }
@@ -30,7 +30,7 @@ func NewUserService(repo repository.UserRepository) UserService {
 	}
 }
 
-func (dus DBUserService) CreateUser(request CreateUserRequest) error {
+func (dus DBUserService) CreateUser(request CreateUserRequest) (int32, error) {
 	return dus.repo.CreateUser(request)
 }
 

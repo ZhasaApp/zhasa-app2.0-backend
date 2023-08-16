@@ -85,7 +85,7 @@ func (server *Server) createSalesManager(ctx *gin.Context) {
 		return
 	}
 
-	err = server.userService.CreateUser(createUserRequest)
+	_, err = server.userService.CreateUser(createUserRequest)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

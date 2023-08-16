@@ -21,7 +21,7 @@ type Querier interface {
 	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
 	CreateSalesManager(ctx context.Context, arg CreateSalesManagerParams) error
 	CreateSalesManagerGoalByType(ctx context.Context, arg CreateSalesManagerGoalByTypeParams) error
-	CreateUser(ctx context.Context, arg CreateUserParams) error
+	CreateUser(ctx context.Context, arg CreateUserParams) (int32, error)
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
 	DeleteComment(ctx context.Context, id int32) error
 	DeleteLike(ctx context.Context, arg DeleteLikeParams) error

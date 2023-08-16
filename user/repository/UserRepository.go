@@ -8,7 +8,7 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(request CreateUserRequest) error
+	CreateUser(request CreateUserRequest) (int32, error)
 	GetUserByPhone(phone Phone) (*User, error)
 	GetUserById(id UserId) (*User, error)
 	AddUserCode(userId UserId, code OtpCode) (OtpId, error)
@@ -103,7 +103,7 @@ func (pur PostgresUserRepository) GetUserByPhone(phone Phone) (*User, error) {
 	return &user, err
 }
 
-func (pur PostgresUserRepository) CreateUser(request CreateUserRequest) error {
+func (pur PostgresUserRepository) CreateUser(request CreateUserRequest) (int32, error) {
 	params := db_generated.CreateUserParams{
 		Phone:     string(request.Phone),
 		FirstName: string(request.FirstName),

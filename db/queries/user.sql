@@ -1,6 +1,6 @@
--- name: CreateUser :exec
+-- name: CreateUser :one
 INSERT INTO users (phone, first_name, last_name)
-VALUES ($1, $2, $3);
+VALUES ($1, $2, $3) RETURNING id;
 
 -- name: GetUserByPhone :one
 SELECT *
@@ -28,6 +28,8 @@ DO
 UPDATE SET avatar_url = EXCLUDED.avatar_url;
 
 -- name: DeleteUserAvatar :exec
-DELETE FROM users_avatars WHERE user_id = $1;
+DELETE
+FROM users_avatars
+WHERE user_id = $1;
 
 

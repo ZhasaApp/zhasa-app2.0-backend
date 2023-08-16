@@ -9,9 +9,9 @@ import (
 	"context"
 )
 
-const createUser = `-- name: CreateUser :exec
+const createUser = `-- name: CreateUser :one
 INSERT INTO users (phone, first_name, last_name)
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3) RETURNING id
 `
 
 type CreateUserParams struct {
@@ -20,9 +20,11 @@ type CreateUserParams struct {
 	LastName  string `json:"last_name"`
 }
 
-func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
-	_, err := q.db.ExecContext(ctx, createUser, arg.Phone, arg.FirstName, arg.LastName)
-	return err
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (int32, error) {
+	row := q.db.QueryRowContext(ctx, createUser, arg.Phone, arg.FirstName, arg.LastName)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
 }
 
 const createUserCode = `-- name: CreateUserCode :one
@@ -43,7 +45,9 @@ func (q *Queries) CreateUserCode(ctx context.Context, arg CreateUserCodeParams) 
 }
 
 const deleteUserAvatar = `-- name: DeleteUserAvatar :exec
-DELETE FROM users_avatars WHERE user_id = $1
+DELETE
+FROM users_avatars
+WHERE user_id = $1
 `
 
 func (q *Queries) DeleteUserAvatar(ctx context.Context, userID int32) error {
