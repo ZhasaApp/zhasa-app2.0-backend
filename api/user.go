@@ -57,16 +57,25 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
 	if bd != nil {
 
+		branches := make([]BranchResponse, 0)
+
+		for _, br := range bd {
+			branches = append(branches, BranchResponse{
+				Id:          int32(br.Branch.BranchId),
+				Description: string(br.Branch.Title),
+			})
+		}
 		response := UserProfileResponse{
 			Id:       userTokenData.Id,
-			Avatar:   bd.AvatarPointer(),
+			Avatar:   bd[0].AvatarPointer(),
 			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
 			Phone:    userTokenData.Phone,
 			Branch: BranchResponse{
-				Id:          int32(bd.Branch.BranchId),
-				Description: string(bd.Branch.Title),
+				Id:          int32(bd[0].Branch.BranchId),
+				Description: string(bd[0].Branch.Title),
 			},
-			Role: "branch_director",
+			Branches: &branches,
+			Role:     "branch_director",
 		}
 
 		ctx.JSON(http.StatusOK, response)

@@ -25,12 +25,13 @@ type BranchResponse struct {
 }
 
 type UserProfileResponse struct {
-	Id       int32          `json:"id"`
-	Avatar   *string        `json:"avatar"`
-	FullName string         `json:"full_name"`
-	Phone    string         `json:"phone"`
-	Branch   BranchResponse `json:"branch"`
-	Role     string         `json:"role"`
+	Id       int32             `json:"id"`
+	Avatar   *string           `json:"avatar"`
+	FullName string            `json:"full_name"`
+	Phone    string            `json:"phone"`
+	Branch   BranchResponse    `json:"branch"`
+	Role     string            `json:"role"`
+	Branches *[]BranchResponse `json:"branches"`
 }
 
 type AuthResponse struct {

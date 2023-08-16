@@ -73,26 +73,42 @@ func (q *Queries) GetBranchDirectorByBranchId(ctx context.Context, branchID int3
 	return i, err
 }
 
-const getBranchDirectorByUserId = `-- name: GetBranchDirectorByUserId :one
+const getBranchDirectorByUserId = `-- name: GetBranchDirectorByUserId :many
 SELECT user_id, phone, first_name, last_name, avatar_url, branch_director_id, branch_id, branch_title
 FROM branch_directors_view bdv
 WHERE bdv.user_id = $1
 `
 
-func (q *Queries) GetBranchDirectorByUserId(ctx context.Context, userID int32) (BranchDirectorsView, error) {
-	row := q.db.QueryRowContext(ctx, getBranchDirectorByUserId, userID)
-	var i BranchDirectorsView
-	err := row.Scan(
-		&i.UserID,
-		&i.Phone,
-		&i.FirstName,
-		&i.LastName,
-		&i.AvatarUrl,
-		&i.BranchDirectorID,
-		&i.BranchID,
-		&i.BranchTitle,
-	)
-	return i, err
+func (q *Queries) GetBranchDirectorByUserId(ctx context.Context, userID int32) ([]BranchDirectorsView, error) {
+	rows, err := q.db.QueryContext(ctx, getBranchDirectorByUserId, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []BranchDirectorsView
+	for rows.Next() {
+		var i BranchDirectorsView
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Phone,
+			&i.FirstName,
+			&i.LastName,
+			&i.AvatarUrl,
+			&i.BranchDirectorID,
+			&i.BranchID,
+			&i.BranchTitle,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getSMGoal = `-- name: GetSMGoal :one

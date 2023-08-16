@@ -32,7 +32,7 @@ type Querier interface {
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
 	GetBranchDirectorByBranchId(ctx context.Context, branchID int32) (BranchDirectorsView, error)
-	GetBranchDirectorByUserId(ctx context.Context, userID int32) (BranchDirectorsView, error)
+	GetBranchDirectorByUserId(ctx context.Context, userID int32) ([]BranchDirectorsView, error)
 	GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error)
 	GetBranches(ctx context.Context) ([]Branch, error)
 	GetCommentById(ctx context.Context, id int32) (Comment, error)

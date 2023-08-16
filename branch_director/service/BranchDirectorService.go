@@ -29,8 +29,8 @@ func (bd BranchDirectorService) SetSmGoal(period Period, smId int32, typeId int3
 	return bd.repo.SetSalesManagerGoal(from, to, smId, typeId, amount)
 }
 
-func (bd BranchDirectorService) GetBranchDirectorByUserId(userId entities2.UserId) (*entities.BranchDirector, error) {
-	director, err := bd.repo.GetBranchDirectorByUserId(userId)
+func (bd BranchDirectorService) GetBranchDirectorByUserId(userId entities2.UserId) ([]entities.BranchDirector, error) {
+	director, err := bd.repo.GetBranchesDirectorByUserId(userId)
 	if err != nil {
 		return nil, errors.New(fmt.Sprintf("director not found by given id userId: ", userId))
 	}

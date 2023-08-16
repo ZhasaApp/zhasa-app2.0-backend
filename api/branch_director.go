@@ -25,9 +25,9 @@ func getBranchDirector(service token_service.TokenService, branchDirectorService
 			return
 		}
 
-		log.Println(director.Id)
+		log.Println(director[0].Id)
 
-		ctx.Set("director_id", int(director.Id))
+		ctx.Set("director_id", int(director[0].Id))
 		ctx.Next()
 	}
 }
