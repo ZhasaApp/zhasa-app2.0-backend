@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	. "zhasa2.0/api/entities"
-	entities3 "zhasa2.0/branch/entities"
 	. "zhasa2.0/sale/entities"
 	entities2 "zhasa2.0/user/entities"
 )
@@ -91,7 +90,7 @@ func (server *Server) createBranchDirector(ctx *gin.Context) {
 	user, err := server.userService.GetUserByPhone(*phone)
 	if user != nil && err == nil {
 
-		id, err := server.directorService.CreateBranchDirector(entities2.UserId(user.Id), entities3.BranchId(body.BranchId))
+		id, err := server.directorService.CreateBranchDirector(user.Id, body.BranchId)
 
 		if err != nil {
 			fmt.Println(err)
@@ -116,7 +115,7 @@ func (server *Server) createBranchDirector(ctx *gin.Context) {
 		return
 	}
 
-	id, err := server.directorService.CreateBranchDirector(entities2.UserId(user.Id), entities3.BranchId(body.BranchId))
+	id, err := server.directorService.CreateBranchDirector(user.Id, body.BranchId)
 
 	if err != nil {
 		fmt.Println(err)
