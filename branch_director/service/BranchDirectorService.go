@@ -20,7 +20,7 @@ func NewBranchDirectorService(repo repo.BranchDirectorRepository) BranchDirector
 	}
 }
 
-func (bd BranchDirectorService) CreateBranchDirector(userId entities2.UserId, branchId BranchId) (entities.BranchDirectorId, error) {
+func (bd BranchDirectorService) CreateBranchDirector(userId int32, branchId int32) (entities.BranchDirectorId, error) {
 	return bd.repo.CreateBranchDirector(userId, branchId)
 }
 

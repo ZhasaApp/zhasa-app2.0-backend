@@ -73,6 +73,7 @@ func NewServer(ctx context.Context) *Server {
 	router.POST("/user/avatar", verifyToken(server.tokenService), server.UploadUserAvatar)
 	router.DELETE("/user/avatar", verifyToken(server.tokenService), server.DeleteAvatar)
 	router.POST("/csv/managers", verifyToken(server.tokenService), server.HandleManagersUpload)
+	router.POST("/csv/directors", verifyToken(server.tokenService), server.HandleDirectorsUpload)
 
 	authRoute := router.Group("auth/")
 	{

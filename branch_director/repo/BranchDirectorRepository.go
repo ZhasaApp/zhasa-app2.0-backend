@@ -10,7 +10,7 @@ import (
 )
 
 type BranchDirectorRepository interface {
-	CreateBranchDirector(userId UserId, branchId BranchId) (BranchDirectorId, error)
+	CreateBranchDirector(userId int32, branchId int32) (BranchDirectorId, error)
 	GetBranchDirectorByUserId(userId UserId) (*BranchDirector, error)
 	SetSalesManagerGoal(from, to time.Time, smId int32, saleTypeId int32, amount int64) error
 	GetBranchDirectorByBranchId(branch BranchId) (*BranchDirector, error)
@@ -65,10 +65,10 @@ func (bdr DbBranchDirectorRepository) GetBranchDirectorByBranchId(branch BranchI
 	return &director, nil
 }
 
-func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId UserId, branchId BranchId) (BranchDirectorId, error) {
+func (bdr DbBranchDirectorRepository) CreateBranchDirector(userId int32, branchId int32) (BranchDirectorId, error) {
 	params := generated.CreateBranchDirectorParams{
-		UserID:   int32(userId),
-		BranchID: int32(branchId),
+		UserID:   userId,
+		BranchID: branchId,
 	}
 	id, err := bdr.querier.CreateBranchDirector(bdr.ctx, params)
 	if err != nil {

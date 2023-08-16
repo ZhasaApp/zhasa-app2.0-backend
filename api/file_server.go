@@ -147,6 +147,64 @@ func (server Server) HandleManagersUpload(c *gin.Context) {
 	}
 }
 
+func (server Server) HandleDirectorsUpload(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Please provide a valid file.",
+		})
+		return
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	defer src.Close()
+
+	// Create a new reader.
+	r := csv.NewReader(src)
+
+	// Read the first record (header)
+	_, err = r.Read()
+	if err != nil {
+		log.Fatalf("error reading header: %s", err)
+	}
+
+	// Read remaining records
+	records, err := r.ReadAll()
+	if err != nil {
+		log.Fatalf("error reading CSV: %s", err)
+	}
+
+	for _, rec := range records {
+		phone, err := NewPhone(transformPhoneNumber(rec[0]))
+
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		id, err := server.userService.CreateUser(CreateUserRequest{
+			Phone:     *phone,
+			FirstName: Name(rec[1]),
+			LastName:  Name(rec[2]),
+		})
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		branchId, err := strconv.Atoi(rec[3])
+		_, err = server.directorService.CreateBranchDirector(id, int32(branchId))
+
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+}
+
 func transformPhoneNumber(phone string) string {
 	if strings.HasPrefix(phone, "8") {
 		return "+7" + phone[1:]
