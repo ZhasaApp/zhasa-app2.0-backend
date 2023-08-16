@@ -32,7 +32,7 @@ WHERE from_date = $1
 
 -- name: SetBranchGoalBySaleType :exec
 INSERT INTO branch_goals_by_types (from_date, to_date, amount, branch_id, type_id)
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (from_date, to_date, sales_manager_id, type_id)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (from_date, to_date, branch_id, type_id)
 DO
 UPDATE SET amount = EXCLUDED.amount;
 

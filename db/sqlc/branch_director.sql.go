@@ -169,7 +169,7 @@ func (q *Queries) GetSMGoal(ctx context.Context, arg GetSMGoalParams) (int64, er
 
 const setBranchGoalBySaleType = `-- name: SetBranchGoalBySaleType :exec
 INSERT INTO branch_goals_by_types (from_date, to_date, amount, branch_id, type_id)
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (from_date, to_date, sales_manager_id, type_id)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (from_date, to_date, branch_id, type_id)
 DO
 UPDATE SET amount = EXCLUDED.amount
 `
