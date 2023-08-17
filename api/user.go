@@ -55,7 +55,8 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	}
 
 	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
-	if bd != nil {
+
+	if bd != nil && err == nil {
 
 		branches := make([]BranchResponse, 0)
 
@@ -84,7 +85,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 
 	owner, err := server.ownerRepository.GetOwnerByUserId(userTokenData.Id)
 
-	if owner != nil {
+	if owner != nil && err == nil {
 		response := UserProfileResponse{
 			Id:       userTokenData.Id,
 			Avatar:   owner.AvatarPointer(),
@@ -97,6 +98,8 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
+
+	ctx.JSON(http.StatusOK, errorResponse(err))
 
 	response := UserProfileResponse{
 		Id:       userTokenData.Id,
