@@ -100,16 +100,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-
-	response := UserProfileResponse{
-		Id:       userTokenData.Id,
-		Avatar:   nil,
-		FullName: userTokenData.FirstName + " " + userTokenData.LastName,
-		Phone:    userTokenData.Phone,
-		Role:     "admin",
-	}
-
-	ctx.JSON(http.StatusOK, response)
+	return
 }
 
 func (server *Server) tryAuth(ctx *gin.Context) {
