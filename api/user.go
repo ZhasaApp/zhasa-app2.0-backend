@@ -99,7 +99,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, errorResponse(err))
+	ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 
 	response := UserProfileResponse{
 		Id:       userTokenData.Id,
