@@ -56,8 +56,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 
 	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
 
-	if bd != nil && err == nil {
-
+	if bd != nil && err == nil && len(bd) > 0 {
 		branches := make([]BranchResponse, 0)
 
 		for _, br := range bd {
