@@ -113,10 +113,10 @@ func NewServer(ctx context.Context) *Server {
 
 	directorRouter := router.Group("director/")
 	{
-		directorRouter.POST("sales-manager/goal", server.SetSmGoal).Use(getBranchDirector(server.tokenService, server.directorService))
-		directorRouter.GET("sales-manager/goal", server.GetSmGoal).Use(getBranchDirector(server.tokenService, server.directorService))
-		directorRouter.POST("branch/goal", server.SetBranchGoal).Use(getBranchDirector(server.tokenService, server.directorService))
-		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(getBranchDirector(server.tokenService, server.directorService))
+		directorRouter.POST("sales-manager/goal", server.SetSmGoal).Use(verifyToken(server.tokenService))
+		directorRouter.GET("sales-manager/goal", server.GetSmGoal).Use(verifyToken(server.tokenService))
+		directorRouter.POST("branch/goal", server.SetBranchGoal).Use(verifyToken(server.tokenService))
+		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
 	}
 
 	router.GET("sales-manager/dashboard", server.getSalesManagerDashboardStatistic).Use(verifyToken(server.tokenService))
