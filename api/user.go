@@ -32,12 +32,18 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	}
 
 	sm, err := server.salesManagerService.GetSalesManagerByUserId(userTokenData.Id)
+	branches := make([]BranchResponse, 0)
 
 	if sm != nil {
 		var avatar *string
 		if len(sm.AvatarUrl) != 0 {
 			avatar = &sm.AvatarUrl
 		}
+		branches = append(branches, BranchResponse{
+			Id:          int32(sm.Branch.BranchId),
+			Description: string(sm.Branch.Title),
+		})
+
 		response := UserProfileResponse{
 			Id:       userTokenData.Id,
 			Avatar:   avatar,
@@ -47,7 +53,8 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 				Id:          int32(sm.Branch.BranchId),
 				Description: string(sm.Branch.Title),
 			},
-			Role: "sales_manager",
+			Role:     "sales_manager",
+			Branches: &branches,
 		}
 
 		ctx.JSON(http.StatusOK, response)
@@ -57,8 +64,6 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
 
 	if bd != nil && err == nil && len(bd) > 0 {
-		branches := make([]BranchResponse, 0)
-
 		for _, br := range bd {
 			branches = append(branches, BranchResponse{
 				Id:          int32(br.Branch.BranchId),
