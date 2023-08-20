@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"sort"
 	. "zhasa2.0/api/entities"
 	. "zhasa2.0/base"
 	. "zhasa2.0/branch/entities"
@@ -126,6 +127,9 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 	}
+	sort.Slice(branches, func(i, j int) bool {
+		return branches[i].GoalAchievement > branches[j].GoalAchievement
+	})
 
 	if branches != nil {
 		for index, item := range branches {
