@@ -244,9 +244,10 @@ func (br DBBranchRepository) GetBranches(period Period) ([]Branch, error) {
 	}
 
 	from, to := period.ConvertToTime()
-	ratioRows := make([]RatioRow, 0)
 
 	for _, row := range rows {
+		ratioRows := make([]RatioRow, 0)
+
 		for _, sType := range *saleTypes {
 			goal, _ := br.querier.GetBranchGoalByGivenDateRange(br.ctx, generated.GetBranchGoalByGivenDateRangeParams{
 				BranchID: row.ID,
