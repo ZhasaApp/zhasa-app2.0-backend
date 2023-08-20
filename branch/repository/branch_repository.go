@@ -161,6 +161,7 @@ func (br DBBranchRepository) GetBranchYearMonthlyStatistic(bId BranchId, year in
 				Year:     year,
 				Month:    int32(month),
 			})
+
 			if err != nil {
 				log.Println(err)
 			}
