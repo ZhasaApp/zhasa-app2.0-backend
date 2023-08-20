@@ -74,14 +74,14 @@ WHERE smgr.from_date = $1
   AND smgr.sales_manager_id = $3;
 
 -- name: GetOrderedSalesManagers :many
-SELECT DISTINCT  v.sales_manager_id,
-       v.first_name,
-       v.last_name,
-       v.avatar_url,
-       v.branch_title,
-       v.branch_id,
-       v.user_id,
-       COALESCE(r.ratio, 0.0) AS ratio
+SELECT DISTINCT v.sales_manager_id,
+                v.first_name,
+                v.last_name,
+                v.avatar_url,
+                v.branch_title,
+                v.branch_id,
+                v.user_id,
+                COALESCE(r.ratio, 0.0) AS ratio
 FROM sales_managers_view v
          LEFT JOIN
      sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
