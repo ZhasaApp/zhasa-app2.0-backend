@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"sort"
 	. "zhasa2.0/api/entities"
 	. "zhasa2.0/statistic/entities"
 )
@@ -47,7 +48,9 @@ func (server *Server) GetBranchList(ctx *gin.Context) {
 			GoalAchievementPercent: float32(branch.GoalAchievement),
 		})
 	}
-
+	sort.Slice(branchesResponseList, func(i, j int) bool {
+		return branchesResponseList[i].GoalAchievementPercent > branchesResponseList[j].GoalAchievementPercent
+	})
 	ctx.JSON(http.StatusOK, BranchesResponse{
 		Result:  branchesResponseList,
 		Count:   int32(len(branchesResponseList)),

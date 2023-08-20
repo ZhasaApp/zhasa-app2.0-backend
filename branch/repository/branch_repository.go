@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"time"
 	. "zhasa2.0/base"
@@ -267,6 +268,7 @@ func (br DBBranchRepository) GetBranches(period Period) ([]Branch, error) {
 			})
 		}
 		percent := CalculateRatio(ratioRows)
+		fmt.Println(row.Title+": ", percent)
 		branchList = append(branchList, Branch{
 			BranchId:        BranchId(row.ID),
 			Title:           BranchTitle(row.Title),
