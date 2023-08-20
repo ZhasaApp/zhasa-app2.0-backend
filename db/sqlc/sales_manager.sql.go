@@ -231,7 +231,7 @@ func (q *Queries) GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSal
 }
 
 const getOrderedSalesManagers = `-- name: GetOrderedSalesManagers :many
-SELECT v.sales_manager_id,
+SELECT DISTINCT  v.sales_manager_id,
        v.first_name,
        v.last_name,
        v.avatar_url,

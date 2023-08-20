@@ -74,7 +74,7 @@ WHERE smgr.from_date = $1
   AND smgr.sales_manager_id = $3;
 
 -- name: GetOrderedSalesManagers :many
-SELECT v.sales_manager_id,
+SELECT DISTINCT  v.sales_manager_id,
        v.first_name,
        v.last_name,
        v.avatar_url,
