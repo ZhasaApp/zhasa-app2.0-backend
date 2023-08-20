@@ -128,9 +128,9 @@ func (server *Server) getBranchDashboardStatistic(ctx *gin.Context) {
 	}
 
 	if branches != nil {
-		for index, branch := range branches {
-			if branch.BranchId == branch.BranchId {
-				branchGoalAchievement = branch.GoalAchievement
+		for index, item := range branches {
+			if branch.BranchId == item.BranchId {
+				branchGoalAchievement = item.GoalAchievement
 				rating = index + 1
 			}
 		}
