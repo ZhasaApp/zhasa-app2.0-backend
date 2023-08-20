@@ -53,6 +53,8 @@ func CalculateRatio(rows []RatioRow) float32 {
 		weightedRatio := ratio * float32(row.Gravity)
 		totalWeightedRatio += weightedRatio
 	}
-
+	if totalGravity == 0 {
+		return 0
+	}
 	return totalWeightedRatio / float32(totalGravity)
 }
