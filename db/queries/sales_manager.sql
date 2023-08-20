@@ -74,28 +74,20 @@ WHERE smgr.from_date = $1
   AND smgr.sales_manager_id = $3;
 
 -- name: GetOrderedSalesManagers :many
-SELECT DISTINCT v.sales_manager_id,
-                v.first_name,
-                v.last_name,
-                v.avatar_url,
-                v.branch_title,
-                v.branch_id,
-                v.user_id,
-                COALESCE(r.ratio, 0.0) AS ratio
+SELECT v.sales_manager_id,
+       v.first_name,
+       v.last_name,
+       v.avatar_url,
+       v.branch_title,
+       v.branch_id,
+       v.user_id,
+       COALESCE(r.ratio, 0.0) AS ratio
 FROM sales_managers_view v
-         LEFT JOIN
-     sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
-         AND r.from_date >= $1 AND r.to_date <= $2
-ORDER BY CASE
-             WHEN COALESCE(r.ratio, 0.0) = 0.0 THEN 1
-             ELSE 0
-             END ASC,
-         COALESCE(r.ratio, 0.0) DESC,
-         v.first_name ASC,
-         v.last_name ASC LIMIT
-    $3
+         INNER JOIN sales_manager_goals_ratio_by_period r
+                    ON v.sales_manager_id = r.sales_manager_id
+                        AND r.from_date >= $1 AND r.to_date <= $2
+ORDER BY ratio DESC LIMIT $3
 OFFSET $4;
-
 
 -- name: GetOrderedSalesManagersOfBranch :many
 SELECT v.sales_manager_id,
