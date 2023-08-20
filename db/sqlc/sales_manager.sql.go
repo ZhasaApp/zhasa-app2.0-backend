@@ -243,7 +243,14 @@ FROM sales_managers_view v
          LEFT JOIN
      sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
          AND r.from_date >= $1 AND r.to_date <= $2
-ORDER BY ratio DESC LIMIT $3
+ORDER BY CASE
+             WHEN COALESCE(r.ratio, 0.0) = 0.0 THEN 1
+             ELSE 0
+             END ASC,
+         COALESCE(r.ratio, 0.0) DESC,
+         v.first_name ASC,
+         v.last_name ASC LIMIT
+    $3
 OFFSET $4
 `
 
@@ -376,12 +383,10 @@ func (q *Queries) GetOrderedSalesManagersOfBranch(ctx context.Context, arg GetOr
 
 const getRating = `-- name: GetRating :one
 SELECT subquery.sales_manager_id, subquery.position
-FROM (
-         SELECT sales_manager_id,
-                RANK() OVER (ORDER BY ratio DESC) AS position
-         FROM sales_manager_goals_ratio_by_period
-         WHERE from_date >= $1 AND to_date <= $2
-     ) subquery
+FROM (SELECT sales_manager_id,
+             RANK() OVER (ORDER BY ratio DESC) AS position
+      FROM sales_manager_goals_ratio_by_period
+      WHERE from_date >= $1 AND to_date <= $2) subquery
 WHERE sales_manager_id = $3
 `
 
