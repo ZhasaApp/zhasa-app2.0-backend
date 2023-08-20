@@ -240,9 +240,9 @@ SELECT v.sales_manager_id,
        v.user_id,
        COALESCE(r.ratio, 0.0) AS ratio
 FROM sales_managers_view v
-         LEFT JOIN
-     sales_manager_goals_ratio_by_period r ON v.sales_manager_id = r.sales_manager_id
-         AND r.from_date >= $1 AND r.to_date <= $2
+         JOIN sales_manager_goals_ratio_by_period r
+              ON v.sales_manager_id = r.sales_manager_id
+                  AND r.from_date >= $1 AND r.to_date <= $2
 ORDER BY ratio DESC LIMIT $3
 OFFSET $4
 `
