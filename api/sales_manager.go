@@ -441,9 +441,15 @@ func (server Server) GetSalesManagers(ctx *gin.Context) {
 		})
 	}
 
+	hasNext := false
+
+	if nextManagers != nil {
+		hasNext = int32(len(*nextManagers)) >= monthPagination.PageSize
+	}
+
 	ctx.JSON(http.StatusOK, SalesManagersResponse{
 		Result:  itemsResponse,
 		Count:   int32(len(itemsResponse)),
-		HasNext: len(*nextManagers) == int(monthPagination.PageSize),
+		HasNext: hasNext,
 	})
 }
