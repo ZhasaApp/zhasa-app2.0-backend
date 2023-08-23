@@ -48,6 +48,8 @@ func (q *Queries) AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplacePara
 const createSalesManager = `-- name: CreateSalesManager :exec
 INSERT INTO sales_managers (user_id, branch_id)
 VALUES ($1, $2)
+    ON CONFLICT (user_id)
+DO UPDATE SET branch_id = EXCLUDED.branch_id
 `
 
 type CreateSalesManagerParams struct {

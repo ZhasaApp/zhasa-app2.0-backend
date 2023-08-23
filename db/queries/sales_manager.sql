@@ -1,6 +1,8 @@
 -- name: CreateSalesManager :exec
 INSERT INTO sales_managers (user_id, branch_id)
-VALUES ($1, $2);
+VALUES ($1, $2)
+    ON CONFLICT (user_id)
+DO UPDATE SET branch_id = EXCLUDED.branch_id;
 
 -- name: GetSalesManagerSumsByType :one
 -- get the sales sums for a specific sales manager and each sale type within the given period.

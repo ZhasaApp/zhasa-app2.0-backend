@@ -11,7 +11,10 @@ import (
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (phone, first_name, last_name)
-VALUES ($1, $2, $3) RETURNING id
+VALUES ($1, $2, $3) ON CONFLICT (phone)
+DO
+UPDATE SET first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name
+    RETURNING id
 `
 
 type CreateUserParams struct {
