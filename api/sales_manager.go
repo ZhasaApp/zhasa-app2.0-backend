@@ -428,13 +428,9 @@ func (server Server) GetSalesManagers(ctx *gin.Context) {
 
 	itemsResponse := make([]SalesManagerRatingItem, 0)
 	for _, item := range *salesManagers {
-		var avatar *string
-		if len(item.AvatarUrl) != 0 {
-			avatar = &item.AvatarUrl
-		}
 		itemsResponse = append(itemsResponse, SalesManagerRatingItem{
 			ID:                     int32(item.UserId),
-			Avatar:                 avatar,
+			Avatar:                 item.GetAvatarPointer(),
 			FullName:               item.FirstName + " " + item.LastName,
 			Branch:                 string(item.Branch.Title),
 			GoalAchievementPercent: float64(item.Ratio),
