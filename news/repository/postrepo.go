@@ -43,7 +43,7 @@ func (db DBPostRepository) GetPostComments(postId int32, pagination Pagination) 
 	rows, err := db.querier.GetCommentsAndAuthorsByPostId(db.ctx, generated.GetCommentsAndAuthorsByPostIdParams{
 		PostID: postId,
 		Limit:  pagination.PageSize,
-		Offset: pagination.Page,
+		Offset: pagination.GetOffset(),
 	})
 
 	comments := make([]Comment, 0)
@@ -147,7 +147,7 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 	rows, err := db.customQ.GetPostsAndPostAuthors(db.ctx, GetPostsAndPostAuthorsParams{
 		UserID: userId,
 		Limit:  pagination.PageSize,
-		Offset: pagination.Page,
+		Offset: pagination.GetOffset(),
 	})
 
 	posts := make([]Post, 0)

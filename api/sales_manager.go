@@ -408,15 +408,24 @@ func (server Server) GetSalesManagers(ctx *gin.Context) {
 	var salesManagers *[]SalesManager
 	var err error
 
+	var nextManagers *[]SalesManager
 	if monthPagination.BranchId == nil {
 		salesManagers, err = server.salesManagerService.GetSalesManagersOrderedByRatio(Pagination{
-			PageSize: 60,
+			PageSize: monthPagination.PageSize,
 			Page:     monthPagination.Page,
+		}, period)
+		nextManagers, err = server.salesManagerService.GetSalesManagersOrderedByRatio(Pagination{
+			PageSize: monthPagination.PageSize,
+			Page:     monthPagination.Page + 1,
 		}, period)
 	} else {
 		salesManagers, err = server.branchService.GetBranchRankedSalesManagers(period, BranchId(*monthPagination.BranchId), Pagination{
-			PageSize: 60,
+			PageSize: monthPagination.PageSize,
 			Page:     monthPagination.Page,
+		})
+		nextManagers, err = server.branchService.GetBranchRankedSalesManagers(period, BranchId(*monthPagination.BranchId), Pagination{
+			PageSize: monthPagination.PageSize,
+			Page:     monthPagination.Page + 1,
 		})
 	}
 
@@ -436,15 +445,15 @@ func (server Server) GetSalesManagers(ctx *gin.Context) {
 		})
 	}
 
-	//hasNext := false
-	//
-	//if nextManagers != nil {
-	//	hasNext = int32(len(*nextManagers)) >= monthPagination.PageSize
-	//}
+	hasNext := false
+
+	if nextManagers != nil {
+		hasNext = int32(len(*nextManagers)) >= monthPagination.PageSize
+	}
 
 	ctx.JSON(http.StatusOK, SalesManagersResponse{
 		Result:  itemsResponse,
 		Count:   int32(len(itemsResponse)),
-		HasNext: false,
+		HasNext: hasNext,
 	})
 }

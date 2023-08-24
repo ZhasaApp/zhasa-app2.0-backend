@@ -150,7 +150,7 @@ func (p PostgresSalesManagerRepository) GetSalesManagersListOrderedByRatio(pagin
 		FromDate: from,
 		ToDate:   to,
 		Limit:    pagination.PageSize,
-		Offset:   pagination.Page,
+		Offset:   pagination.GetOffset(),
 	})
 
 	result := make([]SalesManager, 0)
@@ -175,7 +175,7 @@ func (p PostgresSalesManagerRepository) GetSalesManagersListOrderedByRatio(pagin
 				Key:         "",
 			},
 			Ratio:       Percent(item.Ratio).GetRounded(),
-			RatingPlace: RatingPlace((pagination.Page)*pagination.PageSize + int32(index) + int32(1)),
+			RatingPlace: RatingPlace(pagination.GetOffset() + int32(index) + int32(1)),
 			UserId:      UserId(item.UserID),
 		})
 	}
@@ -188,7 +188,7 @@ func (p PostgresSalesManagerRepository) GetManagerSalesByPeriod(salesManagerId S
 		SaleDate:       from,
 		SaleDate_2:     to,
 		Limit:          pagination.PageSize,
-		Offset:         pagination.Page,
+		Offset:         pagination.GetOffset(),
 	}
 
 	rows, err := p.querier.GetManagerSalesByPeriod(p.ctx, params)
@@ -227,7 +227,7 @@ func (p PostgresSalesManagerRepository) GetManagerSales(salesManagerId SalesMana
 	params := generated.GetManagerSalesParams{
 		SalesManagerID: int32(salesManagerId),
 		Limit:          pagination.PageSize,
-		Offset:         pagination.Page,
+		Offset:         pagination.GetOffset(),
 	}
 	data, err := p.querier.GetManagerSales(p.ctx, params)
 

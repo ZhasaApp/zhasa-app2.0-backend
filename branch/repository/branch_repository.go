@@ -44,7 +44,7 @@ func (br DBBranchRepository) GetBranchRankedSalesManagers(from, to time.Time, br
 		ToDate:   to,
 		BranchID: int32(branchId),
 		Limit:    pagination.PageSize,
-		Offset:   pagination.Page,
+		Offset:   pagination.GetOffset(),
 	}
 
 	branch, err := br.GetBranchById(branchId)
@@ -65,7 +65,6 @@ func (br DBBranchRepository) GetBranchRankedSalesManagers(from, to time.Time, br
 	}
 
 	for index, row := range data {
-		log.Println(row)
 		result = append(result, SalesManager{
 			Id:          SalesManagerId(row.SalesManagerID),
 			UserId:      UserId(row.UserID),
@@ -74,7 +73,7 @@ func (br DBBranchRepository) GetBranchRankedSalesManagers(from, to time.Time, br
 			AvatarUrl:   row.AvatarUrl,
 			Branch:      *branch,
 			Ratio:       Percent(row.Ratio).GetRounded(),
-			RatingPlace: RatingPlace((pagination.Page)*pagination.PageSize + int32(index) + int32(1)),
+			RatingPlace: RatingPlace(pagination.GetOffset() + int32(index) + int32(1)),
 		})
 	}
 	return &result, nil
@@ -119,7 +118,6 @@ func (br DBBranchRepository) GetBranchGoal(from, to time.Time, branchId BranchId
 		ToDate:   to,
 		TypeID:   int32(typeId),
 	}
-	log.Println(arg)
 	data, err := br.querier.GetBranchGoalByGivenDateRange(br.ctx, arg)
 	if err == sql.ErrNoRows {
 		log.Println(err)
