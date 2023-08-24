@@ -212,7 +212,7 @@ func (server *Server) saveSale(ctx *gin.Context) {
 	goal, err := server.salesManagerService.GetSalesManagerGoalByType(period, SalesManagerId(salesManagerId), saleType.Id)
 
 	if err != nil || goal == 0 {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("не создана цель по типу продажи на данный месяц")))
+		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("не создана цель по типу продажи на данный месяц. Пожалуйста, обратитесь к руководителю")))
 		if err != nil {
 			fmt.Println(err)
 		}
