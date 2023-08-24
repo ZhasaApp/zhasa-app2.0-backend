@@ -328,7 +328,15 @@ func (server *Server) getSalesManagerDashboardStatistic(ctx *gin.Context) {
 		}
 	}
 
-	goalAchievement := Percent(CalculateRatio(ratioRows)).GetRounded()
+	percent := CalculateRatio(ratioRows)
+
+	goalAchievement := Percent(percent).GetRounded()
+
+	err = server.salesManagerService.SetRatio(Percent(percent), salesManager.Id, period)
+
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	rating, _ := server.salesManagerService.GetSalesManagerRating(period, salesManager.Id)
 

@@ -27,12 +27,18 @@ type SalesManagerService interface {
 	DeleteSale(saleId SaleId) (*Sale, error)
 	EditSale(editBody EditSaleBody) (*Sale, error)
 	GetSalesManagerRating(period Period, smId SalesManagerId) (int32, error)
+	SetRatio(ratio Percent, smId SalesManagerId, period Period) error
 }
 
 type DBSalesManagerService struct {
 	repo          repository.SalesManagerRepository
 	statisticRepo repository.SalesManagerStatisticRepository
 	repository2.SaleTypeRepository
+}
+
+func (dbs DBSalesManagerService) SetRatio(ratio Percent, smId SalesManagerId, period Period) error {
+	from, to := period.ConvertToTime()
+	return dbs.statisticRepo.SetRatioByPeriod(smId, ratio, from, to)
 }
 
 func (dbs DBSalesManagerService) GetSalesManagerRating(period Period, smId SalesManagerId) (int32, error) {
