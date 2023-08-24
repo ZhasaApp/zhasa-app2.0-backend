@@ -233,19 +233,21 @@ func (q *Queries) GetManagerSalesByPeriod(ctx context.Context, arg GetManagerSal
 }
 
 const getOrderedSalesManagers = `-- name: GetOrderedSalesManagers :many
-SELECT v.sales_manager_id,
-       v.first_name,
-       v.last_name,
-       v.avatar_url,
-       v.branch_title,
-       v.branch_id,
-       v.user_id,
-       COALESCE(r.ratio, 0.0) AS ratio
+SELECT
+    v.sales_manager_id,
+    v.first_name,
+    v.last_name,
+    v.avatar_url,
+    v.branch_title,
+    v.branch_id,
+    v.user_id,
+    COALESCE(r.ratio, 0.0) AS ratio
 FROM sales_managers_view v
          JOIN sales_manager_goals_ratio_by_period r
               ON v.sales_manager_id = r.sales_manager_id
-                  AND r.from_date >= $1 AND r.to_date <= $2
-ORDER BY ratio DESC LIMIT $3
+WHERE r.from_date >= $1 AND r.to_date <= $2
+ORDER BY ratio DESC
+    LIMIT $3
 OFFSET $4
 `
 
