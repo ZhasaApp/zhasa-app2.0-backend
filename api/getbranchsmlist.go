@@ -47,13 +47,9 @@ func (server *Server) GetBranchSalesManagerList(ctx *gin.Context) {
 	branchUsers := make([]branchUser, 0)
 
 	for _, sm := range *smList {
-		var avatar *string
-		if len(sm.AvatarUrl) != 0 {
-			avatar = &sm.AvatarUrl
-		}
 		branchUsers = append(branchUsers, branchUser{
 			ID:       int32(sm.UserId),
-			Avatar:   avatar,
+			Avatar:   sm.GetAvatarPointer(),
 			FullName: sm.FirstName + " " + sm.LastName,
 		})
 	}
