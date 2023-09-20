@@ -13,6 +13,7 @@ type Querier interface {
 	AddLike(ctx context.Context, arg AddLikeParams) (Like, error)
 	// add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
 	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) (Sale, error)
+	AddSaleToBrand(ctx context.Context, arg AddSaleToBrandParams) (SalesBrand, error)
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
 	CreateBranchDirector(ctx context.Context, arg CreateBranchDirectorParams) (int32, error)
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
@@ -49,6 +50,7 @@ type Querier interface {
 	GetPostLikesCount(ctx context.Context, postID int32) (int64, error)
 	GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error)
 	GetRating(ctx context.Context, arg GetRatingParams) (GetRatingRow, error)
+	GetSMBrands(ctx context.Context, id int32) ([]GetSMBrandsRow, error)
 	GetSMGoal(ctx context.Context, arg GetSMGoalParams) (int64, error)
 	GetSMRatio(ctx context.Context, arg GetSMRatioParams) (float64, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
@@ -58,6 +60,8 @@ type Querier interface {
 	GetSalesManagerGoalByGivenDateRangeAndSaleType(ctx context.Context, arg GetSalesManagerGoalByGivenDateRangeAndSaleTypeParams) (int64, error)
 	// get the sales sums for a specific sales manager and each sale type within the given period.
 	GetSalesManagerSumsByType(ctx context.Context, arg GetSalesManagerSumsByTypeParams) (GetSalesManagerSumsByTypeRow, error)
+	// get the sales sums for a specific sales manager and each sale type within the given period.
+	GetSalesManagerSumsByTypeAndBrand(ctx context.Context, arg GetSalesManagerSumsByTypeAndBrandParams) (GetSalesManagerSumsByTypeAndBrandRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
 	GetUserById(ctx context.Context, id int32) (UserAvatarView, error)
 	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)

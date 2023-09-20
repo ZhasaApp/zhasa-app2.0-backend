@@ -45,6 +45,23 @@ func (q *Queries) AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplacePara
 	return i, err
 }
 
+const addSaleToBrand = `-- name: AddSaleToBrand :one
+INSERT INTO sales_brands (sale_id, brand_id)
+VALUES ($1, $2) RETURNING sale_id, brand_id
+`
+
+type AddSaleToBrandParams struct {
+	SaleID  int32 `json:"sale_id"`
+	BrandID int32 `json:"brand_id"`
+}
+
+func (q *Queries) AddSaleToBrand(ctx context.Context, arg AddSaleToBrandParams) (SalesBrand, error) {
+	row := q.db.QueryRowContext(ctx, addSaleToBrand, arg.SaleID, arg.BrandID)
+	var i SalesBrand
+	err := row.Scan(&i.SaleID, &i.BrandID)
+	return i, err
+}
+
 const createSalesManager = `-- name: CreateSalesManager :exec
 INSERT INTO sales_managers (user_id, branch_id)
 VALUES ($1, $2)
@@ -405,6 +422,47 @@ func (q *Queries) GetRating(ctx context.Context, arg GetRatingParams) (GetRating
 	return i, err
 }
 
+const getSMBrands = `-- name: GetSMBrands :many
+SELECT sm.id, br.title, br.description, br.id
+FROM sales_managers sm JOIN brands br ON br.id = sm.brand_id
+WHERE  sm.id = $1
+`
+
+type GetSMBrandsRow struct {
+	ID          int32  `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	ID_2        int32  `json:"id_2"`
+}
+
+func (q *Queries) GetSMBrands(ctx context.Context, id int32) ([]GetSMBrandsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSMBrands, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSMBrandsRow
+	for rows.Next() {
+		var i GetSMBrandsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.ID_2,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getSMRatio = `-- name: GetSMRatio :one
 SELECT ratio
 FROM sales_manager_goals_ratio_by_period smgr
@@ -559,6 +617,45 @@ func (q *Queries) GetSalesManagerSumsByType(ctx context.Context, arg GetSalesMan
 		arg.ID,
 	)
 	var i GetSalesManagerSumsByTypeRow
+	err := row.Scan(&i.SaleTypeID, &i.SaleTypeTitle, &i.TotalSales)
+	return i, err
+}
+
+const getSalesManagerSumsByTypeAndBrand = `-- name: GetSalesManagerSumsByTypeAndBrand :one
+SELECT st.id         AS sale_type_id,
+       st.title      AS sale_type_title,
+       SUM(s.amount) AS total_sales
+FROM sale_types st
+         JOIN sales s ON st.id = s.sale_type_id JOIN sales_brands sb ON sb.sale_id = s.id AND s.sales_manager_id = $1 AND s.sale_date BETWEEN $2 AND $3
+WHERE st.id = $4 AND sb.brand_id = $5
+GROUP BY st.id
+ORDER BY st.id ASC
+`
+
+type GetSalesManagerSumsByTypeAndBrandParams struct {
+	SalesManagerID int32     `json:"sales_manager_id"`
+	SaleDate       time.Time `json:"sale_date"`
+	SaleDate_2     time.Time `json:"sale_date_2"`
+	ID             int32     `json:"id"`
+	BrandID        int32     `json:"brand_id"`
+}
+
+type GetSalesManagerSumsByTypeAndBrandRow struct {
+	SaleTypeID    int32  `json:"sale_type_id"`
+	SaleTypeTitle string `json:"sale_type_title"`
+	TotalSales    int64  `json:"total_sales"`
+}
+
+// get the sales sums for a specific sales manager and each sale type within the given period.
+func (q *Queries) GetSalesManagerSumsByTypeAndBrand(ctx context.Context, arg GetSalesManagerSumsByTypeAndBrandParams) (GetSalesManagerSumsByTypeAndBrandRow, error) {
+	row := q.db.QueryRowContext(ctx, getSalesManagerSumsByTypeAndBrand,
+		arg.SalesManagerID,
+		arg.SaleDate,
+		arg.SaleDate_2,
+		arg.ID,
+		arg.BrandID,
+	)
+	var i GetSalesManagerSumsByTypeAndBrandRow
 	err := row.Scan(&i.SaleTypeID, &i.SaleTypeTitle, &i.TotalSales)
 	return i, err
 }

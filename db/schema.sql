@@ -30,12 +30,27 @@ CREATE TABLE users_avatars
     avatar_url TEXT                                                   NOT NULL
 );
 
+CREATE TABLE brands
+(
+    id          SERIAL PRIMARY KEY,
+    title       VARCHAR(256)             NOT NULL,
+    description TEXT                     NOT NULL DEFAULT '',
+    created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE branch_brands
+(
+    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
+    brand_id  INTEGER REFERENCES brands (id) ON DELETE  CASCADE NOT NULL
+);
+
 CREATE TABLE sales_managers
 (
     id         SERIAL PRIMARY KEY,
     user_id    INTEGER UNIQUE REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     branch_id  INTEGER REFERENCES branches (id) ON DELETE CASCADE     NOT NULL,
-    created_at TIMESTAMP                                              NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP                                              NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    brand_id   INTEGER REFERENCES brands (id) ON DELETE CASCADE
 );
 
 CREATE TYPE value_type AS ENUM ('amount', 'count');
@@ -93,6 +108,12 @@ CREATE TABLE sales
     created_at       TIMESTAMP                                                NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE sales_brands
+(
+    sale_id  INT UNIQUE REFERENCES sales (id) ON DELETE CASCADE NOT NULL,
+    brand_id INT REFERENCES brands (id) ON DELETE CASCADE       NOT NULL
+);
+
 CREATE INDEX idx_sales_sales_manager_id
     ON sales (sales_manager_id);
 
@@ -121,8 +142,8 @@ FROM user_avatar_view u
 CREATE TABLE branch_directors
 (
     id        SERIAL PRIMARY KEY,
-    user_id   INTEGER UNIQUE REFERENCES users (id) ON DELETE CASCADE    NOT NULL,
-    branch_id INTEGER UNIQUE REFERENCES branches (id) ON DELETE CASCADE NOT NULL
+    user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE    NOT NULL,
+    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL
 );
 
 CREATE VIEW branch_directors_view AS
@@ -151,38 +172,39 @@ CREATE TABLE branches_goals_ratio_by_period
 CREATE TABLE posts
 (
     id         SERIAL PRIMARY KEY,
-    title      VARCHAR(256)              NOT NULL,
-    body       TEXT                      NOT NULL,
+    title      VARCHAR(256)                                NOT NULL,
+    body       TEXT                                        NOT NULL,
     user_id    INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE  NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE                    NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE comments
 (
     id         SERIAL PRIMARY KEY,
-    body       TEXT                      NOT NULL,
+    body       TEXT                                        NOT NULL,
     user_id    INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     post_id    INT REFERENCES posts (id) ON DELETE CASCADE NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE  NOT NULL DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE                    NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE post_images
 (
     id        SERIAL PRIMARY KEY,
-    image_url TEXT                      NOT NULL,
+    image_url TEXT                                        NOT NULL,
     post_id   INT REFERENCES posts (id) ON DELETE CASCADE NOT NULL
 );
 
-CREATE TABLE likes(
-                      user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
-                      post_id INT REFERENCES posts(id) ON DELETE CASCADE NOT NULL,
-                      PRIMARY KEY(user_id, post_id)
+CREATE TABLE likes
+(
+    user_id INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+    post_id INT REFERENCES posts (id) ON DELETE CASCADE NOT NULL,
+    PRIMARY KEY (user_id, post_id)
 );
 
 
 CREATE TABLE owners
 (
-    id SERIAL PRIMARY KEY,
+    id      SERIAL PRIMARY KEY,
     user_id INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (user_id)
 );

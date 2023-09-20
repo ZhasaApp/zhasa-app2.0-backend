@@ -5,6 +5,7 @@
 package generated
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -60,6 +61,11 @@ type Branch struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type BranchBrand struct {
+	BranchID int32 `json:"branch_id"`
+	BrandID  int32 `json:"brand_id"`
+}
+
 type BranchDirector struct {
 	ID       int32 `json:"id"`
 	UserID   int32 `json:"user_id"`
@@ -91,6 +97,13 @@ type BranchesGoalsRatioByPeriod struct {
 	ToDate   time.Time `json:"to_date"`
 	Ratio    float64   `json:"ratio"`
 	BranchID int32     `json:"branch_id"`
+}
+
+type Brand struct {
+	ID          int32     `json:"id"`
+	Title       string    `json:"title"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 type Comment struct {
@@ -154,11 +167,17 @@ type SaleType struct {
 	ValueType   ValueType `json:"value_type"`
 }
 
+type SalesBrand struct {
+	SaleID  int32 `json:"sale_id"`
+	BrandID int32 `json:"brand_id"`
+}
+
 type SalesManager struct {
-	ID        int32     `json:"id"`
-	UserID    int32     `json:"user_id"`
-	BranchID  int32     `json:"branch_id"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int32         `json:"id"`
+	UserID    int32         `json:"user_id"`
+	BranchID  int32         `json:"branch_id"`
+	CreatedAt time.Time     `json:"created_at"`
+	BrandID   sql.NullInt32 `json:"brand_id"`
 }
 
 type SalesManagerGoalsByType struct {

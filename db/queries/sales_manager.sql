@@ -15,11 +15,25 @@ WHERE st.id = $4
 GROUP BY st.id
 ORDER BY st.id ASC;
 
+-- name: GetSalesManagerSumsByTypeAndBrand :one
+-- get the sales sums for a specific sales manager and each sale type within the given period.
+SELECT st.id         AS sale_type_id,
+       st.title      AS sale_type_title,
+       SUM(s.amount) AS total_sales
+FROM sale_types st
+         JOIN sales s ON st.id = s.sale_type_id JOIN sales_brands sb ON sb.sale_id = s.id AND s.sales_manager_id = $1 AND s.sale_date BETWEEN $2 AND $3
+WHERE st.id = $4 AND sb.brand_id = $5
+GROUP BY st.id
+ORDER BY st.id ASC;
 
 -- name: AddSaleOrReplace :one
 -- add sale into sales by given sale_type_id, amount, date, sales_manager_id and on conflict replace
 INSERT INTO sales (sales_manager_id, sale_date, amount, sale_type_id, description)
 VALUES ($1, $2, $3, $4, $5) RETURNING *;;
+
+-- name: AddSaleToBrand :one
+INSERT INTO sales_brands (sale_id, brand_id)
+VALUES ($1, $2) RETURNING *;;
 
 -- name: GetSalesByDate :many
 SELECT *
@@ -46,7 +60,6 @@ WHERE s.sales_manager_id = $1
 ORDER BY s.sale_date DESC LIMIT $2
 OFFSET $3;
 
-
 -- name: GetManagerSalesByPeriod :many
 SELECT id, sale_type_id, description, sale_date, amount
 FROM sales s
@@ -66,7 +79,6 @@ INSERT INTO sales_manager_goals_ratio_by_period
 VALUES ($1, $2, $3, $4) ON CONFLICT (from_date, to_date, sales_manager_id)
 DO
 UPDATE SET ratio = EXCLUDED.ratio;
-
 
 -- name: GetSMRatio :one
 SELECT ratio
@@ -129,3 +141,8 @@ FROM (SELECT sales_manager_id,
       FROM sales_manager_goals_ratio_by_period
       WHERE from_date >= $1 AND to_date <= $2) subquery
 WHERE sales_manager_id = $3;
+
+-- name: GetSMBrands :many
+SELECT sm.id, br.title, br.description, br.id
+FROM sales_managers sm JOIN brands br ON br.id = sm.brand_id
+WHERE  sm.id = $1;
