@@ -2,10 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"sort"
-	. "zhasa2.0/api/entities"
-	. "zhasa2.0/statistic/entities"
 )
 
 type BranchRatingItem struct {
@@ -22,38 +18,38 @@ type BranchesResponse struct {
 }
 
 func (server *Server) GetBranchList(ctx *gin.Context) {
-	var monthPagination MonthPaginationRequest
-	if err := ctx.ShouldBindQuery(&monthPagination); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	branchesResponseList := make([]BranchRatingItem, 0)
-
-	branches, err := server.branchService.GetBranches(MonthPeriod{
-		MonthNumber: monthPagination.Month,
-		Year:        monthPagination.Year,
-	})
-
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-
-	for _, branch := range branches {
-		branchesResponseList = append(branchesResponseList, BranchRatingItem{
-			ID:                     int32(branch.BranchId),
-			Title:                  string(branch.Title),
-			Description:            string(branch.Description),
-			GoalAchievementPercent: float32(branch.GoalAchievement),
-		})
-	}
-	sort.Slice(branchesResponseList, func(i, j int) bool {
-		return branchesResponseList[i].GoalAchievementPercent > branchesResponseList[j].GoalAchievementPercent
-	})
-	ctx.JSON(http.StatusOK, BranchesResponse{
-		Result:  branchesResponseList,
-		Count:   int32(len(branchesResponseList)),
-		HasNext: false,
-	})
+	//var monthPagination MonthPaginationRequest
+	//if err := ctx.ShouldBindQuery(&monthPagination); err != nil {
+	//	ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	//	return
+	//}
+	//
+	//branchesResponseList := make([]BranchRatingItem, 0)
+	//
+	//branches, err := server.branchService.GetBranches(MonthPeriod{
+	//	MonthNumber: monthPagination.Month,
+	//	Year:        monthPagination.Year,
+	//})
+	//
+	//if err != nil {
+	//	ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	//	return
+	//}
+	//
+	//for _, branch := range branches {
+	//	branchesResponseList = append(branchesResponseList, BranchRatingItem{
+	//		ID:                     int32(branch.BranchId),
+	//		Title:                  string(branch.Title),
+	//		Description:            string(branch.Description),
+	//		GoalAchievementPercent: float32(branch.GoalAchievement),
+	//	})
+	//}
+	//sort.Slice(branchesResponseList, func(i, j int) bool {
+	//	return branchesResponseList[i].GoalAchievementPercent > branchesResponseList[j].GoalAchievementPercent
+	//})
+	//ctx.JSON(http.StatusOK, BranchesResponse{
+	//	Result:  branchesResponseList,
+	//	Count:   int32(len(branchesResponseList)),
+	//	HasNext: false,
+	//})
 }

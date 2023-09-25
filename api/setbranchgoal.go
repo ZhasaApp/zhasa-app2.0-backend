@@ -3,7 +3,6 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"zhasa2.0/statistic/entities"
 )
 
 type SetBranchGoalRequest struct {
@@ -20,18 +19,18 @@ func (server *Server) SetBranchGoal(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	period := entities.MonthPeriod{
-		MonthNumber: request.Month,
-		Year:        request.Year,
-	}
-
-	err := server.directorService.SetBranchGoal(period, request.BranchId, request.SaleTypeID, request.Value)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, err)
-		return
-	}
+	//
+	//period := entities.MonthPeriod{
+	//	MonthNumber: request.Month,
+	//	Year:        request.Year,
+	//}
+	//
+	////err := server.directorRepo.SetBranchGoal(period, request.BranchId, request.SaleTypeID, request.Value)
+	//
+	//if err != nil {
+	//	ctx.JSON(http.StatusBadRequest, err)
+	//	return
+	//}
 
 	ctx.Status(http.StatusNoContent)
 }

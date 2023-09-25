@@ -5,7 +5,6 @@ DO
 UPDATE SET first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name
     RETURNING id;
 
-
 -- name: GetUserByPhone :one
 SELECT *
 FROM user_avatar_view
@@ -35,5 +34,3 @@ UPDATE SET avatar_url = EXCLUDED.avatar_url;
 DELETE
 FROM users_avatars
 WHERE user_id = $1;
-
-

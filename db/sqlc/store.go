@@ -42,6 +42,7 @@ func (store *DBStore) execTx(ctx context.Context, fn func(*Queries) error) error
 
 func (store *DBStore) AddBrandSaleTx(ctx context.Context, params AddSaleOrReplaceParams, brandId int32) (Sale, error) {
 	var sale *Sale
+
 	err := store.execTx(ctx, func(queries *Queries) error {
 		res, err := queries.AddSaleOrReplace(ctx, params)
 		if err != nil {

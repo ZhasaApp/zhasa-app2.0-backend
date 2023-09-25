@@ -9,10 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
-	. "zhasa2.0/user/entities"
 )
 
 // Generate a random string for image name
@@ -123,23 +121,23 @@ func (server Server) HandleManagersUpload(c *gin.Context) {
 	}
 
 	for _, rec := range records {
-		phone, err := NewPhone(transformPhoneNumber(rec[0]))
-
+		//	phone, err := NewPhone(transformPhoneNumber(rec[0]))
+		fmt.Println(rec[0])
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		id, err := server.userService.CreateUser(CreateUserRequest{
-			Phone:     *phone,
-			FirstName: Name(rec[1]),
-			LastName:  Name(rec[2]),
-		})
+		//id, err := server.userService.CreateUser(CreateUserRequest{
+		//	Phone:     *phone,
+		//	FirstName: Name(rec[1]),
+		//	LastName:  Name(rec[2]),
+		//})
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		branchId, err := strconv.Atoi(rec[3])
-		err = server.salesManagerService.CreateSalesManager(id, int32(branchId))
+		//	branchId, err := strconv.Atoi(rec[3])
+		//err = server.salesManagerService.CreateSalesManager(id, int32(branchId))
 
 		if err != nil {
 			fmt.Println(err)
@@ -175,34 +173,34 @@ func (server Server) HandleDirectorsUpload(c *gin.Context) {
 	}
 
 	// Read remaining records
-	records, err := r.ReadAll()
-	if err != nil {
-		log.Fatalf("error reading CSV: %s", err)
-	}
-
-	for _, rec := range records {
-		phone, err := NewPhone(transformPhoneNumber(rec[0]))
-
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		id, err := server.userService.CreateUser(CreateUserRequest{
-			Phone:     *phone,
-			FirstName: Name(rec[1]),
-			LastName:  Name(rec[2]),
-		})
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		branchId, err := strconv.Atoi(rec[3])
-		_, err = server.directorService.CreateBranchDirector(id, int32(branchId))
-
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
+	//records, err := r.ReadAll()
+	//if err != nil {
+	//	log.Fatalf("error reading CSV: %s", err)
+	//}
+	//
+	//for _, rec := range records {
+	//	//phone, err := NewPhone(transformPhoneNumber(rec[0]))
+	//
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		continue
+	//	}
+	//	//id, err := server.userService.CreateUser(CreateUserRequest{
+	//	//	Phone:     *phone,
+	//	//	FirstName: Name(rec[1]),
+	//	//	LastName:  Name(rec[2]),
+	//	//})
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		continue
+	//	}
+	////	branchId, err := strconv.Atoi(rec[3])
+	////	_, err = server.directorService.CreateBranchDirector(id, int32(branchId))
+	//
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//}
 }
 
 func transformPhoneNumber(phone string) string {

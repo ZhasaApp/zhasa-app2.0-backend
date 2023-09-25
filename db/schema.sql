@@ -1,12 +1,3 @@
-CREATE TABLE branches
-(
-    id          SERIAL PRIMARY KEY,
-    title       TEXT               NOT NULL,
-    description Text               NOT NULL,
-    branch_key  VARCHAR(16) UNIQUE NOT NULL,
-    created_at  TIMESTAMP          NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE users
 (
     id         SERIAL PRIMARY KEY,
@@ -16,41 +7,28 @@ CREATE TABLE users
     created_at TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE users_codes
+CREATE TABLE branches
 (
-    id         SERIAL PRIMARY KEY,
-    user_id    INTEGER REFERENCES users (id) NOT NULL,
-    code       INTEGER                       NOT NULL,
-    created_at TIMESTAMP                     NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE users_avatars
-(
-    user_id    INTEGER UNIQUE REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-    avatar_url TEXT                                                   NOT NULL
+    id          SERIAL PRIMARY KEY,
+    title       VARCHAR(255) NOT NULL,
+    description TEXT         NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE brands
 (
     id          SERIAL PRIMARY KEY,
-    title       VARCHAR(256)             NOT NULL,
-    description TEXT                     NOT NULL DEFAULT '',
-    created_at  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    title       VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT                NOT NULL,
+    created_at  TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE branch_brands
+CREATE TABLE departments
 (
-    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
-    brand_id  INTEGER REFERENCES brands (id) ON DELETE  CASCADE NOT NULL
-);
-
-CREATE TABLE sales_managers
-(
-    id         SERIAL PRIMARY KEY,
-    user_id    INTEGER UNIQUE REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-    branch_id  INTEGER REFERENCES branches (id) ON DELETE CASCADE     NOT NULL,
-    created_at TIMESTAMP                                              NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    brand_id   INTEGER REFERENCES brands (id) ON DELETE CASCADE
+    id          SERIAL PRIMARY KEY,
+    title       VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT                NOT NULL,
+    created_at  TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TYPE value_type AS ENUM ('amount', 'count');
@@ -66,108 +44,87 @@ CREATE TABLE sale_types
     value_type  value_type   NOT NULL DEFAULT ('count')
 );
 
-CREATE TABLE sales_manager_goals_by_types
+CREATE TABLE roles
 (
-    id               SERIAL PRIMARY KEY,
-    from_date        TIMESTAMP                                                NOT NULL,
-    to_date          TIMESTAMP                                                NOT NULL,
-    amount           BIGINT                                                   NOT NULL,
-    sales_manager_id INTEGER REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
-    type_id          INTEGER REFERENCES sale_types (id) ON DELETE CASCADE     NOT NULL,
-    UNIQUE (from_date, to_date, sales_manager_id, type_id)
+    id          SERIAL PRIMARY KEY,
+    title       VARCHAR(255) UNIQUE NOT NULL,
+    key         VARCHAR(255) UNIQUE NOT NULL,
+    description TEXT                NOT NULL,
+    created_at  TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE sales_manager_goals_ratio_by_period
+CREATE TABLE user_roles
 (
-    from_date        TIMESTAMP                                                NOT NULL,
-    to_date          TIMESTAMP                                                NOT NULL,
-    ratio            FLOAT                                                    NOT NULL,
-    sales_manager_id INTEGER REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
-    UNIQUE (from_date, to_date, sales_manager_id)
+    id      SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users (id) NOT NULL,
+    role_id INTEGER REFERENCES roles (id) NOT NULL,
+    UNIQUE (user_id, role_id)
 );
 
-CREATE TABLE branch_goals_by_types
+CREATE TABLE branch_users_roles
 (
-    id        SERIAL PRIMARY KEY,
-    from_date TIMESTAMP                                            NOT NULL,
-    to_date   TIMESTAMP                                            NOT NULL,
-    amount    BIGINT                                               NOT NULL,
-    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE   NOT NULL,
-    type_id   INTEGER REFERENCES sale_types (id) ON DELETE CASCADE NOT NULL,
-    UNIQUE (from_date, to_date, branch_id, type_id)
+    id           SERIAL PRIMARY KEY,
+    user_role_id INTEGER REFERENCES user_roles (id),
+    branch_id    INTEGER REFERENCES branches (id),
+    UNIQUE (user_role_id, branch_id)
 );
 
 CREATE TABLE sales
 (
-    id               SERIAL PRIMARY KEY,
-    sales_manager_id INTEGER REFERENCES sales_managers (id) ON DELETE CASCADE NOT NULL,
-    sale_date        TIMESTAMP                                                NOT NULL,
-    amount           BIGINT                                                   NOT NULL,
-    sale_type_id     INTEGER REFERENCES sale_types (id) ON DELETE CASCADE     NOT NULL,
-    description      TEXT                                                     NOT NULL,
-    created_at       TIMESTAMP                                                NOT NULL DEFAULT CURRENT_TIMESTAMP
+    id           SERIAL PRIMARY KEY,
+    user_id      INTEGER REFERENCES users (id) ON DELETE CASCADE      NOT NULL,
+    sale_date    TIMESTAMP                                            NOT NULL,
+    amount       BIGINT                                               NOT NULL,
+    sale_type_id INTEGER REFERENCES sale_types (id) ON DELETE CASCADE NOT NULL,
+    description  TEXT                                                 NOT NULL,
+    created_at   TIMESTAMP                                            NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE sales_brands
 (
-    sale_id  INT UNIQUE REFERENCES sales (id) ON DELETE CASCADE NOT NULL,
-    brand_id INT REFERENCES brands (id) ON DELETE CASCADE       NOT NULL
+    sale_id  INTEGER REFERENCES sales (id)  NOT NULL,
+    brand_id INTEGER REFERENCES brands (id) NOT NULL,
+    UNIQUE (sale_id, brand_id)
 );
 
-CREATE INDEX idx_sales_sales_manager_id
-    ON sales (sales_manager_id);
+CREATE TABLE user_brands
+(
+    id       SERIAL PRIMARY KEY,
+    user_id  INTEGER REFERENCES users (id)  NOT NULL,
+    brand_id INTEGER REFERENCES brands (id) NOT NULL,
+    UNIQUE (user_id, brand_id)
+);
 
-CREATE VIEW user_avatar_view AS
-SELECT u.id                        AS id,
-       u.phone                     AS phone,
-       u.first_name                AS first_name,
-       u.last_name                 AS last_name,
-       COALESCE(ua.avatar_url, '') AS avatar_url
-FROM users u
-         LEFT JOIN users_avatars ua ON u.id = ua.user_id;
+CREATE TABLE user_brand_sale_type_goals
+(
+    id           SERIAL PRIMARY KEY,
+    user_brand   INTEGER REFERENCES user_brands (id),
+    sale_type_id INTEGER REFERENCES sale_types (id),
+    value        BIGINT    NOT NULL,
+    from_date    TIMESTAMP NOT NULL,
+    to_date      TIMESTAMP NOT NULL,
+    UNIQUE (user_brand, sale_type_id, from_date, to_date)
+);
 
-CREATE VIEW sales_managers_view AS
-SELECT u.id         AS user_id,
-       u.phone      AS phone,
-       u.first_name AS first_name,
-       u.last_name  AS last_name,
-       u.avatar_url AS avatar_url,
-       s.id         as sales_manager_id,
-       b.id         as branch_id,
-       b.title      as branch_title
-FROM user_avatar_view u
-         JOIN sales_managers s ON u.id = s.user_id
-         JOIN branches b ON s.branch_id = b.id;
-
-CREATE TABLE branch_directors
+CREATE TABLE branch_brands
 (
     id        SERIAL PRIMARY KEY,
-    user_id   INTEGER REFERENCES users (id) ON DELETE CASCADE    NOT NULL,
-    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL
+    branch_id INTEGER REFERENCES branches (id),
+    brand_id  INTEGER REFERENCES brands (id),
+    UNIQUE (branch_id, brand_id)
 );
 
-CREATE VIEW branch_directors_view AS
-SELECT u.id         AS user_id,
-       u.phone      AS phone,
-       u.first_name AS first_name,
-       u.last_name  AS last_name,
-       u.avatar_url AS avatar_url,
-       bd.id        as branch_director_id,
-       b.id         as branch_id,
-       b.title      as branch_title
-FROM user_avatar_view u
-         JOIN branch_directors bd ON u.id = bd.user_id
-         JOIN branches b ON bd.branch_id = b.id;
-
-
-CREATE TABLE branches_goals_ratio_by_period
+CREATE TABLE branch_brand_sale_type_goals
 (
-    from_date TIMESTAMP                                          NOT NULL,
-    to_date   TIMESTAMP                                          NOT NULL,
-    ratio     FLOAT                                              NOT NULL,
-    branch_id INTEGER REFERENCES branches (id) ON DELETE CASCADE NOT NULL,
-    UNIQUE (from_date, to_date, branch_id)
+    id           SERIAL PRIMARY KEY,
+    branch_brand INTEGER REFERENCES branch_brands (id),
+    sale_type_id INTEGER REFERENCES sale_types (id),
+    value        BIGINT    NOT NULL,
+    from_date    TIMESTAMP NOT NULL,
+    to_date      TIMESTAMP NOT NULL,
+    UNIQUE (branch_brand, sale_type_id, from_date, to_date)
 );
+
 
 CREATE TABLE posts
 (
@@ -201,20 +158,26 @@ CREATE TABLE likes
     PRIMARY KEY (user_id, post_id)
 );
 
-
-CREATE TABLE owners
+CREATE TABLE users_avatars
 (
-    id      SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users (id) ON DELETE CASCADE NOT NULL,
-    UNIQUE (user_id)
+    user_id    INTEGER UNIQUE REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+    avatar_url TEXT                                                   NOT NULL
 );
 
-CREATE VIEW owners_view AS
-SELECT u.id         AS user_id,
-       u.phone      AS phone,
-       u.first_name AS first_name,
-       u.last_name  AS last_name,
-       u.avatar_url AS avatar_url,
-       o.id         as owner_id
-FROM user_avatar_view u
-         JOIN owners o ON u.id = o.user_id;
+CREATE TABLE users_codes
+(
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER REFERENCES users (id) NOT NULL,
+    code       INTEGER                       NOT NULL,
+    created_at TIMESTAMP                     NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE VIEW user_avatar_view AS
+SELECT u.id                        AS id,
+       u.phone                     AS phone,
+       u.first_name                AS first_name,
+       u.last_name                 AS last_name,
+       COALESCE(ua.avatar_url, '') AS avatar_url
+FROM users u
+         LEFT JOIN users_avatars ua ON u.id = ua.user_id;

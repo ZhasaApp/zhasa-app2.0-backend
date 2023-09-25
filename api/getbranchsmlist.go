@@ -2,10 +2,6 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
-	. "zhasa2.0/base"
-	"zhasa2.0/branch/entities"
-	. "zhasa2.0/statistic/entities"
 )
 
 type GetBranchUsersRequest struct {
@@ -25,36 +21,36 @@ type branchUsersResponse struct {
 }
 
 func (server *Server) GetBranchSalesManagerList(ctx *gin.Context) {
-	var request GetBranchUsersRequest
-	if err := ctx.ShouldBindQuery(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	smList, err := server.branchService.GetBranchRankedSalesManagers(MonthPeriod{
-		MonthNumber: request.Month,
-		Year:        request.Year,
-	}, entities.BranchId(request.BranchID), Pagination{
-		PageSize: 20,
-		Page:     0,
-	})
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	branchUsers := make([]branchUser, 0)
-
-	for _, sm := range *smList {
-		branchUsers = append(branchUsers, branchUser{
-			ID:       int32(sm.UserId),
-			Avatar:   sm.GetAvatarPointer(),
-			FullName: sm.FirstName + " " + sm.LastName,
-		})
-	}
-
-	ctx.JSON(http.StatusOK, branchUsersResponse{
-		Result: branchUsers,
-	})
+	//var request GetBranchUsersRequest
+	//if err := ctx.ShouldBindQuery(&request); err != nil {
+	//	ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	//	return
+	//}
+	//
+	//smList, err := server.branchService.GetBranchRankedSalesManagers(MonthPeriod{
+	//	MonthNumber: request.Month,
+	//	Year:        request.Year,
+	//}, entities.BranchId(request.BranchID), Pagination{
+	//	PageSize: 20,
+	//	Page:     0,
+	//})
+	//
+	//if err != nil {
+	//	ctx.JSON(http.StatusBadRequest, errorResponse(err))
+	//	return
+	//}
+	//
+	//branchUsers := make([]branchUser, 0)
+	//
+	//for _, sm := range *smList {
+	//	branchUsers = append(branchUsers, branchUser{
+	//		ID:       int32(sm.UserId),
+	//		Avatar:   sm.GetAvatarPointer(),
+	//		FullName: sm.FirstName + " " + sm.LastName,
+	//	})
+	//}
+	//
+	//ctx.JSON(http.StatusOK, branchUsersResponse{
+	//	Result: branchUsers,
+	//})
 }

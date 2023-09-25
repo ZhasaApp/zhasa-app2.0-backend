@@ -9,36 +9,28 @@ import (
 	"log"
 	"os"
 	repository3 "zhasa2.0/branch/repository"
-	service3 "zhasa2.0/branch/service"
-	"zhasa2.0/branch_director/repo"
-	service5 "zhasa2.0/branch_director/service"
+	. "zhasa2.0/branch_director/repo"
 	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
-	repository2 "zhasa2.0/manager/repository"
-	service2 "zhasa2.0/manager/service"
 	. "zhasa2.0/news/repository"
 	. "zhasa2.0/owner/repository"
-	"zhasa2.0/sale/repository"
-	service4 "zhasa2.0/sale/service"
+	. "zhasa2.0/sale/repository"
 	. "zhasa2.0/statistic/repository"
-	service6 "zhasa2.0/statistic/service"
 	"zhasa2.0/user/entities"
 	repository4 "zhasa2.0/user/repository"
 	"zhasa2.0/user/service"
 )
 
 type Server struct {
-	router              *gin.Engine
-	userService         service.UserService
-	salesManagerService service2.SalesManagerService
-	branchService       service3.BranchService
-	saleTypeService     service4.SaleTypeService
-	tokenService        service.TokenService
-	authService         service.AuthorizationService
-	directorService     service5.BranchDirectorService
-	analyticsService    service6.AnalyticsService
-	postRepository      PostRepository
-	ownerRepository     OwnerRepository
+	router          *gin.Engine
+	userService     service.UserService
+	tokenService    service.TokenService
+	authService     service.AuthorizationService
+	rankRepo        RankingsRepository
+	postRepository  PostRepository
+	ownerRepository OwnerRepository
+	saleTypeRepo    SaleTypeRepository
+	directorRepo    BranchDirectorRepository
 }
 
 func (server Server) InitSuperUser() error {
@@ -88,7 +80,6 @@ func NewServer(ctx context.Context) *Server {
 	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
 		adminRoute.POST("/user/new", server.createUser)
-		adminRoute.POST("/sales-manager/new", server.createSalesManager)
 		adminRoute.POST("/branch/new", server.createBranch)
 		adminRoute.POST("/sale-type/new", server.createSaleType)
 		adminRoute.POST("/branch-director/new", server.createBranchDirector)
@@ -97,10 +88,9 @@ func NewServer(ctx context.Context) *Server {
 	}
 
 	smRoute := router.Group("sales-manager/")
-	smRoute.POST("/sale/new", getSalesManager(server.tokenService, server.salesManagerService), server.saveSale)
 	smRoute.GET("/branch/list", server.GetBranchList).Use(verifyToken(server.tokenService))
-	smRoute.GET("/year-statistic", server.getYearStatistic).Use(verifyToken(server.tokenService))
-	smRoute.GET("/sale/list", server.getSales).Use(verifyToken(server.tokenService))
+	//smRoute.GET("/year-statistic", server.getYearStatistic).Use(verifyToken(server.tokenService))
+	//	smRoute.GET("/sale/list", server.getSales).Use(verifyToken(server.tokenService))
 
 	branchRoute := router.Group("branch/").Use(verifyToken(server.tokenService))
 	{
@@ -119,11 +109,11 @@ func NewServer(ctx context.Context) *Server {
 		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
 	}
 
-	router.GET("sales-manager/dashboard", server.getSalesManagerDashboardStatistic).Use(verifyToken(server.tokenService))
+	//	router.GET("sales-manager/dashboard", server.getSalesManagerDashboardStatistic).Use(verifyToken(server.tokenService))
 
 	router.GET("branch/dashboard", server.getBranchDashboardStatistic).Use(verifyToken(server.tokenService))
 	router.GET("rating/branches", server.GetBranchList)
-	router.GET("rating/managers", server.GetSalesManagers).Use(verifyToken(server.tokenService))
+	//	router.GET("rating/managers", server.GetSalesManagers).Use(verifyToken(server.tokenService))
 
 	router.GET("news", verifyToken(server.tokenService), server.GetPosts)
 	router.POST("news/new", verifyToken(server.tokenService), server.CreatePost)
@@ -150,35 +140,25 @@ func initDependencies(server *Server, ctx context.Context) {
 	store := generated.NewStore(conn)
 	customQuerier := NewCustomQuerier(conn)
 	userRepo := repository4.NewUserRepository(ctx, store)
-	saleTypeRepo := repository.NewSaleTypeRepository(ctx, store)
-	saleManagerRepo := repository2.NewSalesManagerRepository(saleTypeRepo, ctx, store, customQuerier)
+	saleTypeRepo := NewSaleTypeRepository(ctx, store)
 	branchRepo := repository3.NewBranchRepository(ctx, store, customQuerier, saleTypeRepo)
-	directorRepo := repo.NewBranchDirectorRepository(ctx, store)
+	directorRepo := NewBranchDirectorRepository(ctx, store)
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
-	salesManagerStatisticRepo := repository2.NewSalesManagerStatisticRepository(saleTypeRepo, ctx, store)
 	postRepo := NewPostRepository(ctx, store, customQuerier)
 	ownerRepo := NewOwnerRepo(ctx, store)
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
-	salesManagerService := service2.NewSalesManagerService(saleManagerRepo, salesManagerStatisticRepo, saleTypeRepo)
-	branchService := service3.NewBranchService(branchRepo)
-	saleTypeService := service4.NewSaleTypeService(saleTypeRepo)
-	directorService := service5.NewBranchDirectorService(directorRepo)
-	analyticsService := service6.NewAnalyticsService(rankingsRepo)
 
 	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 
 	tokenService := service.NewTokenService(&encKey)
 	server.userService = userService
-	server.salesManagerService = salesManagerService
-	server.saleTypeService = saleTypeService
-	server.branchService = branchService
 	server.tokenService = tokenService
 	server.authService = authService
-	server.directorService = directorService
-	server.analyticsService = analyticsService
 	server.postRepository = postRepo
 	server.ownerRepository = ownerRepo
+	server.directorRepo = directorRepo
+	server.rankRepo = rankingsRepo
 }
 
 // Start runs the HTTP server a specific address

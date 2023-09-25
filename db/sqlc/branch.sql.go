@@ -7,27 +7,55 @@ package generated
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
 const createBranch = `-- name: CreateBranch :exec
-INSERT INTO branches (title, description, branch_key)
-VALUES ($1, $2, $3)
+INSERT INTO branches (title, description)
+VALUES ($1, $2)
 `
 
 type CreateBranchParams struct {
 	Title       string `json:"title"`
 	Description string `json:"description"`
-	BranchKey   string `json:"branch_key"`
 }
 
 func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) error {
-	_, err := q.db.ExecContext(ctx, createBranch, arg.Title, arg.Description, arg.BranchKey)
+	_, err := q.db.ExecContext(ctx, createBranch, arg.Title, arg.Description)
 	return err
 }
 
+const getBranchBrandGoalByGivenDateRange = `-- name: GetBranchBrandGoalByGivenDateRange :one
+SELECT COALESCE(bg.value, 0) AS goal_amount
+FROM branch_brand_sale_type_goals bg
+WHERE bg.branch_brand = $1
+  AND bg.from_date = $2
+  AND bg.to_date = $3
+  AND bg.sale_type_id = $4
+`
+
+type GetBranchBrandGoalByGivenDateRangeParams struct {
+	BranchBrand sql.NullInt32 `json:"branch_brand"`
+	FromDate    time.Time     `json:"from_date"`
+	ToDate      time.Time     `json:"to_date"`
+	SaleTypeID  sql.NullInt32 `json:"sale_type_id"`
+}
+
+func (q *Queries) GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getBranchBrandGoalByGivenDateRange,
+		arg.BranchBrand,
+		arg.FromDate,
+		arg.ToDate,
+		arg.SaleTypeID,
+	)
+	var goal_amount int64
+	err := row.Scan(&goal_amount)
+	return goal_amount, err
+}
+
 const getBranchById = `-- name: GetBranchById :one
-SELECT id, title, description, branch_key, created_at
+SELECT id, title, description, created_at
 FROM branches
 WHERE id = $1
 `
@@ -39,42 +67,14 @@ func (q *Queries) GetBranchById(ctx context.Context, id int32) (Branch, error) {
 		&i.ID,
 		&i.Title,
 		&i.Description,
-		&i.BranchKey,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
-const getBranchGoalByGivenDateRange = `-- name: GetBranchGoalByGivenDateRange :one
-SELECT COALESCE(bg.amount, 0) AS goal_amount
-FROM branch_goals_by_types bg
-WHERE bg.branch_id = $1
-  AND bg.from_date = $2
-  AND bg.to_date = $3
-  AND bg.type_id = $4
-`
-
-type GetBranchGoalByGivenDateRangeParams struct {
-	BranchID int32     `json:"branch_id"`
-	FromDate time.Time `json:"from_date"`
-	ToDate   time.Time `json:"to_date"`
-	TypeID   int32     `json:"type_id"`
-}
-
-func (q *Queries) GetBranchGoalByGivenDateRange(ctx context.Context, arg GetBranchGoalByGivenDateRangeParams) (int64, error) {
-	row := q.db.QueryRowContext(ctx, getBranchGoalByGivenDateRange,
-		arg.BranchID,
-		arg.FromDate,
-		arg.ToDate,
-		arg.TypeID,
-	)
-	var goal_amount int64
-	err := row.Scan(&goal_amount)
-	return goal_amount, err
-}
-
 const getBranches = `-- name: GetBranches :many
-SELECT id, title, description, branch_key, created_at FROM branches
+SELECT id, title, description, created_at
+FROM branches
 `
 
 func (q *Queries) GetBranches(ctx context.Context) ([]Branch, error) {
@@ -90,68 +90,7 @@ func (q *Queries) GetBranches(ctx context.Context) ([]Branch, error) {
 			&i.ID,
 			&i.Title,
 			&i.Description,
-			&i.BranchKey,
 			&i.CreatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getOrderedBranchesByGivenPeriod = `-- name: GetOrderedBranchesByGivenPeriod :many
-SELECT b.title,
-       b.id,
-       b.description,
-       COALESCE(r.ratio, 0.0) AS ratio
-FROM branches b
-         LEFT JOIN
-     branches_goals_ratio_by_period r ON b.id = r.branch_id
-         AND r.from_date >= $1 AND r.to_date <= $2
-ORDER BY ratio DESC LIMIT $3
-OFFSET $4
-`
-
-type GetOrderedBranchesByGivenPeriodParams struct {
-	FromDate time.Time `json:"from_date"`
-	ToDate   time.Time `json:"to_date"`
-	Limit    int32     `json:"limit"`
-	Offset   int32     `json:"offset"`
-}
-
-type GetOrderedBranchesByGivenPeriodRow struct {
-	Title       string  `json:"title"`
-	ID          int32   `json:"id"`
-	Description string  `json:"description"`
-	Ratio       float64 `json:"ratio"`
-}
-
-func (q *Queries) GetOrderedBranchesByGivenPeriod(ctx context.Context, arg GetOrderedBranchesByGivenPeriodParams) ([]GetOrderedBranchesByGivenPeriodRow, error) {
-	rows, err := q.db.QueryContext(ctx, getOrderedBranchesByGivenPeriod,
-		arg.FromDate,
-		arg.ToDate,
-		arg.Limit,
-		arg.Offset,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetOrderedBranchesByGivenPeriodRow
-	for rows.Next() {
-		var i GetOrderedBranchesByGivenPeriodRow
-		if err := rows.Scan(
-			&i.Title,
-			&i.ID,
-			&i.Description,
-			&i.Ratio,
 		); err != nil {
 			return nil, err
 		}
