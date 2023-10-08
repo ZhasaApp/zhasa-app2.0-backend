@@ -3,15 +3,15 @@ package repository
 import (
 	"errors"
 	"fmt"
-	"zhasa2.0/api/rating"
 	generated "zhasa2.0/db/sqlc"
-	"zhasa2.0/sale/repository"
+	"zhasa2.0/rating"
 	"zhasa2.0/statistic/entities"
+	"zhasa2.0/user/repository"
 )
 
 type CalculateUserBrandRatio func(userId int32, brandId int32, period entities.Period) (float32, error)
 
-func NewCalculateUserBrandRatio(saleTypeRepo repository.SaleTypeRepository, saleRepo repository.SaleRepository, goalFunc UserBrandGoalFunc, brandFunc GetUserBrandFunc) CalculateUserBrandRatio {
+func NewCalculateUserBrandRatio(saleTypeRepo SaleTypeRepository, saleRepo SaleRepository, goalFunc repository.UserBrandGoalFunc, brandFunc repository.GetUserBrandFunc) CalculateUserBrandRatio {
 	return func(userId int32, brandId int32, period entities.Period) (float32, error) {
 		var goalAchievementPercent float32
 		ratioRows := make([]rating.RatioRow, 0)

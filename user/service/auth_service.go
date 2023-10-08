@@ -50,7 +50,7 @@ func (service SafeAuthorizationService) Login(otpId entities.OtpId, code entitie
 		return nil, err
 	}
 
-	user, err := service.repo.GetUserById(userId)
+	user, err := service.repo.GetUserById(int32(userId))
 	if err != nil {
 		return nil, errors.New("user not found")
 	}

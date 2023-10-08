@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	entities2 "zhasa2.0/api/entities"
-	"zhasa2.0/api/rating"
 	generated "zhasa2.0/db/sqlc"
+	"zhasa2.0/rating"
 	"zhasa2.0/statistic/entities"
 )
 
