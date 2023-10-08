@@ -18,6 +18,7 @@ type User struct {
 	Avatar    string
 	FirstName Name
 	LastName  Name
+	UserRole  UserRole
 }
 
 func (u User) AvatarPointer() *string {
@@ -61,4 +62,9 @@ func NewName(name string) (*Name, error) {
 	}
 	res := Name(name)
 	return &res, nil
+}
+
+type UserRole struct {
+	Id  int32
+	Key string
 }

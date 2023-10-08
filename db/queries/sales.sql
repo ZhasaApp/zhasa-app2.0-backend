@@ -99,3 +99,9 @@ WHERE sb.brand_id = $1
   AND s.user_id = $2
 ORDER BY s.sale_date DESC LIMIT $3
 OFFSET $4;
+
+-- name: GetSaleBrandBySaleId :one
+SELECT sb.brand_id, s.sale_date
+FROM sales_brands sb
+         JOIN sales s ON s.id = sb.sale_id
+WHERE sb.sale_id = $1;

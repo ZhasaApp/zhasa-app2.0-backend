@@ -73,6 +73,25 @@ func (q *Queries) DeleteSale(ctx context.Context, id int32) error {
 	return err
 }
 
+const getSaleBrandBySaleId = `-- name: GetSaleBrandBySaleId :one
+SELECT sb.brand_id, s.sale_date
+FROM sales_brands sb
+         JOIN sales s ON s.id = sb.sale_id
+WHERE sb.sale_id = $1
+`
+
+type GetSaleBrandBySaleIdRow struct {
+	BrandID  int32     `json:"brand_id"`
+	SaleDate time.Time `json:"sale_date"`
+}
+
+func (q *Queries) GetSaleBrandBySaleId(ctx context.Context, saleID int32) (GetSaleBrandBySaleIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getSaleBrandBySaleId, saleID)
+	var i GetSaleBrandBySaleIdRow
+	err := row.Scan(&i.BrandID, &i.SaleDate)
+	return i, err
+}
+
 const getSaleSumByBranchByTypeByBrand = `-- name: GetSaleSumByBranchByTypeByBrand :many
 SELECT b.id          AS branch_id,
        b.title       AS branch_title,

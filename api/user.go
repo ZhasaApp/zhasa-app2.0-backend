@@ -24,87 +24,39 @@ func verifyToken(tokenService service.TokenService) gin.HandlerFunc {
 }
 
 func (server *Server) getUserProfile(ctx *gin.Context) {
-	//token := service.Token(ctx.GetHeader("Authorization"))
-	//userTokenData, err := server.tokenService.VerifyToken(token)
-	//if err != nil {
-	//	_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
-	//	return
-	//}
-	//
-	//sm, err := server.salesManagerService.GetSalesManagerByUserId(userTokenData.Id)
-	//branches := make([]BranchResponse, 0)
-	//
-	//if sm != nil {
-	//	var avatar *string
-	//	if len(sm.AvatarUrl) != 0 {
-	//		avatar = &sm.AvatarUrl
-	//	}
-	//	branches = append(branches, BranchResponse{
-	//		Id:          int32(sm.Branch.BranchId),
-	//		Description: string(sm.Branch.Title),
-	//	})
-	//
-	//	response := UserProfileResponse{
-	//		Id:       userTokenData.Id,
-	//		Avatar:   avatar,
-	//		FullName: userTokenData.FirstName + " " + userTokenData.LastName,
-	//		Phone:    userTokenData.Phone,
-	//		Branch: BranchResponse{
-	//			Id:          int32(sm.Branch.BranchId),
-	//			Description: string(sm.Branch.Title),
-	//		},
-	//		Role:     "sales_manager",
-	//		Branches: &branches,
-	//	}
-	//
-	//	ctx.JSON(http.StatusOK, response)
-	//	return
-	//}
-	//
-	//bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
-	//
-	//if bd != nil && err == nil && len(bd) > 0 {
-	//	for _, br := range bd {
-	//		branches = append(branches, BranchResponse{
-	//			Id:          int32(br.Branch.BranchId),
-	//			Description: string(br.Branch.Title),
-	//		})
-	//	}
-	//	response := UserProfileResponse{
-	//		Id:       userTokenData.Id,
-	//		Avatar:   bd[0].AvatarPointer(),
-	//		FullName: userTokenData.FirstName + " " + userTokenData.LastName,
-	//		Phone:    userTokenData.Phone,
-	//		Branch: BranchResponse{
-	//			Id:          int32(bd[0].Branch.BranchId),
-	//			Description: string(bd[0].Branch.Title),
-	//		},
-	//		Branches: &branches,
-	//		Role:     "branch_director",
-	//	}
-	//
-	//	ctx.JSON(http.StatusOK, response)
-	//	return
-	//}
-	//
-	//owner, err := server.ownerRepository.GetOwnerByUserId(userTokenData.Id)
-	//
-	//if owner != nil && err == nil {
-	//	response := UserProfileResponse{
-	//		Id:       userTokenData.Id,
-	//		Avatar:   owner.AvatarPointer(),
-	//		FullName: owner.GetFullName(),
-	//		Phone:    userTokenData.Phone,
-	//		Branch:   BranchResponse{},
-	//		Role:     "owner",
-	//	}
-	//
-	//	ctx.JSON(http.StatusOK, response)
-	//	return
-	//}
-	//
-	//ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-	//return
+	token := service.Token(ctx.GetHeader("Authorization"))
+	userTokenData, err := server.tokenService.VerifyToken(token)
+	if err != nil {
+		_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
+		return
+	}
+
+	user, err := server.userRepo.GetUserById(userTokenData.Id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	branch, err := server.getUserBranchFunc(user.Id)
+
+	var branchResponse *BranchResponse
+
+	if branch != nil {
+		branchResponse = &BranchResponse{
+			Id:          branch.ID,
+			Description: branch.Title,
+		}
+	}
+
+	ctx.JSON(http.StatusOK, UserProfileResponse{
+		Id:       user.Id,
+		Avatar:   user.AvatarPointer(),
+		FullName: user.GetFullName(),
+		Phone:    string(user.Phone),
+		Branch:   branchResponse,
+		Role:     user.UserRole.Key,
+		Branches: nil,
+	})
 }
 
 func (server *Server) tryAuth(ctx *gin.Context) {

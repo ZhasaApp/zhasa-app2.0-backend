@@ -29,7 +29,7 @@ type UserProfileResponse struct {
 	Avatar   *string           `json:"avatar"`
 	FullName string            `json:"full_name"`
 	Phone    string            `json:"phone"`
-	Branch   BranchResponse    `json:"branch"`
+	Branch   *BranchResponse   `json:"branch"`
 	Role     string            `json:"role"`
 	Branches *[]BranchResponse `json:"branches"`
 }

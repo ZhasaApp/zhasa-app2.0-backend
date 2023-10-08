@@ -12,8 +12,9 @@ WHERE phone = $1;
 
 -- name: GetUserById :one
 SELECT *
-FROM user_avatar_view
-WHERE id = $1;
+FROM user_avatar_view u
+         JOIN user_roles JOIN  ur on user_avatar_view.id = ur.user_id
+WHERE u.id = $1;
 
 -- name: CreateUserCode :one
 INSERT INTO users_codes(user_id, code)

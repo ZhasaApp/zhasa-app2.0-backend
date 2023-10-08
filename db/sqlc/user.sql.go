@@ -98,20 +98,35 @@ func (q *Queries) GetUserBranch(ctx context.Context, userID int32) (GetUserBranc
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, phone, first_name, last_name, avatar_url
-FROM user_avatar_view
-WHERE id = $1
+SELECT u.id, phone, first_name, last_name, avatar_url, ur.id, user_id, role_id
+FROM user_avatar_view u
+         JOIN user_roles ur on user_avatar_view.id = ur.user_id
+WHERE u.id = $1
 `
 
-func (q *Queries) GetUserById(ctx context.Context, id int32) (UserAvatarView, error) {
+type GetUserByIdRow struct {
+	ID        int32  `json:"id"`
+	Phone     string `json:"phone"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	AvatarUrl string `json:"avatar_url"`
+	ID_2      int32  `json:"id_2"`
+	UserID    int32  `json:"user_id"`
+	RoleID    int32  `json:"role_id"`
+}
+
+func (q *Queries) GetUserById(ctx context.Context, id int32) (GetUserByIdRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserById, id)
-	var i UserAvatarView
+	var i GetUserByIdRow
 	err := row.Scan(
 		&i.ID,
 		&i.Phone,
 		&i.FirstName,
 		&i.LastName,
 		&i.AvatarUrl,
+		&i.ID_2,
+		&i.UserID,
+		&i.RoleID,
 	)
 	return i, err
 }

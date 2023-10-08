@@ -35,6 +35,7 @@ type Querier interface {
 	GetPostLikedUsers(ctx context.Context, arg GetPostLikedUsersParams) ([]GetPostLikedUsersRow, error)
 	GetPostLikesCount(ctx context.Context, postID int32) (int64, error)
 	GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error)
+	GetSaleBrandBySaleId(ctx context.Context, saleID int32) (GetSaleBrandBySaleIdRow, error)
 	// Assuming you also have a sales table as previously discussed.
 	// Assuming you also have a sales table as previously discussed.
 	// Join with relevant tables
@@ -49,7 +50,7 @@ type Querier interface {
 	GetUserBranch(ctx context.Context, userID int32) (GetUserBranchRow, error)
 	GetUserBrand(ctx context.Context, arg GetUserBrandParams) (int32, error)
 	GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalParams) (int64, error)
-	GetUserById(ctx context.Context, id int32) (UserAvatarView, error)
+	GetUserById(ctx context.Context, id int32) (GetUserByIdRow, error)
 	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)
 	GetUserPostLike(ctx context.Context, arg GetUserPostLikeParams) (int32, error)
 	GetUserRank(ctx context.Context, arg GetUserRankParams) (int64, error)

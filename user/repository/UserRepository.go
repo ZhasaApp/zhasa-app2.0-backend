@@ -79,6 +79,9 @@ func (pur PostgresUserRepository) GetUserById(userId int32) (*User, error) {
 		Avatar:    res.AvatarUrl,
 		FirstName: Name(res.FirstName),
 		LastName:  Name(res.LastName),
+		UserRole: UserRole{
+			Id: res.RoleID,
+		},
 	}
 	return &user, err
 }
