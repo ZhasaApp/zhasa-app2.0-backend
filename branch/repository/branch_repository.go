@@ -19,7 +19,7 @@ type BranchRepository interface {
 	GetBranches(period Period) ([]Branch, error)
 	GetBranchYearMonthlyStatistic(bId BranchId, year int32) (*[]MonthlyYearStatistic, error)
 	GetBranchSalesSums(from, to time.Time, branchId BranchId) (*SaleSumByType, error)
-	GetBranchGoal(from, to time.Time, branchId BranchId, typeId SaleTypeId) (SaleAmount, error)
+	GetBranchGoal(from, to time.Time, branchId BranchId, typeId int32) (SaleAmount, error)
 }
 
 type DBBranchRepository struct {
@@ -62,7 +62,7 @@ func (br DBBranchRepository) GetBranchSalesSums(from, to time.Time, branchId Bra
 	return &result, err
 }
 
-func (br DBBranchRepository) GetBranchGoal(from, to time.Time, branchId BranchId, typeId SaleTypeId) (SaleAmount, error) {
+func (br DBBranchRepository) GetBranchGoal(from, to time.Time, branchId BranchId, typeId int32) (SaleAmount, error) {
 	//arg := generated.GetBranchGoalByGivenDateRangeParams{
 	//	//	BranchID: int32(branchId),
 	//	FromDate: from,

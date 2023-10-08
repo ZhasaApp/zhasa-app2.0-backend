@@ -10,7 +10,7 @@ type createCommentRequest struct {
 	Message string `json:"message" binding:"required"`
 }
 
-func (server Server) CreateComment(ctx *gin.Context) {
+func (server *Server) CreateComment(ctx *gin.Context) {
 	var req *createCommentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

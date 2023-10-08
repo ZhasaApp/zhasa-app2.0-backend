@@ -6,7 +6,7 @@ import (
 
 type MonthlyYearStatistic struct {
 	SaleType SaleType
-	Month    MonthNumber
-	Amount   SaleAmount
-	Goal     SaleAmount
+	Month    int32
+	Amount   int64
+	Goal     int64
 }

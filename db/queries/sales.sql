@@ -7,6 +7,11 @@ VALUES ($1, $2, $3, $4, $5) RETURNING *;
 INSERT INTO sales_brands (sale_id, brand_id)
 VALUES ($1, $2) RETURNING *;
 
+-- name: DeleteSale :exec
+DELETE
+FROM sales
+WHERE id = $1;
+
 -- name: GetSaleSumByManagerByTypeByBrand :one
 -- get the sales sums for a specific sales manager and each sale type within the given period.
 SELECT st.id         AS sale_type_id,
@@ -50,23 +55,47 @@ GROUP BY b.id, br.id, st.id
 ORDER BY b.id, br.id, st.id;
 
 -- name: GetSaleSumByUserIdBrandIdPeriodSaleTypeId :one
-SELECT
-    SUM(s.amount) AS total_sales
-FROM
-    sales s
-        JOIN
-    sales_brands sb ON s.id = sb.sale_id
-        JOIN
-    user_brands ub ON ub.brand_id = sb.brand_id
-        JOIN
-    users u ON u.id = ub.user_id
-WHERE
-        u.id = $1           -- user_id parameter
-  AND
-        sb.brand_id = $2     -- brand_id parameter
-  AND
-    s.sale_date BETWEEN $3 AND $4   -- from and to date parameters
-  AND
-        s.sale_type_id = $5   -- sale_type_id parameter
+SELECT SUM(s.amount) AS total_sales
+FROM sales s
+         JOIN
+     sales_brands sb ON s.id = sb.sale_id
+         JOIN
+     user_brands ub ON ub.brand_id = sb.brand_id
+         JOIN
+     users u ON u.id = ub.user_id
+WHERE u.id = $1                     -- user_id parameter
+  AND sb.brand_id = $2              -- brand_id parameter
+  AND s.sale_date BETWEEN $3 AND $4 -- from and to date parameters
+  AND s.sale_type_id = $5 -- sale_type_id parameter
 ;
 
+-- name: GetSalesByBrandId :many
+SELECT s.id,
+       s.user_id,
+       s.sale_date,
+       s.amount,
+       s.sale_type_id,
+       s.description
+FROM sales s
+         JOIN
+     sales_brands sb ON s.id = sb.sale_id
+WHERE sb.brand_id = $1;
+
+-- name: GetSalesByBrandIdAndUserId :many
+SELECT s.id,
+       s.user_id,
+       s.sale_date,
+       s.amount,
+       s.sale_type_id,
+       s.description,
+       st.title AS sale_type_title,
+       st.gravity,
+       st.color,
+       st.value_type
+FROM sales s
+         JOIN sales_brands sb ON s.id = sb.sale_id
+         JOIN sale_types st ON s.sale_type_id = st.id
+WHERE sb.brand_id = $1
+  AND s.user_id = $2
+ORDER BY s.sale_date DESC LIMIT $3
+OFFSET $4;

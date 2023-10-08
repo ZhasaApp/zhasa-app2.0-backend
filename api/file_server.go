@@ -23,7 +23,7 @@ func generateRandomString(n int) string {
 	return string(s)
 }
 
-func (server Server) HandleAvatarUpload(c *gin.Context) {
+func (server *Server) HandleAvatarUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -55,7 +55,7 @@ func (server Server) HandleAvatarUpload(c *gin.Context) {
 	})
 }
 
-func (server Server) HandleNewsUpload(c *gin.Context) {
+func (server *Server) HandleNewsUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -87,7 +87,7 @@ func (server Server) HandleNewsUpload(c *gin.Context) {
 	})
 }
 
-func (server Server) HandleManagersUpload(c *gin.Context) {
+func (server *Server) HandleManagersUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -145,7 +145,7 @@ func (server Server) HandleManagersUpload(c *gin.Context) {
 	}
 }
 
-func (server Server) HandleDirectorsUpload(c *gin.Context) {
+func (server *Server) HandleDirectorsUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

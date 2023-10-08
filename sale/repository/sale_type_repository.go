@@ -7,11 +7,11 @@ import (
 	"zhasa2.0/statistic"
 )
 
-type SaleTypeMap map[SaleTypeId]*SaleType
+type SaleTypeMap map[int32]*SaleType
 
 type SaleTypeRepository interface {
-	GetSaleType(id SaleTypeId) (*SaleType, error)
-	CreateSaleType(body CreateSaleTypeBody) (SaleTypeId, error)
+	GetSaleType(id int32) (*SaleType, error)
+	CreateSaleType(body CreateSaleTypeBody) (int32, error)
 	MapSalesSumsByType(rows []SumsByTypeRow) statistic.SaleSumByType
 	GetSaleTypes() (*[]SaleType, error)
 }
@@ -33,7 +33,7 @@ func (str DBSaleTypeRepository) GetSaleTypes() (*[]SaleType, error) {
 
 	for _, row := range rows {
 		saleTypes = append(saleTypes, SaleType{
-			Id:          SaleTypeId(row.ID),
+			Id:          row.ID,
 			Title:       row.Title,
 			Description: row.Description,
 			Color:       row.Color,
@@ -50,7 +50,7 @@ func (str DBSaleTypeRepository) MapSalesSumsByType(rows []SumsByTypeRow) statist
 
 	for _, row := range rows {
 		saleAmount := SaleAmount(row.TotalSales)
-		saleType, err := str.GetSaleType(SaleTypeId(row.SaleTypeID))
+		saleType, err := str.GetSaleType(row.SaleTypeID)
 		if err != nil {
 			return nil
 		}
@@ -69,7 +69,7 @@ func NewSaleTypeRepository(ctx context.Context, querier generated.Querier) SaleT
 	}
 }
 
-func (str DBSaleTypeRepository) CreateSaleType(body CreateSaleTypeBody) (SaleTypeId, error) {
+func (str DBSaleTypeRepository) CreateSaleType(body CreateSaleTypeBody) (int32, error) {
 	params := generated.CreateSaleTypeParams{
 		Title:       body.Title,
 		Description: body.Description,
@@ -79,23 +79,23 @@ func (str DBSaleTypeRepository) CreateSaleType(body CreateSaleTypeBody) (SaleTyp
 	if err != nil {
 		return 0, err
 	}
-	return SaleTypeId(id), nil
+	return id, nil
 }
 
-func (str DBSaleTypeRepository) GetSaleType(id SaleTypeId) (*SaleType, error) {
+func (str DBSaleTypeRepository) GetSaleType(id int32) (*SaleType, error) {
 	saleType, found := str.cache[id]
 
 	if found {
 		return saleType, nil
 	}
 
-	saleTypeDb, err := str.querier.GetSaleTypeById(str.ctx, int32(id))
+	saleTypeDb, err := str.querier.GetSaleTypeById(str.ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
 	newSaleType := &SaleType{
-		Id:          SaleTypeId(saleTypeDb.ID),
+		Id:          saleTypeDb.ID,
 		Title:       saleTypeDb.Title,
 		Description: saleTypeDb.Description,
 		Color:       saleTypeDb.Color,

@@ -62,6 +62,17 @@ func (q *Queries) AddSaleToBrand(ctx context.Context, arg AddSaleToBrandParams) 
 	return i, err
 }
 
+const deleteSale = `-- name: DeleteSale :exec
+DELETE
+FROM sales
+WHERE id = $1
+`
+
+func (q *Queries) DeleteSale(ctx context.Context, id int32) error {
+	_, err := q.db.ExecContext(ctx, deleteSale, id)
+	return err
+}
+
 const getSaleSumByBranchByTypeByBrand = `-- name: GetSaleSumByBranchByTypeByBrand :many
 SELECT b.id          AS branch_id,
        b.title       AS branch_title,
@@ -187,24 +198,18 @@ func (q *Queries) GetSaleSumByManagerByTypeByBrand(ctx context.Context, arg GetS
 }
 
 const getSaleSumByUserIdBrandIdPeriodSaleTypeId = `-- name: GetSaleSumByUserIdBrandIdPeriodSaleTypeId :one
-SELECT
-    SUM(s.amount) AS total_sales
-FROM
-    sales s
-        JOIN
-    sales_brands sb ON s.id = sb.sale_id
-        JOIN
-    user_brands ub ON ub.brand_id = sb.brand_id
-        JOIN
-    users u ON u.id = ub.user_id
-WHERE
-        u.id = $1           -- user_id parameter
-  AND
-        sb.brand_id = $2     -- brand_id parameter
-  AND
-    s.sale_date BETWEEN $3 AND $4   -- from and to date parameters
-  AND
-        s.sale_type_id = $5   -- sale_type_id parameter
+SELECT SUM(s.amount) AS total_sales
+FROM sales s
+         JOIN
+     sales_brands sb ON s.id = sb.sale_id
+         JOIN
+     user_brands ub ON ub.brand_id = sb.brand_id
+         JOIN
+     users u ON u.id = ub.user_id
+WHERE u.id = $1                     -- user_id parameter
+  AND sb.brand_id = $2              -- brand_id parameter
+  AND s.sale_date BETWEEN $3 AND $4 -- from and to date parameters
+  AND s.sale_type_id = $5 -- sale_type_id parameter
 `
 
 type GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams struct {
@@ -226,4 +231,135 @@ func (q *Queries) GetSaleSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context,
 	var total_sales int64
 	err := row.Scan(&total_sales)
 	return total_sales, err
+}
+
+const getSalesByBrandId = `-- name: GetSalesByBrandId :many
+SELECT s.id,
+       s.user_id,
+       s.sale_date,
+       s.amount,
+       s.sale_type_id,
+       s.description
+FROM sales s
+         JOIN
+     sales_brands sb ON s.id = sb.sale_id
+WHERE sb.brand_id = $1
+`
+
+type GetSalesByBrandIdRow struct {
+	ID          int32     `json:"id"`
+	UserID      int32     `json:"user_id"`
+	SaleDate    time.Time `json:"sale_date"`
+	Amount      int64     `json:"amount"`
+	SaleTypeID  int32     `json:"sale_type_id"`
+	Description string    `json:"description"`
+}
+
+func (q *Queries) GetSalesByBrandId(ctx context.Context, brandID int32) ([]GetSalesByBrandIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSalesByBrandId, brandID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSalesByBrandIdRow
+	for rows.Next() {
+		var i GetSalesByBrandIdRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.SaleDate,
+			&i.Amount,
+			&i.SaleTypeID,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSalesByBrandIdAndUserId = `-- name: GetSalesByBrandIdAndUserId :many
+SELECT s.id,
+       s.user_id,
+       s.sale_date,
+       s.amount,
+       s.sale_type_id,
+       s.description,
+       st.title AS sale_type_title,
+       st.gravity,
+       st.color,
+       st.value_type
+FROM sales s
+         JOIN sales_brands sb ON s.id = sb.sale_id
+         JOIN sale_types st ON s.sale_type_id = st.id
+WHERE sb.brand_id = $1
+  AND s.user_id = $2
+ORDER BY s.sale_date DESC LIMIT $3
+OFFSET $4
+`
+
+type GetSalesByBrandIdAndUserIdParams struct {
+	BrandID int32 `json:"brand_id"`
+	UserID  int32 `json:"user_id"`
+	Limit   int32 `json:"limit"`
+	Offset  int32 `json:"offset"`
+}
+
+type GetSalesByBrandIdAndUserIdRow struct {
+	ID            int32     `json:"id"`
+	UserID        int32     `json:"user_id"`
+	SaleDate      time.Time `json:"sale_date"`
+	Amount        int64     `json:"amount"`
+	SaleTypeID    int32     `json:"sale_type_id"`
+	Description   string    `json:"description"`
+	SaleTypeTitle string    `json:"sale_type_title"`
+	Gravity       int32     `json:"gravity"`
+	Color         string    `json:"color"`
+	ValueType     ValueType `json:"value_type"`
+}
+
+func (q *Queries) GetSalesByBrandIdAndUserId(ctx context.Context, arg GetSalesByBrandIdAndUserIdParams) ([]GetSalesByBrandIdAndUserIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getSalesByBrandIdAndUserId,
+		arg.BrandID,
+		arg.UserID,
+		arg.Limit,
+		arg.Offset,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSalesByBrandIdAndUserIdRow
+	for rows.Next() {
+		var i GetSalesByBrandIdAndUserIdRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.SaleDate,
+			&i.Amount,
+			&i.SaleTypeID,
+			&i.Description,
+			&i.SaleTypeTitle,
+			&i.Gravity,
+			&i.Color,
+			&i.ValueType,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

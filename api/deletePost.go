@@ -9,7 +9,7 @@ type deletePostRequest struct {
 	PostId int32 `json:"id" binding:"required"`
 }
 
-func (server Server) DeletePost(ctx *gin.Context) {
+func (server *Server) DeletePost(ctx *gin.Context) {
 	var req *deletePostRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

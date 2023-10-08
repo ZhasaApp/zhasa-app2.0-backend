@@ -7,6 +7,12 @@ CREATE TABLE users
     created_at TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE disabled_users
+(
+    user_id     INTEGER REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+    disabled_at TIMESTAMP                                       NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE branches
 (
     id          SERIAL PRIMARY KEY,
@@ -82,8 +88,8 @@ CREATE TABLE sales
 
 CREATE TABLE sales_brands
 (
-    sale_id  INTEGER REFERENCES sales (id)  NOT NULL,
-    brand_id INTEGER REFERENCES brands (id) NOT NULL,
+    sale_id  INTEGER REFERENCES sales (id) ON DELETE CASCADE  NOT NULL,
+    brand_id INTEGER REFERENCES brands (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (sale_id, brand_id)
 );
 
@@ -98,12 +104,23 @@ CREATE TABLE user_brands
 CREATE TABLE user_brand_sale_type_goals
 (
     id           SERIAL PRIMARY KEY,
-    user_brand   INTEGER REFERENCES user_brands (id),
-    sale_type_id INTEGER REFERENCES sale_types (id),
-    value        BIGINT    NOT NULL,
-    from_date    TIMESTAMP NOT NULL,
-    to_date      TIMESTAMP NOT NULL,
+    user_brand   INTEGER REFERENCES user_brands (id) NOT NULL,
+    sale_type_id INTEGER REFERENCES sale_types (id)  NOT NULL,
+    value        BIGINT                              NOT NULL,
+    from_date    TIMESTAMP                           NOT NULL,
+    to_date      TIMESTAMP                           NOT NULL,
     UNIQUE (user_brand, sale_type_id, from_date, to_date)
+);
+
+CREATE TABLE user_brand_sale_type_ratio
+(
+    user_id      INTEGER REFERENCES user_brands (id) NOT NULL,
+    brand_id     INTEGER REFERENCES brands (id)      NOT NULL,
+    sale_type_id INTEGER REFERENCES sale_types (id)  NOT NULL,
+    ratio        REAL                                NOT NULL,
+    from_date    TIMESTAMP                           NOT NULL,
+    to_date      TIMESTAMP                           NOT NULL,
+    UNIQUE (user_id, brand_id, sale_type_id, from_date, to_date)
 );
 
 CREATE TABLE branch_brands

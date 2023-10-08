@@ -40,7 +40,7 @@ func (store *DBStore) execTx(ctx context.Context, fn func(*Queries) error) error
 	return tx.Commit()
 }
 
-func (store *DBStore) AddBrandSaleTx(ctx context.Context, params AddSaleOrReplaceParams, brandId int32) (Sale, error) {
+func (store *DBStore) AddBrandSaleTx(ctx context.Context, params AddSaleOrReplaceParams, brandId int32) (*Sale, error) {
 	var sale *Sale
 
 	err := store.execTx(ctx, func(queries *Queries) error {
@@ -59,5 +59,5 @@ func (store *DBStore) AddBrandSaleTx(ctx context.Context, params AddSaleOrReplac
 		return nil
 	})
 
-	return *sale, err
+	return sale, err
 }

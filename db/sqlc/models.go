@@ -103,6 +103,11 @@ type Department struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type DisabledUser struct {
+	UserID     int32     `json:"user_id"`
+	DisabledAt time.Time `json:"disabled_at"`
+}
+
 type Like struct {
 	UserID int32 `json:"user_id"`
 	PostID int32 `json:"post_id"`
@@ -125,6 +130,7 @@ type PostImage struct {
 type Role struct {
 	ID          int32     `json:"id"`
 	Title       string    `json:"title"`
+	Key         string    `json:"key"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 }
@@ -177,12 +183,21 @@ type UserBrand struct {
 }
 
 type UserBrandSaleTypeGoal struct {
-	ID         int32         `json:"id"`
-	UserBrand  sql.NullInt32 `json:"user_brand"`
-	SaleTypeID sql.NullInt32 `json:"sale_type_id"`
-	Value      int64         `json:"value"`
-	FromDate   time.Time     `json:"from_date"`
-	ToDate     time.Time     `json:"to_date"`
+	ID         int32     `json:"id"`
+	UserBrand  int32     `json:"user_brand"`
+	SaleTypeID int32     `json:"sale_type_id"`
+	Value      int64     `json:"value"`
+	FromDate   time.Time `json:"from_date"`
+	ToDate     time.Time `json:"to_date"`
+}
+
+type UserBrandSaleTypeRatio struct {
+	UserID     int32     `json:"user_id"`
+	BrandID    int32     `json:"brand_id"`
+	SaleTypeID int32     `json:"sale_type_id"`
+	Ratio      float32   `json:"ratio"`
+	FromDate   time.Time `json:"from_date"`
+	ToDate     time.Time `json:"to_date"`
 }
 
 type UserRole struct {

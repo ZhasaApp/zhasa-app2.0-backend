@@ -23,6 +23,7 @@ type Querier interface {
 	DeleteComment(ctx context.Context, id int32) error
 	DeleteLike(ctx context.Context, arg DeleteLikeParams) error
 	DeletePost(ctx context.Context, id int32) error
+	DeleteSale(ctx context.Context, id int32) error
 	DeleteUserAvatar(ctx context.Context, userID int32) error
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error)
@@ -42,10 +43,18 @@ type Querier interface {
 	GetSaleSumByManagerByTypeByBrand(ctx context.Context, arg GetSaleSumByManagerByTypeByBrandParams) (GetSaleSumByManagerByTypeByBrandRow, error)
 	GetSaleSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context, arg GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
+	GetSalesByBrandId(ctx context.Context, brandID int32) ([]GetSalesByBrandIdRow, error)
+	GetSalesByBrandIdAndUserId(ctx context.Context, arg GetSalesByBrandIdAndUserIdParams) ([]GetSalesByBrandIdAndUserIdRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
+	GetUserBrand(ctx context.Context, arg GetUserBrandParams) (int32, error)
+	GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalParams) (int64, error)
 	GetUserById(ctx context.Context, id int32) (UserAvatarView, error)
 	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)
 	GetUserPostLike(ctx context.Context, arg GetUserPostLikeParams) (int32, error)
+	GetUserRank(ctx context.Context, arg GetUserRankParams) (int64, error)
+	// SELECT users for given brand ordered by ratio
+	GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetUsersOrderedByRatioForGivenBrandParams) ([]GetUsersOrderedByRatioForGivenBrandRow, error)
+	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	ListPosts(ctx context.Context) ([]Post, error)
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error
 }

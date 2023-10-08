@@ -50,7 +50,7 @@ func (server *Server) UploadUserAvatar(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-func (server Server) DeleteAvatar(ctx *gin.Context) {
+func (server *Server) DeleteAvatar(ctx *gin.Context) {
 	userId := ctx.GetInt("user_id")
 
 	if userId == 0 {

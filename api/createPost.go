@@ -11,7 +11,7 @@ type createPostRequest struct {
 	ImageUrls []string `json:"images"`
 }
 
-func (server Server) CreatePost(ctx *gin.Context) {
+func (server *Server) CreatePost(ctx *gin.Context) {
 	var req *createPostRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
