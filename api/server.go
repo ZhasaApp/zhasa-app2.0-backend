@@ -48,7 +48,7 @@ func (server *Server) InitSuperUser() error {
 		LastName:  "admin",
 		Phone:     "+77081070480",
 	}
-	_, err := server.userService.GetUserByPhone("+77081070480")
+	_, err := server.userRepo.GetUserByPhone("+77081070480")
 
 	if err == nil {
 		fmt.Println("super user already exist")
@@ -143,8 +143,9 @@ func initDependencies(server *Server, ctx context.Context) {
 	dbSource := os.Getenv("DATA_BASE_URL")
 	conn, err := sql.Open(dbDriver, dbSource)
 
+	log.Println(dbDriver, dbSource)
 	if err != nil {
-		log.Fatal("Cannot connect to db", err)
+		log.Panic("Cannot connect to db", err)
 	}
 
 	store := generated.NewStore(conn)

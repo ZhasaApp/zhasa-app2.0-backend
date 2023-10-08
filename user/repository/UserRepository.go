@@ -96,6 +96,11 @@ func NewUserRepository(ctx context.Context, querier db_generated.Querier) UserRe
 func (pur PostgresUserRepository) GetUserByPhone(phone Phone) (*User, error) {
 	res, err := pur.querier.GetUserByPhone(pur.ctx, string(phone))
 
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
 	user := User{
 		Id:        res.ID,
 		Phone:     Phone(res.Phone),
