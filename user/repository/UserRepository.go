@@ -10,7 +10,7 @@ import (
 type UserRepository interface {
 	CreateUser(request CreateUserRequest) (int32, error)
 	GetUserByPhone(phone Phone) (*User, error)
-	GetUserById(id UserId) (*User, error)
+	GetUserById(id int32) (*User, error)
 	AddUserCode(userId UserId, code OtpCode) (OtpId, error)
 	GetAuthCodeById(id OtpId) (*UserAuth, error)
 	UploadAvatar(userId UserId, avatarUrl string) error
@@ -67,8 +67,8 @@ func (pur PostgresUserRepository) GetAuthCodeById(otpId OtpId) (*UserAuth, error
 	}, err
 }
 
-func (pur PostgresUserRepository) GetUserById(userId UserId) (*User, error) {
-	res, err := pur.querier.GetUserById(pur.ctx, int32(userId))
+func (pur PostgresUserRepository) GetUserById(userId int32) (*User, error) {
+	res, err := pur.querier.GetUserById(pur.ctx, userId)
 	if err != nil {
 		return nil, err
 	}

@@ -23,20 +23,23 @@ import (
 )
 
 type Server struct {
-	router               *gin.Engine
-	userService          service.UserService
-	tokenService         service.TokenService
-	authService          service.AuthorizationService
-	rankRepo             RankingsRepository
-	postRepository       PostRepository
-	ownerRepository      OwnerRepository
-	saleTypeRepo         SaleTypeRepository
-	directorRepo         BranchDirectorRepository
-	saleRepo             SaleRepository
-	userBrandGoal        UserBrandGoalFunc
-	getUserBrandFunc     GetUserBrandFunc
-	updateUserBrandRatio UpdateUserBrandRatioFunc
-	getUserRatingFunc    rating.GetUserRatingFunc
+	router                  *gin.Engine
+	userService             service.UserService
+	tokenService            service.TokenService
+	authService             service.AuthorizationService
+	rankRepo                RankingsRepository
+	postRepository          PostRepository
+	ownerRepository         OwnerRepository
+	saleTypeRepo            SaleTypeRepository
+	directorRepo            BranchDirectorRepository
+	saleRepo                SaleRepository
+	userBrandGoal           UserBrandGoalFunc
+	getUserBrandFunc        GetUserBrandFunc
+	updateUserBrandRatio    UpdateUserBrandRatioFunc
+	getUserRatingFunc       rating.GetUserRatingFunc
+	userRepo                UserRepository
+	getUserBranchFunc       GetUserBranchFunc
+	calculateUserBrandRatio CalculateUserBrandRatio
 }
 
 func (server *Server) InitSuperUser() error {
@@ -173,6 +176,9 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserBrandFunc = NewGetUserBrandFunc(ctx, store)
 	server.updateUserBrandRatio = NewUpdateUserBrandRatioFunc(ctx, store)
 	server.getUserRatingFunc = rating.NewGetUserRatingFunc(ctx, store)
+	server.userRepo = userRepo
+	server.getUserBranchFunc = NewGetUserBranchFunc(ctx, store)
+	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, saleRepo, server.userBrandGoal, server.getUserBrandFunc)
 }
 
 // Start runs the HTTP server a specific address

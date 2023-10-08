@@ -1,11 +1,13 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"time"
 	"zhasa2.0/api/entities"
 	. "zhasa2.0/db/sqlc"
+	entities2 "zhasa2.0/statistic/entities"
 )
 
 type EditSaleRequest struct {
@@ -48,6 +50,24 @@ func (server *Server) EditSale(ctx *gin.Context) {
 	}
 
 	sType, err := server.saleTypeRepo.GetSaleType(requestBody.TypeID)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	monthPeriod := entities2.MonthPeriod{
+		MonthNumber: int32(parsedTime.Month()),
+		Year:        int32(parsedTime.Year()),
+	}
+
+	goalAchievement, err := server.calculateUserBrandRatio(userId, requestBody.BrandId, monthPeriod)
+
+	if err == nil {
+		err := server.updateUserBrandRatio(userId, requestBody.BrandId, float64(goalAchievement), monthPeriod)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 
 	ctx.JSON(http.StatusOK, entities.SaleItemResponse{
 		Id:     requestBody.ID,
@@ -58,7 +78,7 @@ func (server *Server) EditSale(ctx *gin.Context) {
 			Id:        requestBody.TypeID,
 			Title:     sType.Title,
 			Color:     sType.Color,
-			ValueType: "count",
+			ValueType: sType.ValueType,
 		},
 	})
 }

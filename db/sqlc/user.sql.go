@@ -76,6 +76,27 @@ func (q *Queries) GetAuthCodeById(ctx context.Context, id int32) (UsersCode, err
 	return i, err
 }
 
+const getUserBranch = `-- name: GetUserBranch :one
+SELECT b.title, b.id
+FROM user_roles ur
+         INNER JOIN
+     branch_users_roles bur ON ur.id = bur.user_role_id
+         JOIN branches b ON bur.branch_id = b.id
+WHERE ur.user_id = $1
+`
+
+type GetUserBranchRow struct {
+	Title string `json:"title"`
+	ID    int32  `json:"id"`
+}
+
+func (q *Queries) GetUserBranch(ctx context.Context, userID int32) (GetUserBranchRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserBranch, userID)
+	var i GetUserBranchRow
+	err := row.Scan(&i.Title, &i.ID)
+	return i, err
+}
+
 const getUserById = `-- name: GetUserById :one
 SELECT id, phone, first_name, last_name, avatar_url
 FROM user_avatar_view

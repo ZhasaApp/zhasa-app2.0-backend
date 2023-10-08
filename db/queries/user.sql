@@ -34,3 +34,11 @@ UPDATE SET avatar_url = EXCLUDED.avatar_url;
 DELETE
 FROM users_avatars
 WHERE user_id = $1;
+
+-- name: GetUserBranch :one
+SELECT b.title, b.id
+FROM user_roles ur
+         INNER JOIN
+     branch_users_roles bur ON ur.id = bur.user_role_id
+         JOIN branches b ON bur.branch_id = b.id
+WHERE ur.user_id = $1;

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	entities2 "zhasa2.0/api/entities"
 	"zhasa2.0/api/rating"
-	"zhasa2.0/date"
 	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/statistic/entities"
 )
@@ -103,10 +102,10 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 	saleItems := make([]entities2.SaleItemResponse, 0)
 	for _, sale := range lastSales {
 		saleItems = append(saleItems, entities2.SaleItemResponse{
-			Id:     0,
+			Id:     sale.ID,
 			Title:  sale.Description,
-			Date:   date.ConvertTimeToStringISO(sale.SaleDate),
-			Amount: 0,
+			Date:   sale.SaleDate.Format("02-01-2006 15:04:05"),
+			Amount: sale.Amount,
 			Type: entities2.SaleTypeResponse{
 				Id:        sale.SaleTypeID,
 				Title:     sale.SaleTypeTitle,
@@ -115,9 +114,23 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 			},
 		})
 	}
+	dashboardResponse.LastSales = saleItems
+
+	user, err := server.userRepo.GetUserById(request.UserId)
+
+	branch, err := server.getUserBranchFunc(request.UserId)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+
+	dashboardResponse.Profile = entities2.SalesManagerDashboardProfile{
+		Id:       request.UserId,
+		Avatar:   user.AvatarPointer(),
+		FullName: user.GetFullName(),
+		Branch:   branch.Title,
+	}
+
+	ctx.JSON(http.StatusOK, dashboardResponse)
 }
