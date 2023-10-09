@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 	"zhasa2.0/user/entities"
 
@@ -52,6 +53,7 @@ func (service SafeAuthorizationService) Login(otpId entities.OtpId, code entitie
 
 	user, err := service.repo.GetUserById(int32(userId))
 	if err != nil {
+		fmt.Println(err, "userId: ", userId)
 		return nil, errors.New("user not found")
 	}
 

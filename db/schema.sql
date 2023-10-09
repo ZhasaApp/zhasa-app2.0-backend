@@ -67,12 +67,12 @@ CREATE TABLE user_roles
     UNIQUE (user_id, role_id)
 );
 
-CREATE TABLE branch_users_roles
+CREATE TABLE branch_users
 (
     id           SERIAL PRIMARY KEY,
-    user_role_id INTEGER REFERENCES user_roles (id),
+    user_id INTEGER REFERENCES users (id),
     branch_id    INTEGER REFERENCES branches (id),
-    UNIQUE (user_role_id, branch_id)
+    UNIQUE (user_id, branch_id)
 );
 
 CREATE TABLE sales
