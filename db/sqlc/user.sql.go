@@ -7,6 +7,7 @@ package generated
 
 import (
 	"context"
+	"time"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -98,21 +99,27 @@ func (q *Queries) GetUserBranch(ctx context.Context, id int32) (GetUserBranchRow
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT u.id, phone, first_name, last_name, avatar_url, ur.id, user_id, role_id
+SELECT u.id, phone, first_name, last_name, avatar_url, ur.id, user_id, role_id, r.id, title, key, description, created_at
 FROM user_avatar_view u
          JOIN user_roles ur on u.id = ur.user_id
+         JOIN roles r on ur.role_id = r.id
 WHERE u.id = $1
 `
 
 type GetUserByIdRow struct {
-	ID        int32  `json:"id"`
-	Phone     string `json:"phone"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	AvatarUrl string `json:"avatar_url"`
-	ID_2      int32  `json:"id_2"`
-	UserID    int32  `json:"user_id"`
-	RoleID    int32  `json:"role_id"`
+	ID          int32     `json:"id"`
+	Phone       string    `json:"phone"`
+	FirstName   string    `json:"first_name"`
+	LastName    string    `json:"last_name"`
+	AvatarUrl   string    `json:"avatar_url"`
+	ID_2        int32     `json:"id_2"`
+	UserID      int32     `json:"user_id"`
+	RoleID      int32     `json:"role_id"`
+	ID_3        int32     `json:"id_3"`
+	Title       string    `json:"title"`
+	Key         string    `json:"key"`
+	Description string    `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (GetUserByIdRow, error) {
@@ -127,6 +134,11 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (GetUserByIdRow, er
 		&i.ID_2,
 		&i.UserID,
 		&i.RoleID,
+		&i.ID_3,
+		&i.Title,
+		&i.Key,
+		&i.Description,
+		&i.CreatedAt,
 	)
 	return i, err
 }

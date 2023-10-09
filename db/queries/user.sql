@@ -14,6 +14,7 @@ WHERE phone = $1;
 SELECT *
 FROM user_avatar_view u
          JOIN user_roles ur on u.id = ur.user_id
+         JOIN roles r on ur.role_id = r.id
 WHERE u.id = $1;
 
 -- name: CreateUserCode :one
