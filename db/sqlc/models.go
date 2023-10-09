@@ -75,10 +75,10 @@ type BranchBrandSaleTypeGoal struct {
 	ToDate      time.Time     `json:"to_date"`
 }
 
-type BranchUsersRole struct {
-	ID         int32         `json:"id"`
-	UserRoleID sql.NullInt32 `json:"user_role_id"`
-	BranchID   sql.NullInt32 `json:"branch_id"`
+type BranchUser struct {
+	ID       int32         `json:"id"`
+	UserID   sql.NullInt32 `json:"user_id"`
+	BranchID sql.NullInt32 `json:"branch_id"`
 }
 
 type Brand struct {

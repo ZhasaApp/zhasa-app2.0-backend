@@ -13,7 +13,7 @@ WHERE phone = $1;
 -- name: GetUserById :one
 SELECT *
 FROM user_avatar_view u
-         JOIN user_roles JOIN  ur on user_avatar_view.id = ur.user_id
+         JOIN user_roles ur on u.id = ur.user_id
 WHERE u.id = $1;
 
 -- name: CreateUserCode :one
@@ -38,8 +38,8 @@ WHERE user_id = $1;
 
 -- name: GetUserBranch :one
 SELECT b.title, b.id
-FROM user_roles ur
-         INNER JOIN
-     branch_users_roles bur ON ur.id = bur.user_role_id
-         JOIN branches b ON bur.branch_id = b.id
-WHERE ur.user_id = $1;
+FROM users u
+         JOIN
+     branch_users bu ON u.id = bu.user_id
+         JOIN branches b ON bu.branch_id = b.id
+WHERE u.id = $1;

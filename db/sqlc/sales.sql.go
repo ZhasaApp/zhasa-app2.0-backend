@@ -104,7 +104,7 @@ FROM sales s
 
          JOIN users sm ON s.user_id = sm.id
          JOIN sale_types st ON s.sale_type_id = st.id
-         JOIN branch_users_roles bur ON sm.user_id = bur.user_role_id
+         JOIN branch_users bu ON sm.user_id = bu.user_id
          JOIN branches b ON bur.branch_id = b.id
          JOIN branch_brands bb ON b.id = bb.branch_id
          JOIN brands br ON bb.brand_id = br.id
