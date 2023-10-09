@@ -1,27 +1,29 @@
 package entities
 
-import generated "zhasa2.0/db/sqlc"
+import (
+	"zhasa2.0/brand"
+)
 
-type Brand struct {
+type BrandItem struct {
 	Id    int32  `json:"id"`
 	Title string `json:"title"`
 }
 
 type BrandsResponse struct {
-	Result []Brand `json:"result"`
+	Result []BrandItem `json:"result"`
 }
 
-func BrandsFromRows(rows []generated.GetBranchBrandsRow) []Brand {
-	var brands []Brand
+func BrandItemsFromBrands(rows []brand.Brand) []BrandItem {
+	var brands []BrandItem
 	for _, row := range rows {
 		brands = append(brands, BrandFromRow(row))
 	}
 	return brands
 }
 
-func BrandFromRow(row generated.GetBranchBrandsRow) Brand {
-	return Brand{
-		Id:    row.ID,
+func BrandFromRow(row brand.Brand) BrandItem {
+	return BrandItem{
+		Id:    row.Id,
 		Title: row.Title,
 	}
 }

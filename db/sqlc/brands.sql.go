@@ -43,3 +43,78 @@ func (q *Queries) GetBranchBrands(ctx context.Context, branchID int32) ([]GetBra
 	}
 	return items, nil
 }
+
+const getBrands = `-- name: GetBrands :many
+SELECT b.id, b.title, b.description
+FROM brands b LIMIT $1
+OFFSET $2
+`
+
+type GetBrandsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+type GetBrandsRow struct {
+	ID          int32  `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) GetBrands(ctx context.Context, arg GetBrandsParams) ([]GetBrandsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getBrands, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetBrandsRow
+	for rows.Next() {
+		var i GetBrandsRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getUserBrands = `-- name: GetUserBrands :many
+SELECT b.id, b.title, b.description
+FROM brands b JOIN user_brands ub ON b.id = ub.brand_id
+WHERE ub.user_id = $1
+`
+
+type GetUserBrandsRow struct {
+	ID          int32  `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) GetUserBrands(ctx context.Context, userID int32) ([]GetUserBrandsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUserBrands, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUserBrandsRow
+	for rows.Next() {
+		var i GetUserBrandsRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

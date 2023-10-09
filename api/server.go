@@ -10,6 +10,7 @@ import (
 	"os"
 	. "zhasa2.0/branch/repository"
 	. "zhasa2.0/branch_director/repo"
+	. "zhasa2.0/brand"
 	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/news/repository"
@@ -41,6 +42,8 @@ type Server struct {
 	getUserBranchFunc       GetUserBranchFunc
 	calculateUserBrandRatio CalculateUserBrandRatio
 	getBranchBrands         GetBranchBrandsFunc
+	getAllBrands            GetAllBrandsFunc
+	getUserBrands           GetUserBrandsFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -135,6 +138,9 @@ func NewServer(ctx context.Context) *Server {
 	router.POST("news/comments/new", verifyToken(server.tokenService), server.CreateComment)
 	router.DELETE("news/comments/delete", verifyToken(server.tokenService), server.DeleteComment)
 
+	router.GET("user/brands", verifyToken(server.tokenService), server.GetUserBrands)
+	router.GET("branch/brands", verifyToken(server.tokenService), server.GetBranchBrands)
+	router.GET("brands", verifyToken(server.tokenService), server.GetAllBrands)
 	server.router = router
 	return server
 }
@@ -182,6 +188,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserBranchFunc = NewGetUserBranchFunc(ctx, store)
 	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, saleRepo, server.userBrandGoal, server.getUserBrandFunc)
 	server.getBranchBrands = NewGetBranchBrandsFunc(ctx, store)
+	server.getAllBrands = NewGetAllBrandsFunc(ctx, store)
+	server.getUserBrands = NewGetUserBrandsFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address

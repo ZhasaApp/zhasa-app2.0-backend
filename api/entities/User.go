@@ -20,9 +20,9 @@ type TryAuthBody struct {
 }
 
 type BranchResponse struct {
-	Id          int32   `json:"id"`
-	Description string  `json:"description"`
-	Brands      []Brand `json:"brands"`
+	Id          int32       `json:"id"`
+	Description string      `json:"description"`
+	Brands      []BrandItem `json:"brands"`
 }
 
 type UserProfileResponse struct {

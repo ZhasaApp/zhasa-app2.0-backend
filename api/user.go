@@ -52,7 +52,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		branchResponse = &BranchResponse{
 			Id:          branch.ID,
 			Description: branch.Title,
-			Brands:      BrandsFromRows(brands),
+			Brands:      BrandItemsFromBrands(brands),
 		}
 	}
 
