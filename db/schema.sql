@@ -189,7 +189,6 @@ CREATE TABLE users_codes
     created_at TIMESTAMP                     NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-
 CREATE VIEW user_avatar_view AS
 SELECT u.id                        AS id,
        u.phone                     AS phone,
@@ -198,3 +197,11 @@ SELECT u.id                        AS id,
        COALESCE(ua.avatar_url, '') AS avatar_url
 FROM users u
          LEFT JOIN users_avatars ua ON u.id = ua.user_id;
+
+CREATE TABLE branch_brand_users
+(
+    id              SERIAL PRIMARY KEY,
+    branch_brand_id INTEGER REFERENCES branch_brands (id) NOT NULL,
+    user_id         INTEGER REFERENCES users (id)         NOT NULL,
+    UNIQUE (branch_brand_id, user_id)
+);

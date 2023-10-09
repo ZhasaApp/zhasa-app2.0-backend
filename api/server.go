@@ -123,7 +123,7 @@ func NewServer(ctx context.Context) *Server {
 		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
 	}
 
-	//	router.GET("sales-manager/dashboard", server.getSalesManagerDashboardStatistic).Use(verifyToken(server.tokenService))
+	router.GET("sales-manager/dashboard", server.SMDashboard).Use(verifyToken(server.tokenService))
 
 	router.GET("branch/dashboard", server.getBranchDashboardStatistic).Use(verifyToken(server.tokenService))
 	router.GET("rating/branches", server.GetBranchList)
