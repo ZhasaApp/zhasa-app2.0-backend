@@ -7,12 +7,12 @@ import (
 )
 
 type GetBranchBrandsRequest struct {
-	Id int32 `json:"id"`
+	Id int32 `json:"id" form:"id" binding:"required"`
 }
 
 func (server *Server) GetBranchBrands(ctx *gin.Context) {
 	var getBranchBrandsRequest GetBranchBrandsRequest
-	if err := ctx.ShouldBindJSON(&getBranchBrandsRequest); err != nil {
+	if err := ctx.ShouldBindQuery(&getBranchBrandsRequest); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}

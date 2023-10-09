@@ -7,12 +7,12 @@ import (
 )
 
 type GetUserBrandsRequest struct {
-	Id int32 `json:"id"`
+	Id int32 `json:"id" form:"id" binding:"required"`
 }
 
 func (server *Server) GetUserBrands(ctx *gin.Context) {
 	var getUserBrandsRequest GetUserBrandsRequest
-	if err := ctx.ShouldBindJSON(&getUserBrandsRequest); err != nil {
+	if err := ctx.ShouldBindQuery(&getUserBrandsRequest); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
