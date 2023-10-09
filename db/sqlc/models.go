@@ -61,9 +61,9 @@ type Branch struct {
 }
 
 type BranchBrand struct {
-	ID       int32         `json:"id"`
-	BranchID sql.NullInt32 `json:"branch_id"`
-	BrandID  sql.NullInt32 `json:"brand_id"`
+	ID       int32 `json:"id"`
+	BranchID int32 `json:"branch_id"`
+	BrandID  int32 `json:"brand_id"`
 }
 
 type BranchBrandSaleTypeGoal struct {

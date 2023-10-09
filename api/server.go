@@ -8,7 +8,7 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"os"
-	repository3 "zhasa2.0/branch/repository"
+	. "zhasa2.0/branch/repository"
 	. "zhasa2.0/branch_director/repo"
 	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
@@ -40,6 +40,7 @@ type Server struct {
 	userRepo                UserRepository
 	getUserBranchFunc       GetUserBranchFunc
 	calculateUserBrandRatio CalculateUserBrandRatio
+	getBranchBrands         GetBranchBrandsFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -152,7 +153,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	customQuerier := NewCustomQuerier(conn)
 	userRepo := NewUserRepository(ctx, store)
 	saleTypeRepo := NewSaleTypeRepository(ctx, store)
-	branchRepo := repository3.NewBranchRepository(ctx, store, customQuerier, saleTypeRepo)
+	branchRepo := NewBranchRepository(ctx, store, customQuerier, saleTypeRepo)
 	directorRepo := NewBranchDirectorRepository(ctx, store)
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
 	postRepo := NewPostRepository(ctx, store, customQuerier)
@@ -180,6 +181,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.userRepo = userRepo
 	server.getUserBranchFunc = NewGetUserBranchFunc(ctx, store)
 	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, saleRepo, server.userBrandGoal, server.getUserBrandFunc)
+	server.getBranchBrands = NewGetBranchBrandsFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address

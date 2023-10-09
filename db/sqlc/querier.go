@@ -27,6 +27,7 @@ type Querier interface {
 	DeleteUserAvatar(ctx context.Context, userID int32) error
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error)
+	GetBranchBrands(ctx context.Context, branchID int32) ([]GetBranchBrandsRow, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
 	GetBranches(ctx context.Context) ([]Branch, error)
 	GetCommentById(ctx context.Context, id int32) (Comment, error)

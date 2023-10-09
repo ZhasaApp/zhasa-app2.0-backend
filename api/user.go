@@ -2,7 +2,9 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	. "zhasa2.0/api/entities"
 	. "zhasa2.0/user/entities"
@@ -42,9 +44,15 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	var branchResponse *BranchResponse
 
 	if branch != nil {
+		brands, err := server.getBranchBrands(branch.ID)
+		if err != nil {
+			fmt.Println(err)
+			log.Fatal("no brands for branch")
+		}
 		branchResponse = &BranchResponse{
 			Id:          branch.ID,
 			Description: branch.Title,
+			Brands:      BrandsFromRows(brands),
 		}
 	}
 

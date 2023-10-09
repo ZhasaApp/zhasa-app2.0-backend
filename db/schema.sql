@@ -69,9 +69,9 @@ CREATE TABLE user_roles
 
 CREATE TABLE branch_users
 (
-    id           SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users (id),
-    branch_id    INTEGER REFERENCES branches (id),
+    id        SERIAL PRIMARY KEY,
+    user_id   INTEGER REFERENCES users (id),
+    branch_id INTEGER REFERENCES branches (id),
     UNIQUE (user_id, branch_id)
 );
 
@@ -126,8 +126,8 @@ CREATE TABLE user_brand_sale_type_ratio
 CREATE TABLE branch_brands
 (
     id        SERIAL PRIMARY KEY,
-    branch_id INTEGER REFERENCES branches (id),
-    brand_id  INTEGER REFERENCES brands (id),
+    branch_id INTEGER REFERENCES branches (id) NOT NULL,
+    brand_id  INTEGER REFERENCES brands (id)   NOT NULL,
     UNIQUE (branch_id, brand_id)
 );
 
