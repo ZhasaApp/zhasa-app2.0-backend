@@ -173,49 +173,6 @@ func (q *Queries) GetSaleSumByBranchByTypeByBrand(ctx context.Context, arg GetSa
 	return items, nil
 }
 
-const getSaleSumByManagerByTypeByBrand = `-- name: GetSaleSumByManagerByTypeByBrand :one
-SELECT st.id                      AS sale_type_id,
-       st.title                   AS sale_type_title,
-       COALESCE(SUM(s.amount), 0) AS total_sales
-FROM sale_types st
-         JOIN sales s ON st.id = s.sale_type_id
-         JOIN sales_brands sb ON sb.sale_id = s.id
-WHERE s.user_id = $1
-  AND s.sale_date BETWEEN $2 AND $3
-  AND st.id = $4
-  AND sb.brand_id = $5
-GROUP BY st.id, sb.brand_id
-ORDER BY st.id ASC
-`
-
-type GetSaleSumByManagerByTypeByBrandParams struct {
-	UserID     int32     `json:"user_id"`
-	SaleDate   time.Time `json:"sale_date"`
-	SaleDate_2 time.Time `json:"sale_date_2"`
-	ID         int32     `json:"id"`
-	BrandID    int32     `json:"brand_id"`
-}
-
-type GetSaleSumByManagerByTypeByBrandRow struct {
-	SaleTypeID    int32       `json:"sale_type_id"`
-	SaleTypeTitle string      `json:"sale_type_title"`
-	TotalSales    interface{} `json:"total_sales"`
-}
-
-// get the sales sums for a specific sales manager and each sale type within the given period.
-func (q *Queries) GetSaleSumByManagerByTypeByBrand(ctx context.Context, arg GetSaleSumByManagerByTypeByBrandParams) (GetSaleSumByManagerByTypeByBrandRow, error) {
-	row := q.db.QueryRowContext(ctx, getSaleSumByManagerByTypeByBrand,
-		arg.UserID,
-		arg.SaleDate,
-		arg.SaleDate_2,
-		arg.ID,
-		arg.BrandID,
-	)
-	var i GetSaleSumByManagerByTypeByBrandRow
-	err := row.Scan(&i.SaleTypeID, &i.SaleTypeTitle, &i.TotalSales)
-	return i, err
-}
-
 const getSaleSumByUserIdBrandIdPeriodSaleTypeId = `-- name: GetSaleSumByUserIdBrandIdPeriodSaleTypeId :one
 SELECT COALESCE(SUM(s.amount), 0) AS total_sales
 FROM sales s

@@ -42,8 +42,6 @@ type Querier interface {
 	// Assuming you also have a sales table as previously discussed.
 	// Join with relevant tables
 	GetSaleSumByBranchByTypeByBrand(ctx context.Context, arg GetSaleSumByBranchByTypeByBrandParams) ([]GetSaleSumByBranchByTypeByBrandRow, error)
-	// get the sales sums for a specific sales manager and each sale type within the given period.
-	GetSaleSumByManagerByTypeByBrand(ctx context.Context, arg GetSaleSumByManagerByTypeByBrandParams) (GetSaleSumByManagerByTypeByBrandRow, error)
 	GetSaleSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context, arg GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (interface{}, error)
 	GetSaleTypeById(ctx context.Context, id int32) (SaleType, error)
 	GetSalesByBrandId(ctx context.Context, brandID int32) ([]GetSalesByBrandIdRow, error)

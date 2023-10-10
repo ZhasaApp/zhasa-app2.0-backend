@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	handmade "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/rating"
 	"zhasa2.0/statistic/entities"
@@ -31,7 +32,7 @@ func NewCalculateUserBrandRatio(saleTypeRepo SaleTypeRepository, saleRepo SaleRe
 		}
 
 		for _, saleType := range *saleTypes {
-			amount, err := saleRepo.GetSumByUserIdBrandIdPeriodSaleTypeId(generated.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams{
+			amount, err := saleRepo.GetSumByUserIdBrandIdPeriodSaleTypeId(handmade.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams{
 				ID:         userId,
 				BrandID:    brandId,
 				SaleDate:   from,

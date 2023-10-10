@@ -167,7 +167,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
 	brandGoal := NewUserGoalFunc(ctx, store)
-	saleRepo := NewSaleRepo(ctx, store, saleTypeRepo, brandGoal)
+	saleRepo := NewSaleRepo(ctx, store, saleTypeRepo, brandGoal, customQuerier)
 	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 
 	tokenService := service.NewTokenService(&encKey)

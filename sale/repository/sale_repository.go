@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	handmade "zhasa2.0/db/hand-made"
 	. "zhasa2.0/db/sqlc"
 	. "zhasa2.0/statistic/entities"
 	. "zhasa2.0/user/repository"
@@ -13,7 +14,7 @@ import (
 
 type SaleRepository interface {
 	AddOrEdit(saleToCreate AddSaleOrReplaceParams, brandId int32) error
-	GetSumByUserIdBrandIdPeriodSaleTypeId(params GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error)
+	GetSumByUserIdBrandIdPeriodSaleTypeId(params handmade.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error)
 	GetUserBrandMonthlyYearStatistic(year int32, userId int32, brandId int32) ([]MonthlyYearStatistic, error)
 	DeleteSale(id int32) error
 	GetSalesByBrandIdAndUserId(params GetSalesByBrandIdAndUserIdParams) ([]GetSalesByBrandIdAndUserIdRow, error)
@@ -26,6 +27,7 @@ type DBSaleRepository struct {
 	brandStore   UserBrandStore
 	saleTypeRepo SaleTypeRepository
 	brandGoal    UserBrandGoalFunc
+	querier      handmade.CustomQuerier
 	GetUserBrandFunc
 }
 
@@ -77,7 +79,7 @@ func (d DBSaleRepository) GetUserBrandMonthlyYearStatistic(year int32, userId in
 				FromDate_2: to,
 			})
 
-			sum, err := d.store.GetSaleSumByUserIdBrandIdPeriodSaleTypeId(d.ctx, GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams{
+			sum, err := d.querier.GetSaleSumByUserIdBrandIdPeriodSaleTypeId(d.ctx, handmade.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams{
 				ID:         userId,
 				BrandID:    brandId,
 				SaleDate:   from,
@@ -109,8 +111,8 @@ func (d DBSaleRepository) AddOrEdit(saleToCreate AddSaleOrReplaceParams, brandId
 	return nil
 }
 
-func (d DBSaleRepository) GetSumByUserIdBrandIdPeriodSaleTypeId(params GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error) {
-	amount, err := d.store.GetSaleSumByUserIdBrandIdPeriodSaleTypeId(d.ctx, params)
+func (d DBSaleRepository) GetSumByUserIdBrandIdPeriodSaleTypeId(params handmade.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error) {
+	amount, err := d.querier.GetSaleSumByUserIdBrandIdPeriodSaleTypeId(d.ctx, params)
 	if err == sql.ErrNoRows {
 		log.Println(err)
 		return 0, nil
@@ -131,12 +133,13 @@ func (d DBSaleRepository) DeleteSale(id int32) error {
 	return nil
 }
 
-func NewSaleRepo(ctx context.Context, store *DBStore, saleTypeRepo SaleTypeRepository, goalFunc UserBrandGoalFunc) SaleRepository {
+func NewSaleRepo(ctx context.Context, store *DBStore, saleTypeRepo SaleTypeRepository, goalFunc UserBrandGoalFunc, querier handmade.CustomQuerier) SaleRepository {
 	return DBSaleRepository{
 		ctx:          ctx,
 		store:        store,
 		brandStore:   store,
-		brandGoal:    goalFunc,
 		saleTypeRepo: saleTypeRepo,
+		brandGoal:    goalFunc,
+		querier:      querier,
 	}
 }
