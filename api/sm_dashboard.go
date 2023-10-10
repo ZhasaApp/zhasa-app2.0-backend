@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	entities2 "zhasa2.0/api/entities"
+	hand_made "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/rating"
 	"zhasa2.0/statistic/entities"
@@ -49,7 +50,7 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 	ratioRows := make([]rating.RatioRow, 0)
 
 	for _, saleType := range *types {
-		amount, err := server.saleRepo.GetSumByUserIdBrandIdPeriodSaleTypeId(generated.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams{
+		amount, err := server.saleRepo.GetSumByUserIdBrandIdPeriodSaleTypeId(hand_made.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams{
 			ID:         request.UserId,
 			BrandID:    request.BrandId,
 			SaleDate:   from,
