@@ -125,7 +125,7 @@ func NewServer(ctx context.Context) *Server {
 
 	router.GET("sales-manager/dashboard", server.SMDashboard).Use(verifyToken(server.tokenService))
 
-	router.GET("branch/dashboard", server.getBranchDashboardStatistic).Use(verifyToken(server.tokenService))
+	router.GET("branch/dashboard", server.BranchDashboard).Use(verifyToken(server.tokenService))
 	router.GET("rating/branches", server.GetBranchList)
 	//	irouter.GET("rating/managers", server.GetSalesManagers).Use(verifyToken(server.tokenService))
 

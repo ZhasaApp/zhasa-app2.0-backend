@@ -13,22 +13,22 @@ FROM sales
 WHERE id = $1;
 
 -- Assuming you also have a sales table as previously discussed.
--- name: GetSaleSumByBranchByTypeByBrand :many
+-- name: GetSaleSumByBranchByTypeByBrand :one
 -- Assuming you also have a sales table as previously discussed.
-SELECT b.id          AS branch_id,
-       b.title       AS branch_title,
-       br.id         AS brand_id,
-       br.title      AS brand_title,
-       st.id         AS sale_type_id,
-       st.title      AS sale_type_title,
-       SUM(s.amount) AS total_sales
+SELECT b.id                       AS branch_id,
+       b.title                    AS branch_title,
+       br.id                      AS brand_id,
+       br.title                   AS brand_title,
+       st.id                      AS sale_type_id,
+       st.title                   AS sale_type_title,
+       COALESCE(SUM(s.amount), 0) AS total_sales
 FROM sales s
 
 -- Join with relevant tables
          JOIN users sm ON s.user_id = sm.id
          JOIN sale_types st ON s.sale_type_id = st.id
          JOIN branch_users bu ON sm.user_id = bu.user_id
-         JOIN branches b ON bur.branch_id = b.id
+         JOIN branches b ON bu.branch_id = b.id
          JOIN branch_brands bb ON b.id = bb.branch_id
          JOIN brands br ON bb.brand_id = br.id
 
@@ -38,21 +38,6 @@ WHERE s.sale_date BETWEEN $1 AND $2
 
 GROUP BY b.id, br.id, st.id
 ORDER BY b.id, br.id, st.id;
-
--- name: GetSaleSumByUserIdBrandIdPeriodSaleTypeId :one
-SELECT COALESCE(SUM(s.amount), 0) AS total_sales
-FROM sales s
-         JOIN
-     sales_brands sb ON s.id = sb.sale_id
-         JOIN
-     user_brands ub ON ub.brand_id = sb.brand_id
-         JOIN
-     users u ON u.id = ub.user_id
-WHERE u.id = $1                     -- user_id parameter
-  AND sb.brand_id = $2              -- brand_id parameter
-  AND s.sale_date BETWEEN $3 AND $4 -- from and to date parameters
-  AND s.sale_type_id = $5 -- sale_type_id parameter
-;
 
 -- name: GetSalesByBrandId :many
 SELECT s.id,
