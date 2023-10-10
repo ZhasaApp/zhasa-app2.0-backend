@@ -26,7 +26,7 @@ func (server *Server) GetUserBrandYearStatistic(ctx *gin.Context) {
 		return
 	}
 	// use server.saleRepo to retrieve statistic from db
-	stats, err := server.saleRepo.GetUserBrandMonthlyYearStatistic(requestBody.Year, requestBody.BrandId, requestBody.BrandId)
+	stats, err := server.saleRepo.GetUserBrandMonthlyYearStatistic(requestBody.Year, requestBody.UserId, requestBody.BrandId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return

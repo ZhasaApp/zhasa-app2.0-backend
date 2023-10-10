@@ -127,7 +127,7 @@ func NewServer(ctx context.Context) *Server {
 
 	router.GET("branch/dashboard", server.getBranchDashboardStatistic).Use(verifyToken(server.tokenService))
 	router.GET("rating/branches", server.GetBranchList)
-	//	router.GET("rating/managers", server.GetSalesManagers).Use(verifyToken(server.tokenService))
+	//	irouter.GET("rating/managers", server.GetSalesManagers).Use(verifyToken(server.tokenService))
 
 	router.GET("news", verifyToken(server.tokenService), server.GetPosts)
 	router.POST("news/new", verifyToken(server.tokenService), server.CreatePost)
