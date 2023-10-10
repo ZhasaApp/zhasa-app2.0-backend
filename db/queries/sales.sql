@@ -14,9 +14,9 @@ WHERE id = $1;
 
 -- name: GetSaleSumByManagerByTypeByBrand :one
 -- get the sales sums for a specific sales manager and each sale type within the given period.
-SELECT st.id         AS sale_type_id,
-       st.title      AS sale_type_title,
-       SUM(s.amount) AS total_sales
+SELECT st.id                      AS sale_type_id,
+       st.title                   AS sale_type_title,
+       COALESCE(SUM(s.amount), 0) AS total_sales
 FROM sale_types st
          JOIN sales s ON st.id = s.sale_type_id
          JOIN sales_brands sb ON sb.sale_id = s.id
@@ -55,7 +55,7 @@ GROUP BY b.id, br.id, st.id
 ORDER BY b.id, br.id, st.id;
 
 -- name: GetSaleSumByUserIdBrandIdPeriodSaleTypeId :one
-SELECT SUM(s.amount) AS total_sales
+SELECT COALESCE(SUM(s.amount), 0) AS total_sales
 FROM sales s
          JOIN
      sales_brands sb ON s.id = sb.sale_id

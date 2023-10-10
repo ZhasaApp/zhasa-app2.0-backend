@@ -174,9 +174,9 @@ func (q *Queries) GetSaleSumByBranchByTypeByBrand(ctx context.Context, arg GetSa
 }
 
 const getSaleSumByManagerByTypeByBrand = `-- name: GetSaleSumByManagerByTypeByBrand :one
-SELECT st.id         AS sale_type_id,
-       st.title      AS sale_type_title,
-       SUM(s.amount) AS total_sales
+SELECT st.id                      AS sale_type_id,
+       st.title                   AS sale_type_title,
+       COALESCE(SUM(s.amount), 0) AS total_sales
 FROM sale_types st
          JOIN sales s ON st.id = s.sale_type_id
          JOIN sales_brands sb ON sb.sale_id = s.id
@@ -197,9 +197,9 @@ type GetSaleSumByManagerByTypeByBrandParams struct {
 }
 
 type GetSaleSumByManagerByTypeByBrandRow struct {
-	SaleTypeID    int32  `json:"sale_type_id"`
-	SaleTypeTitle string `json:"sale_type_title"`
-	TotalSales    int64  `json:"total_sales"`
+	SaleTypeID    int32       `json:"sale_type_id"`
+	SaleTypeTitle string      `json:"sale_type_title"`
+	TotalSales    interface{} `json:"total_sales"`
 }
 
 // get the sales sums for a specific sales manager and each sale type within the given period.
@@ -217,7 +217,7 @@ func (q *Queries) GetSaleSumByManagerByTypeByBrand(ctx context.Context, arg GetS
 }
 
 const getSaleSumByUserIdBrandIdPeriodSaleTypeId = `-- name: GetSaleSumByUserIdBrandIdPeriodSaleTypeId :one
-SELECT SUM(s.amount) AS total_sales
+SELECT COALESCE(SUM(s.amount), 0) AS total_sales
 FROM sales s
          JOIN
      sales_brands sb ON s.id = sb.sale_id
@@ -239,7 +239,7 @@ type GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams struct {
 	SaleTypeID int32     `json:"sale_type_id"`
 }
 
-func (q *Queries) GetSaleSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context, arg GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error) {
+func (q *Queries) GetSaleSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context, arg GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (interface{}, error) {
 	row := q.db.QueryRowContext(ctx, getSaleSumByUserIdBrandIdPeriodSaleTypeId,
 		arg.ID,
 		arg.BrandID,
@@ -247,7 +247,7 @@ func (q *Queries) GetSaleSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context,
 		arg.SaleDate_2,
 		arg.SaleTypeID,
 	)
-	var total_sales int64
+	var total_sales interface{}
 	err := row.Scan(&total_sales)
 	return total_sales, err
 }
