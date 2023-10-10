@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"zhasa2.0/api/entities"
@@ -22,6 +23,8 @@ func (server *Server) GetSales(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+
+	fmt.Println(request)
 
 	sales, err := server.saleRepo.GetSalesByBrandIdAndUserId(generated.GetSalesByBrandIdAndUserIdParams{
 		BrandID: request.BrandId,
