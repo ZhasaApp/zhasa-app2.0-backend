@@ -8,12 +8,12 @@ import (
 )
 
 type GetSalesRequest struct {
-	UserId  int32 `json:"user_id" form:"user_id" binding:"required"`
-	BrandId int32 `json:"brand_id" form:"brand_id" binding:"required"`
-	Month   int32 `json:"month" form:"month" binding:"required"`
-	Year    int32 `json:"year" form:"year" binding:"required"`
-	Page    int32 `json:"page" form:"page" binding:"required"`
-	Limit   int32 `json:"limit" form:"limit" binding:"required"`
+	UserId  int32 `json:"user_id" form:"user_id"`
+	BrandId int32 `json:"brand_id" form:"brand_id"`
+	Month   int32 `json:"month" form:"month"`
+	Year    int32 `json:"year" form:"year"`
+	Page    int32 `json:"page" form:"page"`
+	Limit   int32 `json:"limit" form:"limit"`
 }
 
 func (server *Server) GetSales(ctx *gin.Context) {
