@@ -35,7 +35,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 
 	user, err := server.userRepo.GetUserById(userTokenData.Id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("user not found")))
 		return
 	}
 

@@ -103,7 +103,7 @@ func NewServer(ctx context.Context) *Server {
 	smRoute := router.Group("sales-manager/")
 	smRoute.GET("/branch/list", server.GetBranchList).Use(verifyToken(server.tokenService))
 	smRoute.GET("/year-statistic", server.GetUserBrandYearStatistic).Use(verifyToken(server.tokenService))
-	//	smRoute.GET("/sale/list", server.getSales).Use(verifyToken(server.tokenService))
+	smRoute.GET("/sale/list", server.GetSales).Use(verifyToken(server.tokenService))
 
 	branchRoute := router.Group("branch/").Use(verifyToken(server.tokenService))
 	{
