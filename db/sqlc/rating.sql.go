@@ -11,32 +11,30 @@ import (
 )
 
 const getUsersOrderedByRatioForGivenBrand = `-- name: GetUsersOrderedByRatioForGivenBrand :many
-SELECT
-    u.id,
-    u.first_name,
-    u.last_name,
-    u.avatar_url,
-    COALESCE(r.ratio, 0) AS ratio,
-    b.title AS branch_title,
-    b.id AS branch_id
-FROM
-    user_avatar_view u
-        JOIN
-    branch_users bu ON u.id = bu.user_id
-        JOIN
-    branches b ON bu.branch_id = b.id
-        LEFT JOIN
-    user_brand_ratio r ON u.id = r.user_id AND r.brand_id = $1 AND r.from_date = $2 AND r.to_date = $3
-ORDER BY
-    r.ratio DESC
-OFFSET 0
-    LIMIT 10
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       COALESCE(r.ratio, 0) AS ratio,
+       b.title              AS branch_title,
+       b.id                 AS branch_id
+FROM user_avatar_view u
+         JOIN
+     branch_users bu ON u.id = bu.user_id
+         JOIN
+     branches b ON bu.branch_id = b.id
+         LEFT JOIN
+     user_brand_ratio r ON u.id = r.user_id AND r.brand_id = $1 AND r.from_date = $2 AND r.to_date = $3
+ORDER BY r.ratio DESC
+OFFSET $4 LIMIT $5
 `
 
 type GetUsersOrderedByRatioForGivenBrandParams struct {
 	BrandID  int32     `json:"brand_id"`
 	FromDate time.Time `json:"from_date"`
 	ToDate   time.Time `json:"to_date"`
+	Offset   int32     `json:"offset"`
+	Limit    int32     `json:"limit"`
 }
 
 type GetUsersOrderedByRatioForGivenBrandRow struct {
@@ -51,7 +49,13 @@ type GetUsersOrderedByRatioForGivenBrandRow struct {
 
 // SELECT distinct users for given brand ordered by ratio and limited by offset and limit and if there is no any user with ratio let ratio be 0
 func (q *Queries) GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetUsersOrderedByRatioForGivenBrandParams) ([]GetUsersOrderedByRatioForGivenBrandRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersOrderedByRatioForGivenBrand, arg.BrandID, arg.FromDate, arg.ToDate)
+	rows, err := q.db.QueryContext(ctx, getUsersOrderedByRatioForGivenBrand,
+		arg.BrandID,
+		arg.FromDate,
+		arg.ToDate,
+		arg.Offset,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
