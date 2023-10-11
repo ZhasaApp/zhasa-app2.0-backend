@@ -1,7 +1,9 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 	"zhasa2.0/api/entities/sm"
 	"zhasa2.0/base"
 	"zhasa2.0/statistic"
@@ -20,7 +22,7 @@ func (server *Server) GetOrderedUsers(ctx *gin.Context) {
 	var request GetOrderedUsersRequest
 	err := ctx.ShouldBindQuery(&request)
 	if err != nil {
-		ctx.JSON(400, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	monthPeriod := statistic.MonthPeriod{
@@ -38,7 +40,16 @@ func (server *Server) GetOrderedUsers(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.JSON(400, errorResponse(err))
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	if len(users) == 0 {
+		fmt.Println(request)
+		ctx.JSON(http.StatusOK, sm.SalesManagerRatingItemsResponse{
+			Result:  []sm.SalesManagerRatingItem{},
+			Count:   0,
+			HasNext: false,
+		})
 		return
 	}
 
