@@ -26,6 +26,7 @@ type Querier interface {
 	DeleteSale(ctx context.Context, id int32) error
 	DeleteUserAvatar(ctx context.Context, userID int32) error
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
+	GetBranchBrand(ctx context.Context, arg GetBranchBrandParams) (int32, error)
 	GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error)
 	GetBranchBrands(ctx context.Context, branchID int32) ([]GetBranchBrandsRow, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
@@ -54,7 +55,7 @@ type Querier interface {
 	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)
 	GetUserPostLike(ctx context.Context, arg GetUserPostLikeParams) (int32, error)
 	GetUserRank(ctx context.Context, arg GetUserRankParams) (int64, error)
-	// SELECT users for given brand ordered by ratio
+	// SELECT distinct users for given brand ordered by ratio and limited by offset and limit and if there is no any user with ratio let ratio be 0
 	GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetUsersOrderedByRatioForGivenBrandParams) ([]GetUsersOrderedByRatioForGivenBrandRow, error)
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	ListPosts(ctx context.Context) ([]Post, error)

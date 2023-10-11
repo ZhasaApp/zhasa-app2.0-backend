@@ -35,7 +35,7 @@ FROM sales s
 WHERE s.sale_date BETWEEN $1 AND $2
   AND b.id = $3
   AND br.id = $4
-
+  AND st.id = $5
 GROUP BY b.id, br.id, st.id
 ORDER BY b.id, br.id, st.id;
 

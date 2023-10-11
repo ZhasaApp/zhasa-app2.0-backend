@@ -25,7 +25,7 @@ func NewBranchDirectorRepository(ctx context.Context, querier generated.Querier)
 //	params := generated.SetSmGoalBySaleTypeParams{
 //		FromDate:       from,
 //		ToDate:         to,
-//		Amount:         amount,
+//		Achieved:         amount,
 //		SalesManagerID: smId,
 //		TypeID:         saleTypeId,
 //	}
@@ -39,7 +39,7 @@ func NewBranchDirectorRepository(ctx context.Context, querier generated.Querier)
 //	params := generated.SetBranchGoalBySaleTypeParams{
 //		FromDate: from,
 //		ToDate:   to,
-//		Amount:   amount,
+//		Achieved:   amount,
 //		BranchID: branchId,
 //		TypeID:   saleTypeId,
 //	}

@@ -9,7 +9,7 @@ package service
 //)
 //
 //type RatioRow struct {
-//	Amount  SaleAmount
+//	Achieved  SaleAmount
 //	Goal    SaleAmount
 //	Gravity int32
 //}
@@ -28,7 +28,7 @@ package service
 //		goal, _ := dbs.statisticRepo.GetSalesGoalBySaleTypeAndManager(smId, item.Id, from, to)
 //
 //		ratioRows = append(ratioRows, RatioRow{
-//			Amount:  sum,
+//			Achieved:  sum,
 //			Goal:    goal,
 //			Gravity: item.Gravity,
 //		})
@@ -48,7 +48,7 @@ package service
 //	for _, row := range rows {
 //		var ratio float32
 //		if row.Goal != 0 {
-//			ratio = float32(row.Amount) / float32(row.Goal)
+//			ratio = float32(row.Achieved) / float32(row.Goal)
 //			totalGravity += row.Gravity
 //		}
 //		weightedRatio := ratio * float32(row.Gravity)

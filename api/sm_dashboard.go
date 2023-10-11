@@ -8,7 +8,7 @@ import (
 	hand_made "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/rating"
-	"zhasa2.0/statistic/entities"
+	"zhasa2.0/statistic"
 )
 
 type GetSMDashboardRequest struct {
@@ -37,7 +37,7 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 		return
 	}
 
-	monthPeriod := entities.MonthPeriod{
+	monthPeriod := statistic.MonthPeriod{
 		MonthNumber: request.Month,
 		Year:        request.Year,
 	}
@@ -76,15 +76,15 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 		})
 
 		ratioRows = append(ratioRows, rating.RatioRow{
-			Amount:  amount,
-			Goal:    goal,
-			Gravity: saleType.Gravity,
+			Achieved: amount,
+			Goal:     goal,
+			Gravity:  saleType.Gravity,
 		})
 	}
 
 	goalAchievementPercent = rating.CalculateRatio(ratioRows)
 
-	r, err := server.getUserRatingFunc(request.UserId, request.BrandId, entities.MonthPeriod{
+	r, err := server.getUserRatingFunc(request.UserId, request.BrandId, statistic.MonthPeriod{
 		MonthNumber: request.Month,
 		Year:        request.Year,
 	})

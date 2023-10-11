@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	. "zhasa2.0/db/sqlc"
-	"zhasa2.0/statistic/entities"
+	"zhasa2.0/statistic"
 )
 
 // UserBrandGoalFunc UserGoalFunc zero if goal is missing
@@ -36,10 +36,10 @@ func NewGetUserBrandFunc(ctx context.Context, store UserBrandStore) GetUserBrand
 	}
 }
 
-type UpdateUserBrandRatioFunc func(userId int32, brandId int32, ratio float64, period entities.Period) error
+type UpdateUserBrandRatioFunc func(userId int32, brandId int32, ratio float64, period statistic.Period) error
 
 func NewUpdateUserBrandRatioFunc(ctx context.Context, store UserBrandStore) UpdateUserBrandRatioFunc {
-	return func(userId int32, brandId int32, ratio float64, period entities.Period) error {
+	return func(userId int32, brandId int32, ratio float64, period statistic.Period) error {
 		from, to := period.ConvertToTime()
 
 		err := store.InsertUserBrandRatio(ctx, InsertUserBrandRatioParams{

@@ -112,15 +112,14 @@ CREATE TABLE user_brand_sale_type_goals
     UNIQUE (user_brand, sale_type_id, from_date, to_date)
 );
 
-CREATE TABLE user_brand_sale_type_ratio
+CREATE TABLE user_brand_ratio
 (
     user_id      INTEGER REFERENCES user_brands (id) NOT NULL,
     brand_id     INTEGER REFERENCES brands (id)      NOT NULL,
-    sale_type_id INTEGER REFERENCES sale_types (id)  NOT NULL,
     ratio        REAL                                NOT NULL,
     from_date    TIMESTAMP                           NOT NULL,
     to_date      TIMESTAMP                           NOT NULL,
-    UNIQUE (user_id, brand_id, sale_type_id, from_date, to_date)
+    UNIQUE (user_id, brand_id, from_date, to_date)
 );
 
 CREATE TABLE branch_brands
@@ -134,11 +133,11 @@ CREATE TABLE branch_brands
 CREATE TABLE branch_brand_sale_type_goals
 (
     id           SERIAL PRIMARY KEY,
-    branch_brand INTEGER REFERENCES branch_brands (id),
-    sale_type_id INTEGER REFERENCES sale_types (id),
-    value        BIGINT    NOT NULL,
-    from_date    TIMESTAMP NOT NULL,
-    to_date      TIMESTAMP NOT NULL,
+    branch_brand INTEGER REFERENCES branch_brands (id) NOT NULL,
+    sale_type_id INTEGER REFERENCES sale_types (id)    NOT NULL,
+    value        BIGINT                                NOT NULL,
+    from_date    TIMESTAMP                             NOT NULL,
+    to_date      TIMESTAMP                             NOT NULL,
     UNIQUE (branch_brand, sale_type_id, from_date, to_date)
 );
 

@@ -62,7 +62,7 @@ WITH RankedUsers AS (SELECT user_id,
                             brand_id,
                             ratio,
                             ROW_NUMBER() OVER (ORDER BY ratio DESC) as rank
-                     FROM user_brand_sale_type_ratio
+                     FROM user_brand_ratio
                      WHERE brand_id = $1
                        AND from_date = $2
                        AND to_date = $3)
@@ -91,88 +91,25 @@ func (q *Queries) GetUserRank(ctx context.Context, arg GetUserRankParams) (int64
 	return rank, err
 }
 
-const getUsersOrderedByRatioForGivenBrand = `-- name: GetUsersOrderedByRatioForGivenBrand :many
-SELECT u.id, u.first_name, u.last_name, r.ratio
-FROM users u
-         JOIN user_brand_sale_type_ratio r ON u.id = r.user_id
-WHERE r.brand_id = $1
-  AND r.from_date = $2
-  AND r.to_date = $3
-ORDER BY r.ratio DESC
-OFFSET $4 LIMIT $5
-`
-
-type GetUsersOrderedByRatioForGivenBrandParams struct {
-	BrandID  int32     `json:"brand_id"`
-	FromDate time.Time `json:"from_date"`
-	ToDate   time.Time `json:"to_date"`
-	Offset   int32     `json:"offset"`
-	Limit    int32     `json:"limit"`
-}
-
-type GetUsersOrderedByRatioForGivenBrandRow struct {
-	ID        int32   `json:"id"`
-	FirstName string  `json:"first_name"`
-	LastName  string  `json:"last_name"`
-	Ratio     float32 `json:"ratio"`
-}
-
-// SELECT users for given brand ordered by ratio
-func (q *Queries) GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetUsersOrderedByRatioForGivenBrandParams) ([]GetUsersOrderedByRatioForGivenBrandRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersOrderedByRatioForGivenBrand,
-		arg.BrandID,
-		arg.FromDate,
-		arg.ToDate,
-		arg.Offset,
-		arg.Limit,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []GetUsersOrderedByRatioForGivenBrandRow
-	for rows.Next() {
-		var i GetUsersOrderedByRatioForGivenBrandRow
-		if err := rows.Scan(
-			&i.ID,
-			&i.FirstName,
-			&i.LastName,
-			&i.Ratio,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Close(); err != nil {
-		return nil, err
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const insertUserBrandRatio = `-- name: InsertUserBrandRatio :exec
-INSERT INTO user_brand_sale_type_ratio (user_id, brand_id, sale_type_id, ratio, from_date, to_date)
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, brand_id, sale_type_id, from_date, to_date)
+INSERT INTO user_brand_ratio (user_id, brand_id, ratio, from_date, to_date)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_id, brand_id, from_date, to_date)
 DO
 UPDATE SET ratio = EXCLUDED.ratio
 `
 
 type InsertUserBrandRatioParams struct {
-	UserID     int32     `json:"user_id"`
-	BrandID    int32     `json:"brand_id"`
-	SaleTypeID int32     `json:"sale_type_id"`
-	Ratio      float32   `json:"ratio"`
-	FromDate   time.Time `json:"from_date"`
-	ToDate     time.Time `json:"to_date"`
+	UserID   int32     `json:"user_id"`
+	BrandID  int32     `json:"brand_id"`
+	Ratio    float32   `json:"ratio"`
+	FromDate time.Time `json:"from_date"`
+	ToDate   time.Time `json:"to_date"`
 }
 
 func (q *Queries) InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error {
 	_, err := q.db.ExecContext(ctx, insertUserBrandRatio,
 		arg.UserID,
 		arg.BrandID,
-		arg.SaleTypeID,
 		arg.Ratio,
 		arg.FromDate,
 		arg.ToDate,

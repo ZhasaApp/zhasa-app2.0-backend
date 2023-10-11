@@ -6,5 +6,5 @@ type Pagination struct {
 }
 
 func (p Pagination) GetOffset() int32 {
-	return p.PageSize * p.Page
+	return p.PageSize * (p.Page - 1)
 }

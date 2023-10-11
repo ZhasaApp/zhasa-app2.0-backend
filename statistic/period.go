@@ -1,4 +1,4 @@
-package entities
+package statistic
 
 import (
 	"errors"
@@ -15,8 +15,8 @@ func NewMonth(number int32) (MonthNumber, error) {
 }
 
 /*
-	Period responsible for store time period in useful format and converts it into
-	standard go time periods
+Period responsible for store time period in useful format and converts it into
+standard go time periods
 */
 type Period interface {
 	ConvertToTime() (time.Time, time.Time)
@@ -35,8 +35,8 @@ func (m MonthPeriod) ConvertToTime() (time.Time, time.Time) {
 }
 
 /*
-	WeekPeriod Period implementation for weekly related period
-	Precondition: WeekNumber should be from 1 to 53
+WeekPeriod Period implementation for weekly related period
+Precondition: WeekNumber should be from 1 to 53
 */
 type WeekPeriod struct {
 	WeekNumber int

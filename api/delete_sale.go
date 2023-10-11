@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	"zhasa2.0/statistic/entities"
+	"zhasa2.0/statistic"
 )
 
 type DeleteSaleQuery struct {
@@ -28,7 +28,7 @@ func (server *Server) DeleteSale(ctx *gin.Context) {
 	}
 	ctx.Status(http.StatusNoContent)
 
-	ratio, err := server.calculateUserBrandRatio(userId, saleBrand.BrandID, entities.MonthPeriod{
+	ratio, err := server.calculateUserBrandRatio(userId, saleBrand.BrandID, statistic.MonthPeriod{
 		MonthNumber: int32(saleBrand.SaleDate.Month()),
 		Year:        int32(saleBrand.SaleDate.Year()),
 	})
@@ -38,7 +38,7 @@ func (server *Server) DeleteSale(ctx *gin.Context) {
 		return
 	}
 
-	err = server.updateUserBrandRatio(userId, saleBrand.BrandID, float64(ratio), entities.MonthPeriod{
+	err = server.updateUserBrandRatio(userId, saleBrand.BrandID, float64(ratio), statistic.MonthPeriod{
 		MonthNumber: int32(saleBrand.SaleDate.Month()),
 		Year:        int32(saleBrand.SaleDate.Year()),
 	})

@@ -67,7 +67,7 @@ func (server *Server) getBranchYearStatistic(ctx *gin.Context) {
 	//				ValueType: item.SaleType.ValueType,
 	//			},
 	//			Month:  int32(item.Month),
-	//			Amount: int64(item.Amount),
+	//			Achieved: int64(item.Achieved),
 	//			Goal:   int64(goal),
 	//		})
 	//	}

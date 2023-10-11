@@ -61,8 +61,8 @@ func (db DBPostRepository) GetPostComments(postId int32, pagination Pagination) 
 				Id:        row.UserID,
 				Phone:     "",
 				Avatar:    row.AvatarUrl,
-				FirstName: Name(row.FirstName),
-				LastName:  Name(row.LastName),
+				FirstName: row.FirstName,
+				LastName:  row.LastName,
 			},
 			CreatedDate: row.CreatedAt,
 			Id:          row.CommentID,
@@ -173,8 +173,8 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 			Author: User{
 				Id:        row.UserID,
 				Avatar:    row.AvatarUrl,
-				FirstName: Name(row.FirstName),
-				LastName:  Name(row.LastName),
+				FirstName: row.FirstName,
+				LastName:  row.LastName,
 			},
 			CreatedDate: row.CreatedAt,
 		})

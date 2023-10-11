@@ -7,7 +7,7 @@ import (
 	"time"
 	"zhasa2.0/api/entities"
 	. "zhasa2.0/db/sqlc"
-	entities2 "zhasa2.0/statistic/entities"
+	entities2 "zhasa2.0/statistic"
 )
 
 type EditSaleRequest struct {

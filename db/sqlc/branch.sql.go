@@ -7,7 +7,6 @@ package generated
 
 import (
 	"context"
-	"database/sql"
 	"time"
 )
 
@@ -36,10 +35,10 @@ WHERE bg.branch_brand = $1
 `
 
 type GetBranchBrandGoalByGivenDateRangeParams struct {
-	BranchBrand sql.NullInt32 `json:"branch_brand"`
-	FromDate    time.Time     `json:"from_date"`
-	ToDate      time.Time     `json:"to_date"`
-	SaleTypeID  sql.NullInt32 `json:"sale_type_id"`
+	BranchBrand int32     `json:"branch_brand"`
+	FromDate    time.Time `json:"from_date"`
+	ToDate      time.Time `json:"to_date"`
+	SaleTypeID  int32     `json:"sale_type_id"`
 }
 
 func (q *Queries) GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error) {

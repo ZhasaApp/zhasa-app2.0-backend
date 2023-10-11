@@ -82,8 +82,8 @@ func (server *Server) tryAuth(ctx *gin.Context) {
 	}
 	userTokenData := service.UserTokenData{
 		Id:        user.Id,
-		FirstName: string(user.FirstName),
-		LastName:  string(user.LastName),
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
 		Phone:     string(user.Phone),
 	}
 	token, err := server.tokenService.GenerateToken(&userTokenData)

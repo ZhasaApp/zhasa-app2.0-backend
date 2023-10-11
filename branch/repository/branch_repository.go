@@ -119,7 +119,7 @@ func (br DBBranchRepository) GetBranchYearMonthlyStatistic(bId BranchId, year in
 	//		stat := MonthlyYearStatistic{
 	//			SaleType: saleType,
 	//			Month:    MonthNumber(month),
-	//			Amount:   SaleAmount(sum.TotalAmount),
+	//			Achieved:   SaleAmount(sum.TotalAmount),
 	//			Goal:     SaleAmount(goal),
 	//		}
 	//		result = append(result, stat)
@@ -212,7 +212,7 @@ func (br DBBranchRepository) GetBranches(period Period) ([]Branch, error) {
 	//		})
 	//
 	//		ratioRows = append(ratioRows, RatioRow{
-	//			Amount:  SaleAmount(sum.TotalSales),
+	//			Achieved:  SaleAmount(sum.TotalSales),
 	//			Goal:    SaleAmount(goal),
 	//			Gravity: sType.Gravity,
 	//		})

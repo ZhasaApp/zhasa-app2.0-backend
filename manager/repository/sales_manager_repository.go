@@ -93,7 +93,7 @@ package repository
 //		ID:          body.ID,
 //		SaleTypeID:  body.TypeID,
 //		SaleDate:    body.Date,
-//		Amount:      body.Value,
+//		Achieved:      body.Value,
 //		Description: body.Title,
 //	}
 //
@@ -107,7 +107,7 @@ package repository
 //		Id:              SaleId(row.ID),
 //		SaleManagerId:   SalesManagerId(row.SalesManagerID),
 //		SaleType:        SaleType{},
-//		SalesAmount:     SaleAmount(row.Amount),
+//		SalesAmount:     SaleAmount(row.Achieved),
 //		SaleDate:        row.SaleDate,
 //		SaleDescription: SaleDescription(row.Description),
 //	}, nil
@@ -193,7 +193,7 @@ package repository
 //			Id:              SaleId(item.ID),
 //			SaleManagerId:   salesManagerId,
 //			SaleType:        *t,
-//			SalesAmount:     SaleAmount(item.Amount),
+//			SalesAmount:     SaleAmount(item.Achieved),
 //			SaleDate:        item.SaleDate,
 //			SaleDescription: SaleDescription(item.Description),
 //		})
@@ -231,7 +231,7 @@ package repository
 //			Id:              SaleId(item.ID),
 //			SaleManagerId:   salesManagerId,
 //			SaleType:        *t,
-//			SalesAmount:     SaleAmount(item.Amount),
+//			SalesAmount:     SaleAmount(item.Achieved),
 //			SaleDate:        item.SaleDate,
 //			SaleDescription: SaleDescription(item.Description),
 //		})
@@ -268,7 +268,7 @@ package repository
 //	params := generated.AddSaleOrReplaceParams{
 //		SalesManagerID: int32(salesManagerId),
 //		SaleDate:       salesDate,
-//		Amount:         int64(amount),
+//		Achieved:         int64(amount),
 //		SaleTypeID:     int32(saleTypeId),
 //		Description:    string(description),
 //	}
@@ -283,7 +283,7 @@ package repository
 //		Id:              SaleId(row.ID),
 //		SaleManagerId:   SalesManagerId(row.SalesManagerID),
 //		SaleType:        *saleType,
-//		SalesAmount:     SaleAmount(row.Amount),
+//		SalesAmount:     SaleAmount(row.Achieved),
 //		SaleDate:        row.SaleDate,
 //		SaleDescription: SaleDescription(row.Description),
 //	}, nil
@@ -390,7 +390,7 @@ package repository
 //			stat := MonthlyYearStatistic{
 //				SaleType: saleType,
 //				Month:    MonthNumber(month),
-//				Amount:   SaleAmount(sum.TotalAmount),
+//				Achieved:   SaleAmount(sum.TotalAmount),
 //				Goal:     SaleAmount(goal),
 //			}
 //			result = append(result, stat)

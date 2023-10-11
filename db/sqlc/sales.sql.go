@@ -112,7 +112,7 @@ FROM sales s
 WHERE s.sale_date BETWEEN $1 AND $2
   AND b.id = $3
   AND br.id = $4
-
+  AND st.id = $5
 GROUP BY b.id, br.id, st.id
 ORDER BY b.id, br.id, st.id
 `
@@ -122,6 +122,7 @@ type GetSaleSumByBranchByTypeByBrandParams struct {
 	SaleDate_2 time.Time `json:"sale_date_2"`
 	ID         int32     `json:"id"`
 	ID_2       int32     `json:"id_2"`
+	ID_3       int32     `json:"id_3"`
 }
 
 type GetSaleSumByBranchByTypeByBrandRow struct {
@@ -143,6 +144,7 @@ func (q *Queries) GetSaleSumByBranchByTypeByBrand(ctx context.Context, arg GetSa
 		arg.SaleDate_2,
 		arg.ID,
 		arg.ID_2,
+		arg.ID_3,
 	)
 	var i GetSaleSumByBranchByTypeByBrandRow
 	err := row.Scan(

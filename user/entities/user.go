@@ -16,8 +16,8 @@ type User struct {
 	Id        int32
 	Phone     Phone
 	Avatar    string
-	FirstName Name
-	LastName  Name
+	FirstName string
+	LastName  string
 	UserRole  UserRole
 }
 
@@ -67,4 +67,15 @@ func NewName(name string) (*Name, error) {
 type UserRole struct {
 	Id  int32
 	Key string
+}
+
+type RatedUser struct {
+	User
+	Ratio float64
+	BranchInfo
+}
+
+type BranchInfo struct {
+	Id    int32
+	Title string
 }

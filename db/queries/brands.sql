@@ -11,5 +11,12 @@ OFFSET $2;
 
 -- name: GetUserBrands :many
 SELECT b.id, b.title, b.description
-FROM brands b JOIN user_brands ub ON b.id = ub.brand_id
+FROM brands b
+         JOIN user_brands ub ON b.id = ub.brand_id
 WHERE ub.user_id = $1;
+
+-- name: GetBranchBrand :one
+SELECT bb.id AS branch_brand
+FROM branch_brands bb
+WHERE bb.branch_id = $1
+  AND bb.brand_id = $2;

@@ -8,6 +8,7 @@ import (
 	"log"
 	handmade "zhasa2.0/db/hand-made"
 	. "zhasa2.0/db/sqlc"
+	. "zhasa2.0/statistic"
 	. "zhasa2.0/statistic/entities"
 	. "zhasa2.0/user/repository"
 )

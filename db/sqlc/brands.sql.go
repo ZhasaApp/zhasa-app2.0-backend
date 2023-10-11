@@ -9,6 +9,25 @@ import (
 	"context"
 )
 
+const getBranchBrand = `-- name: GetBranchBrand :one
+SELECT bb.id AS branch_brand
+FROM branch_brands bb
+WHERE bb.branch_id = $1
+  AND bb.brand_id = $2
+`
+
+type GetBranchBrandParams struct {
+	BranchID int32 `json:"branch_id"`
+	BrandID  int32 `json:"brand_id"`
+}
+
+func (q *Queries) GetBranchBrand(ctx context.Context, arg GetBranchBrandParams) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getBranchBrand, arg.BranchID, arg.BrandID)
+	var branch_brand int32
+	err := row.Scan(&branch_brand)
+	return branch_brand, err
+}
+
 const getBranchBrands = `-- name: GetBranchBrands :many
 SELECT b.id, b.title
 FROM branch_brands bb
@@ -86,7 +105,8 @@ func (q *Queries) GetBrands(ctx context.Context, arg GetBrandsParams) ([]GetBran
 
 const getUserBrands = `-- name: GetUserBrands :many
 SELECT b.id, b.title, b.description
-FROM brands b JOIN user_brands ub ON b.id = ub.brand_id
+FROM brands b
+         JOIN user_brands ub ON b.id = ub.brand_id
 WHERE ub.user_id = $1
 `
 

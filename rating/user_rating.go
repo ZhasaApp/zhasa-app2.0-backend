@@ -4,13 +4,13 @@ import (
 	"context"
 	"fmt"
 	generated "zhasa2.0/db/sqlc"
-	"zhasa2.0/statistic/entities"
+	"zhasa2.0/statistic"
 )
 
-type GetUserRatingFunc func(userId int32, brandId int32, period entities.Period) (int32, error)
+type GetUserRatingFunc func(userId int32, brandId int32, period statistic.Period) (int32, error)
 
 func NewGetUserRatingFunc(ctx context.Context, store generated.UserBrandStore) GetUserRatingFunc {
-	return func(userId int32, brandId int32, period entities.Period) (int32, error) {
+	return func(userId int32, brandId int32, period statistic.Period) (int32, error) {
 		from, to := period.ConvertToTime()
 		rating, err := store.GetUserRank(ctx, generated.GetUserRankParams{
 			BrandID:  brandId,
