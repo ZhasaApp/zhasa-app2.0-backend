@@ -25,6 +25,7 @@ func NewGetUsersOrderedByRatioForGivenBrandFunc(ctx context.Context, store gener
 		rows, err := store.GetUsersOrderedByRatioForGivenBrand(ctx, params)
 		ratedUsers := make([]entities.RatedUser, 0)
 		if err == sql.ErrNoRows {
+			fmt.Println(params)
 			return ratedUsers, nil
 		}
 		if err != nil {
