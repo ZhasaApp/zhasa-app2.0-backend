@@ -9,7 +9,8 @@ SELECT u.id,
        b.id                 as branch_id
 FROM user_avatar_view u
          LEFT JOIN user_brand_ratio r
-         JOIN branches b ON r.branch_id = b.id
+         JOIN branch_users bu ON u.id = bu.user_id
+         JOIN branches b ON bu.branch_id = b.id
               ON u.id = r.user_id
 WHERE r.brand_id = $1
   AND r.from_date = $2

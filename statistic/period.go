@@ -43,7 +43,7 @@ type WeekPeriod struct {
 	Year       int
 }
 
-func (w *WeekPeriod) getMondayDate() time.Time {
+func (w *WeekPeriod) GetMondayDate() time.Time {
 	januaryFirst := time.Date(w.Year, 1, 1, 0, 0, 0, 0, time.UTC)
 	_, januaryFirstWeek := januaryFirst.ISOWeek()
 
@@ -58,7 +58,7 @@ func (w *WeekPeriod) getMondayDate() time.Time {
 }
 
 func (w *WeekPeriod) ConvertToTime() (time.Time, time.Time) {
-	from := w.getMondayDate()
+	from := w.GetMondayDate()
 	to := from.AddDate(0, 0, 6)
 	return from, to
 }

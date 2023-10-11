@@ -41,7 +41,7 @@ func TestGetMondayDate(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			from := tc.w.getMondayDate()
+			from := tc.w.GetMondayDate()
 			require.Equal(t, from, tc.expected)
 		})
 	}
