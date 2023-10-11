@@ -23,8 +23,11 @@ FROM user_avatar_view u
      branch_users bu ON u.id = bu.user_id
          JOIN
      branches b ON bu.branch_id = b.id
+         JOIN
+     user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
          LEFT JOIN
-     user_brand_ratio r ON u.id = r.user_id AND r.brand_id = $1 AND r.from_date = $2 AND r.to_date = $3
+     user_brand_ratio r ON u.id = r.user_id AND r.from_date = $2 AND r.to_date = $3
+WHERE (r.brand_id = $1 OR r.brand_id IS NULL)
 ORDER BY r.ratio DESC
 OFFSET $4 LIMIT $5
 `
