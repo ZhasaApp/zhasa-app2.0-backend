@@ -8,17 +8,17 @@ import (
 )
 
 type GetOrderedUsersRequest struct {
-	BranchId *int32 `json:"branch_id"`
-	BrandId  int32  `json:"brand_id"`
-	Month    int32  `json:"month"`
-	Year     int32  `json:"year"`
-	Page     int32  `json:"page"`
-	Limit    int32  `json:"limit"`
+	BranchId *int32 `json:"branch_id" form:"branch_id"`
+	BrandId  int32  `json:"brand_id" form:"brand_id" binding:"required"`
+	Month    int32  `json:"month" form:"month" binding:"required"`
+	Year     int32  `json:"year" form:"year" binding:"required"`
+	Page     int32  `json:"page" form:"page" binding:"required"`
+	Limit    int32  `json:"limit" form:"limit" binding:"required"`
 }
 
 func (server *Server) GetOrderedUsers(ctx *gin.Context) {
 	var request GetOrderedUsersRequest
-	err := ctx.BindJSON(&request)
+	err := ctx.ShouldBindQuery(&request)
 	if err != nil {
 		ctx.JSON(400, errorResponse(err))
 		return
