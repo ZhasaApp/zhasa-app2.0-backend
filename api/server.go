@@ -150,8 +150,8 @@ func NewServer(ctx context.Context) *Server {
 }
 
 func initDependencies(server *Server, ctx context.Context) {
-	dbDriver := os.Getenv("DB_DRIVER")
-	dbSource := os.Getenv("DATA_BASE_URL")
+	dbDriver := os.Getenv("DB_DRIVER_sd")
+	dbSource := os.Getenv("DATA_BASE_URL_sd")
 	conn, err := sql.Open(dbDriver, dbSource)
 
 	log.Println(dbDriver, dbSource)
