@@ -15,13 +15,14 @@ type GetUsersOrderedByRatioForGivenBrandFunc func(brandId int32, period statisti
 func NewGetUsersOrderedByRatioForGivenBrandFunc(ctx context.Context, store generated.UserStore) GetUsersOrderedByRatioForGivenBrandFunc {
 	return func(brandId int32, period statistic.Period, pagination base.Pagination) ([]entities.RatedUser, error) {
 		from, to := period.ConvertToTime()
-		rows, err := store.GetUsersOrderedByRatioForGivenBrand(ctx, generated.GetUsersOrderedByRatioForGivenBrandParams{
+		params := generated.GetUsersOrderedByRatioForGivenBrandParams{
 			BrandID:  brandId,
 			FromDate: from,
 			ToDate:   to,
 			Limit:    pagination.PageSize,
 			Offset:   pagination.GetOffset(),
-		})
+		}
+		rows, err := store.GetUsersOrderedByRatioForGivenBrand(ctx, params)
 		ratedUsers := make([]entities.RatedUser, 0)
 		if err == sql.ErrNoRows {
 			return ratedUsers, nil
@@ -46,6 +47,7 @@ func NewGetUsersOrderedByRatioForGivenBrandFunc(ctx context.Context, store gener
 				},
 			})
 		}
+		fmt.Println(params)
 		return ratedUsers, err
 	}
 }
