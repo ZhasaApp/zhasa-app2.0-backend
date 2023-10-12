@@ -38,7 +38,7 @@ func NewBranchKey(keyText string) BranchKey {
 
 type BranchesMap map[BranchId]*Branch
 
-type BranchInfo struct {
+type BranchDescriptionInfo struct {
 	BranchId    int32
 	Title       string
 	Description string
