@@ -24,30 +24,32 @@ import (
 )
 
 type Server struct {
-	router                                  *gin.Engine
-	userService                             service.UserService
-	tokenService                            service.TokenService
-	authService                             service.AuthorizationService
-	rankRepo                                RankingsRepository
-	postRepository                          PostRepository
-	ownerRepository                         OwnerRepository
-	saleTypeRepo                            SaleTypeRepository
-	directorRepo                            BranchDirectorRepository
-	saleRepo                                SaleRepository
-	userBrandGoal                           UserBrandGoalFunc
-	getUserBrandFunc                        GetUserBrandFunc
-	updateUserBrandRatio                    UpdateUserBrandRatioFunc
-	getUserRatingFunc                       rating.GetUserRatingFunc
-	userRepo                                UserRepository
-	getUserBranchFunc                       GetUserBranchFunc
-	calculateUserBrandRatio                 CalculateUserBrandRatio
-	getBranchBrands                         GetBranchBrandsFunc
-	getAllBrands                            GetAllBrandsFunc
-	getUserBrands                           GetUserBrandsFunc
-	getBranchBrandFunc                      GetBranchBrandFunc
-	getBranchBrandSaleSumFunc               GetBranchBrandSaleSumFunc
-	getBranchBrandGoalFunc                  GetBranchBrandGoalFunc
-	getUsersOrderedByRatioForGivenBrandFunc GetUsersOrderedByRatioForGivenBrandFunc
+	router                                        *gin.Engine
+	userService                                   service.UserService
+	tokenService                                  service.TokenService
+	authService                                   service.AuthorizationService
+	rankRepo                                      RankingsRepository
+	postRepository                                PostRepository
+	ownerRepository                               OwnerRepository
+	saleTypeRepo                                  SaleTypeRepository
+	directorRepo                                  BranchDirectorRepository
+	saleRepo                                      SaleRepository
+	userBrandGoal                                 UserBrandGoalFunc
+	getUserBrandFunc                              GetUserBrandFunc
+	updateUserBrandRatio                          UpdateUserBrandRatioFunc
+	getUserRatingFunc                             rating.GetUserRatingFunc
+	userRepo                                      UserRepository
+	getUserBranchFunc                             GetUserBranchFunc
+	calculateUserBrandRatio                       CalculateUserBrandRatio
+	getBranchBrands                               GetBranchBrandsFunc
+	getAllBrands                                  GetAllBrandsFunc
+	getUserBrands                                 GetUserBrandsFunc
+	getBranchBrandFunc                            GetBranchBrandFunc
+	getBranchBrandSaleSumFunc                     GetBranchBrandSaleSumFunc
+	getBranchBrandGoalFunc                        GetBranchBrandGoalFunc
+	getUsersOrderedByRatioForGivenBrandFunc       GetUsersOrderedByRatioForGivenBrandFunc
+	getBranchUsersOrderedByRatioForGivenBrandFunc GetBranchUsersOrderedByRatioForGivenBrandFunc
+	getBranchByIdFunc                             GetBranchByIdFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -198,6 +200,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getBranchBrandSaleSumFunc = NewGetBranchBrandSaleSumFunc(ctx, store)
 	server.getBranchBrandGoalFunc = NewGetBranchBrandGoalFunc(ctx, store)
 	server.getUsersOrderedByRatioForGivenBrandFunc = NewGetUsersOrderedByRatioForGivenBrandFunc(ctx, store)
+	server.getBranchUsersOrderedByRatioForGivenBrandFunc = NewGetUsersOrderedBYRatioForGivenBrandAndBranchFunc(ctx, store)
+	server.getBranchByIdFunc = NewGetBranchByIdFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address

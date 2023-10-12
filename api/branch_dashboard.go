@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	entities2 "zhasa2.0/api/entities"
+	"zhasa2.0/base"
 	"zhasa2.0/rating"
 	"zhasa2.0/statistic"
 )
@@ -20,6 +21,12 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 	var request GetBranchDashboardRequest
 	if err := ctx.ShouldBindQuery(&request); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	branchInfo, err := server.getBranchByIdFunc(request.BranchId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errors.New("branch not found"))
 		return
 	}
 
@@ -66,10 +73,18 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 
 	goalAchievementPercent = rating.CalculateRatio(ratioRows)
 
+	bestSalesManagers, err := server.getBranchUsersOrderedByRatioForGivenBrandFunc(request.BrandId, request.BranchId, monthPeriod, base.Pagination{
+		PageSize: 3,
+		Page:     0,
+	})
+
 	ctx.JSON(http.StatusOK, entities2.BranchDashboardResponse{
 		SalesStatisticsByTypes: saleStatisticByTypes,
-		BestSalesManagers:      nil,
-		Branch:                 entities2.BranchModelResponse{},
+		BestSalesManagers:      entities2.SalesManagerBranchItemsFromRatedUsers(bestSalesManagers),
+		Branch: entities2.BranchModelResponse{
+			Title:       branchInfo.Title,
+			Description: branchInfo.Description,
+		},
 		GoalAchievementPercent: goalAchievementPercent,
 		Rating:                 0,
 		Profile:                entities2.SimpleProfile{},

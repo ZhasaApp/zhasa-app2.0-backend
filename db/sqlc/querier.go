@@ -30,6 +30,8 @@ type Querier interface {
 	GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error)
 	GetBranchBrands(ctx context.Context, branchID int32) ([]GetBranchBrandsRow, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
+	// SELECT distinct users for given brand ordered by ratio and limited by offset and limit and if there is no any user with ratio let ratio be 0
+	GetBranchUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetBranchUsersOrderedByRatioForGivenBrandParams) ([]GetBranchUsersOrderedByRatioForGivenBrandRow, error)
 	GetBranches(ctx context.Context) ([]Branch, error)
 	GetBrands(ctx context.Context, arg GetBrandsParams) ([]GetBrandsRow, error)
 	GetCommentById(ctx context.Context, id int32) (Comment, error)
