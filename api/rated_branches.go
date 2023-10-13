@@ -8,10 +8,9 @@ import (
 )
 
 type GetRatedBranches struct {
-	BranchId int32 `json:"branch_id" form:"branch_id"`
-	BrandId  int32 `json:"brand_id" form:"brand_id"`
-	Month    int32 `json:"month" form:"month"`
-	Year     int32 `json:"year" form:"year"`
+	BrandId int32 `json:"brand_id" form:"brand_id"`
+	Month   int32 `json:"month" form:"month"`
+	Year    int32 `json:"year" form:"year"`
 }
 
 type BranchRatingItem struct {
