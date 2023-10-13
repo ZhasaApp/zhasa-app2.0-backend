@@ -19,3 +19,8 @@ WHERE bg.branch_brand = $1
 SELECT *
 FROM branches;
 
+-- name: GetBranchesByBrandId :many
+SELECT b.id, b.title, b.description
+FROM branches b
+         JOIN branch_brands bb ON b.id = bb.branch_id
+WHERE bb.brand_id = $1;

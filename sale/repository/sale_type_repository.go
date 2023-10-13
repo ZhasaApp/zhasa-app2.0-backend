@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/sale/entities"
 	"zhasa2.0/statistic"
@@ -26,7 +28,8 @@ func (str DBSaleTypeRepository) GetSaleTypes() (*[]SaleType, error) {
 	rows, err := str.querier.GetSalesTypes(str.ctx)
 
 	if err != nil {
-		return nil, err
+		fmt.Println(err)
+		return nil, errors.New("sale types not found")
 	}
 
 	saleTypes := make([]SaleType, 0)

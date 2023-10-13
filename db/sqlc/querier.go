@@ -33,6 +33,7 @@ type Querier interface {
 	// SELECT distinct users for given brand ordered by ratio and limited by offset and limit and if there is no any user with ratio let ratio be 0
 	GetBranchUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetBranchUsersOrderedByRatioForGivenBrandParams) ([]GetBranchUsersOrderedByRatioForGivenBrandRow, error)
 	GetBranches(ctx context.Context) ([]Branch, error)
+	GetBranchesByBrandId(ctx context.Context, brandID int32) ([]GetBranchesByBrandIdRow, error)
 	GetBrands(ctx context.Context, arg GetBrandsParams) ([]GetBrandsRow, error)
 	GetCommentById(ctx context.Context, id int32) (Comment, error)
 	GetCommentsAndAuthorsByPostId(ctx context.Context, arg GetCommentsAndAuthorsByPostIdParams) ([]GetCommentsAndAuthorsByPostIdRow, error)

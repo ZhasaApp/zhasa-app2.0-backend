@@ -103,3 +103,39 @@ func (q *Queries) GetBranches(ctx context.Context) ([]Branch, error) {
 	}
 	return items, nil
 }
+
+const getBranchesByBrandId = `-- name: GetBranchesByBrandId :many
+SELECT b.id, b.title, b.description
+FROM branches b
+         JOIN branch_brands bb ON b.id = bb.branch_id
+WHERE bb.brand_id = $1
+`
+
+type GetBranchesByBrandIdRow struct {
+	ID          int32  `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) GetBranchesByBrandId(ctx context.Context, brandID int32) ([]GetBranchesByBrandIdRow, error) {
+	rows, err := q.db.QueryContext(ctx, getBranchesByBrandId, brandID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetBranchesByBrandIdRow
+	for rows.Next() {
+		var i GetBranchesByBrandIdRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -50,6 +50,7 @@ type Server struct {
 	getUsersOrderedByRatioForGivenBrandFunc       GetUsersOrderedByRatioForGivenBrandFunc
 	getBranchUsersOrderedByRatioForGivenBrandFunc GetBranchUsersOrderedByRatioForGivenBrandFunc
 	getBranchByIdFunc                             GetBranchByIdFunc
+	getBranchesByBrandFunc                        GetBranchesByBrandFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -102,12 +103,10 @@ func NewServer(ctx context.Context) *Server {
 		adminRoute.POST("/branch/new", server.createBranch)
 		adminRoute.POST("/sale-type/new", server.createSaleType)
 		adminRoute.POST("/branch-director/new", server.createBranchDirector)
-		adminRoute.GET("/branch/list", server.GetBranchList)
 		adminRoute.GET("sale-type/list", server.getSaleTypes)
 	}
 
 	smRoute := router.Group("sales-manager/")
-	smRoute.GET("/branch/list", server.GetBranchList).Use(verifyToken(server.tokenService))
 	smRoute.GET("/year-statistic", server.GetUserBrandYearStatistic).Use(verifyToken(server.tokenService))
 	smRoute.GET("/sale/list", server.GetSales).Use(verifyToken(server.tokenService))
 
@@ -132,7 +131,7 @@ func NewServer(ctx context.Context) *Server {
 	router.GET("sales-manager/dashboard", server.SMDashboard).Use(verifyToken(server.tokenService))
 
 	router.GET("branch/dashboard", server.BranchDashboard).Use(verifyToken(server.tokenService))
-	router.GET("rating/branches", server.GetBranchList)
+	router.GET("rating/branches", server.GetRatedBranches).Use(verifyToken(server.tokenService))
 	router.GET("rating/managers", server.GetOrderedUsers).Use(verifyToken(server.tokenService))
 
 	router.GET("news", verifyToken(server.tokenService), server.GetPosts)
@@ -202,6 +201,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUsersOrderedByRatioForGivenBrandFunc = NewGetUsersOrderedByRatioForGivenBrandFunc(ctx, store)
 	server.getBranchUsersOrderedByRatioForGivenBrandFunc = NewGetUsersOrderedBYRatioForGivenBrandAndBranchFunc(ctx, store)
 	server.getBranchByIdFunc = NewGetBranchByIdFunc(ctx, store)
+	server.getBranchesByBrandFunc = NewGetBranchesByBrandFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address
