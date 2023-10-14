@@ -3,10 +3,12 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"zhasa2.0/statistic"
 )
 
 type SetBranchGoalRequest struct {
 	BranchId   int32 `json:"branch_id"`
+	BrandId    int32 `json:"brand_id"`
 	Value      int64 `json:"value"`
 	Month      int32 `json:"month"`
 	Year       int32 `json:"year"`
@@ -19,18 +21,25 @@ func (server *Server) SetBranchGoal(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	//
-	//period := entities.MonthPeriod{
-	//	MonthNumber: request.Month,
-	//	Year:        request.Year,
-	//}
-	//
-	////err := server.directorRepo.SetBranchGoal(period, request.BranchId, request.SaleTypeID, request.Value)
-	//
-	//if err != nil {
-	//	ctx.JSON(http.StatusBadRequest, err)
-	//	return
-	//}
+
+	period := statistic.MonthPeriod{
+		MonthNumber: request.Month,
+		Year:        request.Year,
+	}
+
+	branchBrand, err := server.getBranchBrandFunc(request.BranchId, request.BrandId)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err = server.setBranchBrandSaleTypeGoal(branchBrand, request.SaleTypeID, request.Value, period)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 
 	ctx.Status(http.StatusNoContent)
 }

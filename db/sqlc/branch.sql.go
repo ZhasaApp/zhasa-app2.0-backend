@@ -139,3 +139,29 @@ func (q *Queries) GetBranchesByBrandId(ctx context.Context, brandID int32) ([]Ge
 	}
 	return items, nil
 }
+
+const setBranchBrandGoal = `-- name: SetBranchBrandGoal :exec
+INSERT INTO branch_brand_sale_type_goals (branch_brand, sale_type_id, value, from_date, to_date)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (branch_brand, sale_type_id, from_date, to_date) DO
+UPDATE
+    SET value = $3
+`
+
+type SetBranchBrandGoalParams struct {
+	BranchBrand int32     `json:"branch_brand"`
+	SaleTypeID  int32     `json:"sale_type_id"`
+	Value       int64     `json:"value"`
+	FromDate    time.Time `json:"from_date"`
+	ToDate      time.Time `json:"to_date"`
+}
+
+func (q *Queries) SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error {
+	_, err := q.db.ExecContext(ctx, setBranchBrandGoal,
+		arg.BranchBrand,
+		arg.SaleTypeID,
+		arg.Value,
+		arg.FromDate,
+		arg.ToDate,
+	)
+	return err
+}

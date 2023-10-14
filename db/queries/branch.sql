@@ -24,3 +24,9 @@ SELECT b.id, b.title, b.description
 FROM branches b
          JOIN branch_brands bb ON b.id = bb.branch_id
 WHERE bb.brand_id = $1;
+
+-- name: SetBranchBrandGoal :exec
+INSERT INTO branch_brand_sale_type_goals (branch_brand, sale_type_id, value, from_date, to_date)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (branch_brand, sale_type_id, from_date, to_date) DO
+UPDATE
+    SET value = $3;

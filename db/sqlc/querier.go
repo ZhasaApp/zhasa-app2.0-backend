@@ -62,6 +62,8 @@ type Querier interface {
 	GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetUsersOrderedByRatioForGivenBrandParams) ([]GetUsersOrderedByRatioForGivenBrandRow, error)
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	ListPosts(ctx context.Context) ([]Post, error)
+	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
+	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error
 }
 

@@ -51,6 +51,8 @@ type Server struct {
 	getBranchUsersOrderedByRatioForGivenBrandFunc GetBranchUsersOrderedByRatioForGivenBrandFunc
 	getBranchByIdFunc                             GetBranchByIdFunc
 	getBranchesByBrandFunc                        GetBranchesByBrandFunc
+	setBranchBrandSaleTypeGoal                    SetBranchBrandSaleTypeGoal
+	setUserBrandGoalRequest                       SetUserBrandSaleTypeGoalFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -122,7 +124,7 @@ func NewServer(ctx context.Context) *Server {
 
 	directorRouter := router.Group("director/")
 	{
-		directorRouter.POST("sales-manager/goal", server.SetSmGoal).Use(verifyToken(server.tokenService))
+		directorRouter.POST("sales-manager/goal", server.SetUserBrandGoal).Use(verifyToken(server.tokenService))
 		directorRouter.GET("sales-manager/goal", server.GetSmGoal).Use(verifyToken(server.tokenService))
 		directorRouter.POST("branch/goal", server.SetBranchGoal).Use(verifyToken(server.tokenService))
 		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
@@ -202,6 +204,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getBranchUsersOrderedByRatioForGivenBrandFunc = NewGetUsersOrderedBYRatioForGivenBrandAndBranchFunc(ctx, store)
 	server.getBranchByIdFunc = NewGetBranchByIdFunc(ctx, store)
 	server.getBranchesByBrandFunc = NewGetBranchesByBrandFunc(ctx, store)
+	server.setBranchBrandSaleTypeGoal = NewSetBranchGoalFunc(ctx, store)
+	server.setUserBrandGoalRequest = NewSetUserBrandSaleTypeGoalFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address

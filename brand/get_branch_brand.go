@@ -2,6 +2,7 @@ package brand
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	generated "zhasa2.0/db/sqlc"
 )
@@ -16,7 +17,7 @@ func NewGetBranchBrand(ctx context.Context, branchStore generated.BranchStore) G
 		})
 		if err != nil {
 			fmt.Println(err)
-			return 0, err
+			return 0, errors.New("branch brand not found")
 		}
 		return branchBrand, nil
 	}
