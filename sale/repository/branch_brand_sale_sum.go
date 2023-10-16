@@ -20,7 +20,7 @@ func NewGetBranchBrandSaleSumFunc(ctxt context.Context, store generated.SaleStor
 			SaleDate:   from,
 			SaleDate_2: to,
 		})
-		fmt.Println("row: ", getInt64FromInterface(row))
+		fmt.Println("row: ", row)
 		if err == sql.ErrNoRows {
 			return 0, nil
 		}
@@ -28,7 +28,7 @@ func NewGetBranchBrandSaleSumFunc(ctxt context.Context, store generated.SaleStor
 			fmt.Println(err)
 			return 0, err
 		}
-		return getInt64FromInterface(row), nil
+		return row, nil
 	}
 }
 

@@ -45,7 +45,7 @@ FROM user_avatar_view u
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3;
 
 -- name: GetBranchBrandSaleSumByGivenDateRange :one
-SELECT COALESCE(SUM(s.amount), 0) AS total_sales
+SELECT SUM(s.amount) AS total_sales
 FROM sales s
          JOIN sales_brands sb ON s.id = sb.sale_id
          JOIN user_brands ub ON ub.user_id = s.user_id AND ub.brand_id = sb.brand_id
