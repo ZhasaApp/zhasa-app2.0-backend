@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	entities2 "zhasa2.0/api/entities"
@@ -78,6 +79,14 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 		Page:     0,
 	})
 
+	director, err := server.getUserByBranchBrandRoleFunc(request.BranchId, request.BrandId, 3)
+
+	if director != nil && len(director) == 0 {
+		fmt.Println("director not found")
+		ctx.JSON(http.StatusBadRequest, errors.New("director not found"))
+		return
+	}
+
 	ctx.JSON(http.StatusOK, entities2.BranchDashboardResponse{
 		SalesStatisticsByTypes: saleStatisticByTypes,
 		BestSalesManagers:      entities2.SalesManagerBranchItemsFromRatedUsers(bestSalesManagers),
@@ -88,9 +97,9 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 		GoalAchievementPercent: goalAchievementPercent,
 		Rating:                 0,
 		Profile: entities2.SimpleProfile{
-			Id:       0,
-			Avatar:   nil,
-			FullName: "",
+			Id:       director[0].Id,
+			Avatar:   director[0].AvatarPointer(),
+			FullName: director[0].GetFullName(),
 		},
 	})
 

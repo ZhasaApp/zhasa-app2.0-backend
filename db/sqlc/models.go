@@ -5,7 +5,6 @@
 package generated
 
 import (
-	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -82,9 +81,9 @@ type BranchBrandUser struct {
 }
 
 type BranchUser struct {
-	ID       int32         `json:"id"`
-	UserID   sql.NullInt32 `json:"user_id"`
-	BranchID sql.NullInt32 `json:"branch_id"`
+	ID       int32 `json:"id"`
+	UserID   int32 `json:"user_id"`
+	BranchID int32 `json:"branch_id"`
 }
 
 type Brand struct {

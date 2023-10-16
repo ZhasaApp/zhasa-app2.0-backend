@@ -70,8 +70,8 @@ CREATE TABLE user_roles
 CREATE TABLE branch_users
 (
     id        SERIAL PRIMARY KEY,
-    user_id   INTEGER REFERENCES users (id),
-    branch_id INTEGER REFERENCES branches (id),
+    user_id   INTEGER REFERENCES users (id)    NOT NULL,
+    branch_id INTEGER REFERENCES branches (id) NOT NULL,
     UNIQUE (user_id, branch_id)
 );
 
@@ -114,11 +114,11 @@ CREATE TABLE user_brand_sale_type_goals
 
 CREATE TABLE user_brand_ratio
 (
-    user_id      INTEGER REFERENCES user_brands (id) NOT NULL,
-    brand_id     INTEGER REFERENCES brands (id)      NOT NULL,
-    ratio        REAL                                NOT NULL,
-    from_date    TIMESTAMP                           NOT NULL,
-    to_date      TIMESTAMP                           NOT NULL,
+    user_id   INTEGER REFERENCES user_brands (id) NOT NULL,
+    brand_id  INTEGER REFERENCES brands (id)      NOT NULL,
+    ratio     REAL                                NOT NULL,
+    from_date TIMESTAMP                           NOT NULL,
+    to_date   TIMESTAMP                           NOT NULL,
     UNIQUE (user_id, brand_id, from_date, to_date)
 );
 

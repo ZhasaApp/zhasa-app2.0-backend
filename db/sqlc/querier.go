@@ -28,6 +28,7 @@ type Querier interface {
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchBrand(ctx context.Context, arg GetBranchBrandParams) (int32, error)
 	GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error)
+	GetBranchBrandUserByRole(ctx context.Context, arg GetBranchBrandUserByRoleParams) ([]GetBranchBrandUserByRoleRow, error)
 	GetBranchBrands(ctx context.Context, branchID int32) ([]GetBranchBrandsRow, error)
 	GetBranchById(ctx context.Context, id int32) (Branch, error)
 	// SELECT distinct users for given brand ordered by ratio and limited by offset and limit and if there is no any user with ratio let ratio be 0
@@ -62,7 +63,6 @@ type Querier interface {
 	GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetUsersOrderedByRatioForGivenBrandParams) ([]GetUsersOrderedByRatioForGivenBrandRow, error)
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	ListPosts(ctx context.Context) ([]Post, error)
-	SelectBranchBrandUserByRole(ctx context.Context, roleID int32) ([]SelectBranchBrandUserByRoleRow, error)
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error

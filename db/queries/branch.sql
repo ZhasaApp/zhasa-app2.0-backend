@@ -31,7 +31,7 @@ VALUES ($1, $2, $3, $4, $5) ON CONFLICT (branch_brand, sale_type_id, from_date, 
 UPDATE
     SET value = $3;
 
--- name: SelectBranchBrandUserByRole :many
+-- name: GetBranchBrandUserByRole :many
 SELECT u.id,
        u.first_name,
        u.last_name,
@@ -40,4 +40,6 @@ SELECT u.id,
        b.id    AS branch_id
 FROM user_avatar_view u
          JOIN user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
-         JOIN branch_users bu ON u.id = bu.user_id;
+         JOIN branch_users bu ON u.id = bu.user_id AND bu.branch_id = $2
+         JOIN branches b ON bu.branch_id = b.id
+         JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3;

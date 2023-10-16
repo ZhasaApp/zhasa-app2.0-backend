@@ -53,6 +53,7 @@ type Server struct {
 	getBranchesByBrandFunc                        GetBranchesByBrandFunc
 	setBranchBrandSaleTypeGoal                    SetBranchBrandSaleTypeGoal
 	setUserBrandGoalRequest                       SetUserBrandSaleTypeGoalFunc
+	getUserByBranchBrandRoleFunc                  GetUserByBranchBrandRoleFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -206,6 +207,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getBranchesByBrandFunc = NewGetBranchesByBrandFunc(ctx, store)
 	server.setBranchBrandSaleTypeGoal = NewSetBranchGoalFunc(ctx, store)
 	server.setUserBrandGoalRequest = NewSetUserBrandSaleTypeGoalFunc(ctx, store)
+	server.getUserByBranchBrandRoleFunc = NewGetUserByBranchBrandRoleFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address
