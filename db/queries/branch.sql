@@ -50,7 +50,7 @@ FROM sales s
          JOIN sales_brands sb ON s.id = sb.sale_id
          JOIN user_brands ub ON ub.user_id = s.user_id AND ub.brand_id = sb.brand_id
          JOIN branch_users bu ON bu.user_id = s.user_id
-WHERE bu.branch_id = $1                -- Replace with the desired branch_id
-  AND sb.brand_id = $2                  -- Replace with the desired brand_id
-  AND s.sale_type_id = $3               -- Replace with the desired sale_type_id
-  AND s.sale_date BETWEEN $4 AND $5;    -- Replace with the desired period (from_date and to_date)
+WHERE bu.branch_id = $1   -- Replace with the desired branch_id
+  AND sb.brand_id = $2    -- Replace with the desired brand_id
+  AND s.sale_type_id = $3 -- Replace with the desired sale_type_id
+  AND s.sale_date BETWEEN $4 AND $5; -- Replace with the desired period (from_date and to_date)

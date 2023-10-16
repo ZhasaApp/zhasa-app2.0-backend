@@ -1,19 +1,17 @@
 package repository
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log"
 	"zhasa2.0/brand"
-	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/statistic"
 	"zhasa2.0/statistic/entities"
 )
 
 type GetBranchBrandMonthlyYearStatisticFunc func(year int32, branchId int32, brandId int32) ([]entities.MonthlyYearStatistic, error)
 
-func NewGetBranchBrandMonthlyYearStatisticFunc(ctx context.Context, saleTypeRepo SaleTypeRepository, branchBrandGoalFunc brand.GetBranchBrandGoalFunc, branchBrandFunc brand.GetBranchBrandFunc, store generated.SaleStore) GetBranchBrandMonthlyYearStatisticFunc {
+func NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo SaleTypeRepository, branchBrandGoalFunc brand.GetBranchBrandGoalFunc, branchBrandFunc brand.GetBranchBrandFunc, branchBrandSaleSumFunc GetBranchBrandSaleSumFunc) GetBranchBrandMonthlyYearStatisticFunc {
 	return func(year int32, branchId int32, brandId int32) ([]entities.MonthlyYearStatistic, error) {
 		saleTypes, err := saleTypeRepo.GetSaleTypes()
 		if err != nil {
@@ -34,16 +32,9 @@ func NewGetBranchBrandMonthlyYearStatisticFunc(ctx context.Context, saleTypeRepo
 					MonthNumber: int32(month),
 					Year:        year,
 				}
-				from, to := period.ConvertToTime()
 				goal, err := branchBrandGoalFunc(branchBrand, saleType.Id, period)
 
-				sum, err := store.GetBranchBrandSaleSumByGivenDateRange(ctx, generated.GetBranchBrandSaleSumByGivenDateRangeParams{
-					BranchID:   branchId,
-					BrandID:    brandId,
-					SaleTypeID: saleType.Id,
-					SaleDate:   from,
-					SaleDate_2: to,
-				})
+				sum, err := branchBrandSaleSumFunc(branchId, brandId, saleType.Id, period)
 				if err != nil {
 					log.Println(err)
 				}

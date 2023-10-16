@@ -208,7 +208,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.setBranchBrandSaleTypeGoal = NewSetBranchGoalFunc(ctx, store)
 	server.setUserBrandGoalRequest = NewSetUserBrandSaleTypeGoalFunc(ctx, store)
 	server.getUserByBranchBrandRoleFunc = NewGetUserByBranchBrandRoleFunc(ctx, store)
-	server.getBranchBrandMonthlyYearStatisticFunc = NewGetBranchBrandMonthlyYearStatisticFunc(ctx, saleTypeRepo, server.getBranchBrandGoalFunc, server.getBranchBrandFunc, store)
+	server.getBranchBrandMonthlyYearStatisticFunc = NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo, server.getBranchBrandGoalFunc, server.getBranchBrandFunc, server.getBranchBrandSaleSumFunc)
+
 }
 
 // Start runs the HTTP server a specific address
