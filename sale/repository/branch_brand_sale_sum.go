@@ -20,6 +20,7 @@ func NewGetBranchBrandSaleSumFunc(ctxt context.Context, store generated.SaleStor
 			SaleDate:   from,
 			SaleDate_2: to,
 		})
+		fmt.Println("row: ", row)
 		if err == sql.ErrNoRows {
 			return 0, nil
 		}
