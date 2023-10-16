@@ -36,7 +36,8 @@ SELECT u.id,
        u.first_name,
        u.last_name,
        u.avatar_url,
-       b.title              AS branch_title,
-       b.id                 AS branch_id
+       b.title AS branch_title,
+       b.id    AS branch_id
 FROM user_avatar_view u
-      JOIN branch_users bu ON u.id = bu.user_id;
+         JOIN user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
+         JOIN branch_users bu ON u.id = bu.user_id;

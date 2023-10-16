@@ -3,6 +3,7 @@ package entities
 import (
 	"errors"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -29,7 +30,7 @@ func (u User) AvatarPointer() *string {
 }
 
 func (u User) GetFullName() string {
-	return string(u.FirstName) + " " + string(u.LastName)
+	return strings.TrimSpace(u.FirstName) + " " + strings.TrimSpace(u.LastName)
 }
 
 type UserAuth struct {
