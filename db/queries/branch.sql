@@ -30,3 +30,13 @@ INSERT INTO branch_brand_sale_type_goals (branch_brand, sale_type_id, value, fro
 VALUES ($1, $2, $3, $4, $5) ON CONFLICT (branch_brand, sale_type_id, from_date, to_date) DO
 UPDATE
     SET value = $3;
+
+-- name: SelectBranchBrandUserByRole :many
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       b.title              AS branch_title,
+       b.id                 AS branch_id
+FROM user_avatar_view u
+      JOIN branch_users bu ON u.id = bu.user_id;

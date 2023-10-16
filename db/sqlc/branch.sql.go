@@ -140,6 +140,59 @@ func (q *Queries) GetBranchesByBrandId(ctx context.Context, brandID int32) ([]Ge
 	return items, nil
 }
 
+const selectBranchBrandUserByRole = `-- name: SelectBranchBrandUserByRole :many
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       b.title              AS branch_title,
+       b.id                 AS branch_id
+FROM user_avatar_view u
+         JOIN user_roles ur ON u.id = ur.user_id
+         JOIN branch_users bu ON u.id = bu.user_id
+         JOIN branches b ON bu.branch_id = b.id
+WHERE ur.role_id = $1
+`
+
+type SelectBranchBrandUserByRoleRow struct {
+	ID          int32  `json:"id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	AvatarUrl   string `json:"avatar_url"`
+	BranchTitle string `json:"branch_title"`
+	BranchID    int32  `json:"branch_id"`
+}
+
+func (q *Queries) SelectBranchBrandUserByRole(ctx context.Context, roleID int32) ([]SelectBranchBrandUserByRoleRow, error) {
+	rows, err := q.db.QueryContext(ctx, selectBranchBrandUserByRole, roleID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SelectBranchBrandUserByRoleRow
+	for rows.Next() {
+		var i SelectBranchBrandUserByRoleRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.AvatarUrl,
+			&i.BranchTitle,
+			&i.BranchID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setBranchBrandGoal = `-- name: SetBranchBrandGoal :exec
 INSERT INTO branch_brand_sale_type_goals (branch_brand, sale_type_id, value, from_date, to_date)
 VALUES ($1, $2, $3, $4, $5) ON CONFLICT (branch_brand, sale_type_id, from_date, to_date) DO

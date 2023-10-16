@@ -87,7 +87,11 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 		},
 		GoalAchievementPercent: goalAchievementPercent,
 		Rating:                 0,
-		Profile:                entities2.SimpleProfile{},
+		Profile: entities2.SimpleProfile{
+			Id:       0,
+			Avatar:   nil,
+			FullName: "",
+		},
 	})
 
 }
