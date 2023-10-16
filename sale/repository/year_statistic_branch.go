@@ -39,6 +39,8 @@ func NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo SaleTypeRepository, 
 					log.Println(err)
 				}
 
+				fmt.Println("sum: ", sum, " branchId: ", branchId, " brandId: ", brandId, " saleTypeId: ", saleType.Id, " period: ", period)
+
 				stat := entities.MonthlyYearStatistic{
 					SaleType: saleType,
 					Month:    int32(month),
