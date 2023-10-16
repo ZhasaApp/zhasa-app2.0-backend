@@ -44,7 +44,7 @@ func NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo SaleTypeRepository, 
 				stat := entities.MonthlyYearStatistic{
 					SaleType: saleType,
 					Month:    int32(month),
-					Amount:   GetInt64FromInterface(sum),
+					Amount:   sum,
 					Goal:     goal,
 				}
 				result = append(result, stat)
