@@ -13,12 +13,12 @@ type GetBranchBrandSaleSumFunc func(branchId int32, brandId int32, saleTypeId in
 func NewGetBranchBrandSaleSumFunc(ctxt context.Context, store generated.SaleStore) GetBranchBrandSaleSumFunc {
 	return func(branchId int32, brandId int32, saleTypeId int32, period statistic.Period) (int64, error) {
 		from, to := period.ConvertToTime()
-		row, err := store.GetSaleSumByBranchByTypeByBrand(ctxt, generated.GetSaleSumByBranchByTypeByBrandParams{
+		row, err := store.GetBranchBrandSaleSumByGivenDateRange(ctxt, generated.GetBranchBrandSaleSumByGivenDateRangeParams{
+			BranchID:   branchId,
+			BrandID:    brandId,
+			SaleTypeID: saleTypeId,
 			SaleDate:   from,
 			SaleDate_2: to,
-			ID:         branchId,
-			ID_2:       brandId,
-			ID_3:       saleTypeId,
 		})
 		if err == sql.ErrNoRows {
 			return 0, nil
@@ -27,7 +27,7 @@ func NewGetBranchBrandSaleSumFunc(ctxt context.Context, store generated.SaleStor
 			fmt.Println(err)
 			return 0, err
 		}
-		return GetInt64FromInterface(row.TotalSales), nil
+		return GetInt64FromInterface(row), nil
 	}
 }
 
