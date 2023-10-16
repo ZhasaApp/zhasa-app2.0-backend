@@ -56,15 +56,13 @@ func (q *Queries) GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg Ge
 const getBranchBrandSaleSumByGivenDateRange = `-- name: GetBranchBrandSaleSumByGivenDateRange :one
 SELECT COALESCE(SUM(s.amount), 0) AS total_sales
 FROM sales s
-         JOIN
-     sales_brands sb ON s.id = sb.sale_id AND sb.brand_id = $2
-         JOIN
-     user_brands ub ON ub.brand_id = sb.brand_id
-         JOIN
-     branch_users bu ON bu.user_id = s.user_id
-WHERE bu.branch_id = $1             -- branch_id parameter
-  AND s.sale_date BETWEEN $4 AND $5 -- from and to date parameters
-  AND s.sale_type_id = $3
+         JOIN sales_brands sb ON s.id = sb.sale_id
+         JOIN user_brands ub ON ub.user_id = s.user_id AND ub.brand_id = sb.brand_id
+         JOIN branch_users bu ON bu.user_id = s.user_id
+WHERE bu.branch_id = $1                -- Replace with the desired branch_id
+  AND sb.brand_id = $2                  -- Replace with the desired brand_id
+  AND s.sale_type_id = $3               -- Replace with the desired sale_type_id
+  AND s.sale_date BETWEEN $4 AND $5
 `
 
 type GetBranchBrandSaleSumByGivenDateRangeParams struct {
