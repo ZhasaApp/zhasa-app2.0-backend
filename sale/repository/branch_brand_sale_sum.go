@@ -27,11 +27,11 @@ func NewGetBranchBrandSaleSumFunc(ctxt context.Context, store generated.SaleStor
 			fmt.Println(err)
 			return 0, err
 		}
-		return getInt64FromInterface(row.TotalSales), nil
+		return GetInt64FromInterface(row.TotalSales), nil
 	}
 }
 
-func getInt64FromInterface(val interface{}) int64 {
+func GetInt64FromInterface(val interface{}) int64 {
 	switch v := val.(type) {
 	case int64:
 		return v

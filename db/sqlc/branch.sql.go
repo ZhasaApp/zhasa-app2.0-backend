@@ -53,6 +53,43 @@ func (q *Queries) GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg Ge
 	return goal_amount, err
 }
 
+const getBranchBrandSaleSumByGivenDateRange = `-- name: GetBranchBrandSaleSumByGivenDateRange :one
+SELECT COALESCE(SUM(s.amount), 0) AS total_sales
+FROM sales s
+         JOIN
+     sales_brands sb ON s.id = sb.sale_id AND sb.brand_id = $2
+         JOIN
+     user_brands ub ON ub.brand_id
+         JOIN
+     users u ON u.id = ub.user_id
+         JOIN
+     branch_users bu ON bu.user_id = u.id
+WHERE bu.branch_id = $1             -- branch_id parameter
+  AND s.sale_date BETWEEN $4 AND $5 -- from and to date parameters
+  AND s.sale_type_id = $3
+`
+
+type GetBranchBrandSaleSumByGivenDateRangeParams struct {
+	BranchID   int32     `json:"branch_id"`
+	BrandID    int32     `json:"brand_id"`
+	SaleTypeID int32     `json:"sale_type_id"`
+	SaleDate   time.Time `json:"sale_date"`
+	SaleDate_2 time.Time `json:"sale_date_2"`
+}
+
+func (q *Queries) GetBranchBrandSaleSumByGivenDateRange(ctx context.Context, arg GetBranchBrandSaleSumByGivenDateRangeParams) (interface{}, error) {
+	row := q.db.QueryRowContext(ctx, getBranchBrandSaleSumByGivenDateRange,
+		arg.BranchID,
+		arg.BrandID,
+		arg.SaleTypeID,
+		arg.SaleDate,
+		arg.SaleDate_2,
+	)
+	var total_sales interface{}
+	err := row.Scan(&total_sales)
+	return total_sales, err
+}
+
 const getBranchBrandUserByRole = `-- name: GetBranchBrandUserByRole :many
 SELECT u.id,
        u.first_name,

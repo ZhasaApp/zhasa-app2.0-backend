@@ -43,3 +43,18 @@ FROM user_avatar_view u
          JOIN branch_users bu ON u.id = bu.user_id AND bu.branch_id = $2
          JOIN branches b ON bu.branch_id = b.id
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3;
+
+-- name: GetBranchBrandSaleSumByGivenDateRange :one
+SELECT COALESCE(SUM(s.amount), 0) AS total_sales
+FROM sales s
+         JOIN
+     sales_brands sb ON s.id = sb.sale_id AND sb.brand_id = $2
+         JOIN
+     user_brands ub ON ub.brand_id
+         JOIN
+     users u ON u.id = ub.user_id
+         JOIN
+     branch_users bu ON bu.user_id = u.id
+WHERE bu.branch_id = $1             -- branch_id parameter
+  AND s.sale_date BETWEEN $4 AND $5 -- from and to date parameters
+  AND s.sale_type_id = $3; -- sale_type_id parameter;

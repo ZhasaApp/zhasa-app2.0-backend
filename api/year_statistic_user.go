@@ -12,12 +12,6 @@ type UserBrandYearStatisticRequestBody struct {
 	BrandId int32 `form:"brand_id" json:"brand_id"`
 }
 
-type BranchBrandYearStatisticRequestBody struct {
-	BranchId int32 `form:"branch_id" json:"branch_id"`
-	Year     int32 `form:"year" json:"year"`
-	BrandId  int32 `form:"brand_id" json:"brand_id"`
-}
-
 func (server *Server) GetUserBrandYearStatistic(ctx *gin.Context) {
 	// retrieve year statistic for user with given request body
 	var requestBody UserBrandYearStatisticRequestBody
@@ -49,14 +43,4 @@ func (server *Server) GetUserBrandYearStatistic(ctx *gin.Context) {
 		})
 	}
 	ctx.JSON(http.StatusOK, response)
-}
-
-func (server *Server) getBranchMonthStatistic(ctx *gin.Context) {
-	// retrieve month statistic for branch with given request body
-	var requestBody BranchBrandYearStatisticRequestBody
-	if err := ctx.ShouldBindQuery(&requestBody); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
 }
