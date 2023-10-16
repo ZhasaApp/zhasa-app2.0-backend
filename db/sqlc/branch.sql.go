@@ -59,11 +59,9 @@ FROM sales s
          JOIN
      sales_brands sb ON s.id = sb.sale_id AND sb.brand_id = $2
          JOIN
-     user_brands ub ON ub.brand_id
+     user_brands ub ON ub.brand_id = sb.brand_id
          JOIN
-     users u ON u.id = ub.user_id
-         JOIN
-     branch_users bu ON bu.user_id = u.id
+     branch_users bu ON bu.user_id = s.user_id
 WHERE bu.branch_id = $1             -- branch_id parameter
   AND s.sale_date BETWEEN $4 AND $5 -- from and to date parameters
   AND s.sale_type_id = $3
