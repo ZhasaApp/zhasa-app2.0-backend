@@ -105,7 +105,7 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 		saleItems = append(saleItems, entities2.SaleItemResponse{
 			Id:     sale.ID,
 			Title:  sale.Description,
-			Date:   sale.SaleDate.Format("02-01-2006 15:04:05"),
+			Date:   sale.SaleDate.Format("2006-02-01 15:04:05"),
 			Amount: sale.Amount,
 			Type: entities2.SaleTypeResponse{
 				Id:        sale.SaleTypeID,
