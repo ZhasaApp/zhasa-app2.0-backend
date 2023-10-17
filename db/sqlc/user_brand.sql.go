@@ -35,14 +35,14 @@ FROM user_brand_sale_type_goals goals
 WHERE goals.user_brand = $1
   AND goals.sale_type_id = $2
   AND goals.from_date = $3
-  AND goals.from_date = $4
+  AND goals.to_date = $4
 `
 
 type GetUserBrandGoalParams struct {
 	UserBrand  int32     `json:"user_brand"`
 	SaleTypeID int32     `json:"sale_type_id"`
 	FromDate   time.Time `json:"from_date"`
-	FromDate_2 time.Time `json:"from_date_2"`
+	ToDate     time.Time `json:"to_date"`
 }
 
 func (q *Queries) GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalParams) (int64, error) {
@@ -50,7 +50,7 @@ func (q *Queries) GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalPara
 		arg.UserBrand,
 		arg.SaleTypeID,
 		arg.FromDate,
-		arg.FromDate_2,
+		arg.ToDate,
 	)
 	var value int64
 	err := row.Scan(&value)

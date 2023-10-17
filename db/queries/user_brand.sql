@@ -4,7 +4,7 @@ FROM user_brand_sale_type_goals goals
 WHERE goals.user_brand = $1
   AND goals.sale_type_id = $2
   AND goals.from_date = $3
-  AND goals.from_date = $4;
+  AND goals.to_date = $4;
 
 -- name: GetUserBrand :one
 SELECT ub.id AS user_brand
