@@ -27,6 +27,7 @@ FROM user_avatar_view u
      user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
          LEFT JOIN
      user_brand_ratio r ON u.id = r.user_id AND r.from_date = $2 AND r.to_date = $3
+         JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $7
 WHERE (r.brand_id = $1 OR r.brand_id IS NULL)
   AND b.id = $6
 ORDER BY r.ratio DESC
@@ -40,6 +41,7 @@ type GetBranchUsersOrderedByRatioForGivenBrandParams struct {
 	Offset   int32     `json:"offset"`
 	Limit    int32     `json:"limit"`
 	ID       int32     `json:"id"`
+	RoleID   int32     `json:"role_id"`
 }
 
 type GetBranchUsersOrderedByRatioForGivenBrandRow struct {
@@ -61,6 +63,7 @@ func (q *Queries) GetBranchUsersOrderedByRatioForGivenBrand(ctx context.Context,
 		arg.Offset,
 		arg.Limit,
 		arg.ID,
+		arg.RoleID,
 	)
 	if err != nil {
 		return nil, err
@@ -108,6 +111,7 @@ FROM user_avatar_view u
      user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
          LEFT JOIN
      user_brand_ratio r ON u.id = r.user_id AND r.from_date = $2 AND r.to_date = $3
+         JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $6
 WHERE (r.brand_id = $1 OR r.brand_id IS NULL)
 ORDER BY r.ratio DESC
 OFFSET $4 LIMIT $5
@@ -119,6 +123,7 @@ type GetUsersOrderedByRatioForGivenBrandParams struct {
 	ToDate   time.Time `json:"to_date"`
 	Offset   int32     `json:"offset"`
 	Limit    int32     `json:"limit"`
+	RoleID   int32     `json:"role_id"`
 }
 
 type GetUsersOrderedByRatioForGivenBrandRow struct {
@@ -139,6 +144,7 @@ func (q *Queries) GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg G
 		arg.ToDate,
 		arg.Offset,
 		arg.Limit,
+		arg.RoleID,
 	)
 	if err != nil {
 		return nil, err

@@ -21,6 +21,7 @@ func NewGetUsersOrderedByRatioForGivenBrandFunc(ctx context.Context, store gener
 			ToDate:   to,
 			Limit:    pagination.PageSize,
 			Offset:   pagination.GetOffset(),
+			RoleID:   2,
 		}
 		rows, err := store.GetUsersOrderedByRatioForGivenBrand(ctx, params)
 		ratedUsers := make([]entities.RatedUser, 0)
@@ -62,9 +63,10 @@ func NewGetUsersOrderedBYRatioForGivenBrandAndBranchFunc(ctx context.Context, st
 			BrandID:  brandId,
 			FromDate: from,
 			ToDate:   to,
-			Limit:    pagination.PageSize,
 			Offset:   pagination.GetOffset(),
+			Limit:    pagination.PageSize,
 			ID:       branchId,
+			RoleID:   2,
 		}
 		rows, err := store.GetBranchUsersOrderedByRatioForGivenBrand(ctx, params)
 		ratedUsers := make([]entities.RatedUser, 0)
