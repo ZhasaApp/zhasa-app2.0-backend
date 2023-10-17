@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	entities2 "zhasa2.0/api/entities"
@@ -85,6 +86,11 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 	dashboardResponse.Rating = r
 	dashboardResponse.SalesStatisticsByTypes = sTypeSums
 	dashboardResponse.GoalAchievementPercent = goalAchievementPercent
+
+	err = server.updateUserBrandRatio(request.UserId, request.BrandId, float64(goalAchievementPercent), monthPeriod)
+	if err != nil {
+		fmt.Println(err)
+	}
 
 	lastSales, err := server.saleRepo.GetSalesByBrandIdAndUserId(generated.GetSalesByBrandIdAndUserIdParams{
 		BrandID: request.BrandId,
