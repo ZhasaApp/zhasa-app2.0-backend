@@ -88,7 +88,7 @@ func NewGetUsersOrderedBYRatioForGivenBrandAndBranchFunc(ctx context.Context, st
 					FirstName: row.FirstName,
 					LastName:  row.LastName,
 				},
-				Ratio: float64(row.Ratio),
+				Ratio: float64(row.Ratio) * 100,
 				BranchInfo: entities.BranchInfo{
 					Id:    row.BranchID,
 					Title: row.BranchTitle,
