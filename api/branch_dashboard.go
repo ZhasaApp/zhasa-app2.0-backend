@@ -94,7 +94,7 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 			Title:       branchInfo.Title,
 			Description: branchInfo.Description,
 		},
-		GoalAchievementPercent: goalAchievementPercent,
+		GoalAchievementPercent: goalAchievementPercent * 100,
 		Rating:                 0,
 		Profile: entities2.SimpleProfile{
 			Id:       director[0].Id,

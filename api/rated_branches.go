@@ -70,7 +70,7 @@ func (server *Server) GetRatedBranches(ctx *gin.Context) {
 			ID:                     branch.BranchId,
 			Title:                  branch.Title,
 			Description:            branch.Description,
-			GoalAchievementPercent: rating.CalculateRatio(branchRatioRows),
+			GoalAchievementPercent: rating.CalculateRatio(branchRatioRows) * 100,
 		})
 	}
 

@@ -85,7 +85,7 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 
 	dashboardResponse.Rating = r
 	dashboardResponse.SalesStatisticsByTypes = sTypeSums
-	dashboardResponse.GoalAchievementPercent = goalAchievementPercent
+	dashboardResponse.GoalAchievementPercent = goalAchievementPercent * 100
 
 	err = server.updateUserBrandRatio(request.UserId, request.BrandId, float64(goalAchievementPercent), monthPeriod)
 	if err != nil {
