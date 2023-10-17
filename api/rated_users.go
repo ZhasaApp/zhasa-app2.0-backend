@@ -7,6 +7,7 @@ import (
 	"zhasa2.0/api/entities/sm"
 	"zhasa2.0/base"
 	"zhasa2.0/statistic"
+	"zhasa2.0/user/entities"
 )
 
 type GetOrderedUsersRequest struct {
@@ -29,15 +30,30 @@ func (server *Server) GetOrderedUsers(ctx *gin.Context) {
 		MonthNumber: request.Month,
 		Year:        request.Year,
 	}
-	users, err := server.getUsersOrderedByRatioForGivenBrandFunc(request.BrandId, monthPeriod, base.Pagination{
-		Page:     request.Page,
-		PageSize: request.Limit,
-	})
+	var users []entities.RatedUser
+	var nextUsers []entities.RatedUser
 
-	nextUsers, err := server.getUsersOrderedByRatioForGivenBrandFunc(request.BrandId, monthPeriod, base.Pagination{
-		Page:     request.Page + 1,
-		PageSize: request.Limit,
-	})
+	if request.BranchId == nil {
+		users, err = server.getUsersOrderedByRatioForGivenBrandFunc(request.BrandId, monthPeriod, base.Pagination{
+			Page:     request.Page,
+			PageSize: request.Limit,
+		})
+
+		nextUsers, err = server.getUsersOrderedByRatioForGivenBrandFunc(request.BrandId, monthPeriod, base.Pagination{
+			Page:     request.Page + 1,
+			PageSize: request.Limit,
+		})
+	} else {
+		users, err = server.getBranchUsersOrderedByRatioForGivenBrandFunc(*request.BranchId, request.BrandId, monthPeriod, base.Pagination{
+			Page:     request.Page,
+			PageSize: request.Limit,
+		})
+
+		nextUsers, err = server.getBranchUsersOrderedByRatioForGivenBrandFunc(*request.BranchId, request.BrandId, monthPeriod, base.Pagination{
+			Page:     request.Page + 1,
+			PageSize: request.Limit,
+		})
+	}
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

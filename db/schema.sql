@@ -114,7 +114,7 @@ CREATE TABLE user_brand_sale_type_goals
 
 CREATE TABLE user_brand_ratio
 (
-    user_id   INTEGER REFERENCES user_brands (id) NOT NULL,
+    user_id   INTEGER REFERENCES users (id) NOT NULL,
     brand_id  INTEGER REFERENCES brands (id)      NOT NULL,
     ratio     REAL                                NOT NULL,
     from_date TIMESTAMP                           NOT NULL,
