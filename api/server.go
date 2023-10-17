@@ -56,6 +56,7 @@ type Server struct {
 	getUserByBranchBrandRoleFunc                  GetUserByBranchBrandRoleFunc
 	getBranchBrandMonthlyYearStatisticFunc        GetBranchBrandMonthlyYearStatisticFunc
 	getUsersByBranchBrandRoleFunc                 GetUsersByBranchBrandRoleFunc
+	getSaleSumByUserBrandTypePeriodFunc           GetSaleSumByUserBrandTypePeriodFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -177,7 +178,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
 	brandGoal := NewUserGoalFunc(ctx, store)
-	saleRepo := NewSaleRepo(ctx, store, saleTypeRepo, brandGoal, customQuerier)
+	userSaleSum := NewGetSaleSumByUserBrandTypePeriodFunc(ctx, store)
+	saleRepo := NewSaleRepo(ctx, store, saleTypeRepo, brandGoal, userSaleSum)
 	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 
 	tokenService := service.NewTokenService(&encKey)
@@ -196,7 +198,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserRatingFunc = rating.NewGetUserRatingFunc(ctx, store)
 	server.userRepo = userRepo
 	server.getUserBranchFunc = NewGetUserBranchFunc(ctx, store)
-	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, saleRepo, server.userBrandGoal, server.getUserBrandFunc)
+	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, userSaleSum, server.userBrandGoal, server.getUserBrandFunc)
 	server.getBranchBrands = NewGetBranchBrandsFunc(ctx, store)
 	server.getAllBrands = NewGetAllBrandsFunc(ctx, store)
 	server.getUserBrands = NewGetUserBrandsFunc(ctx, store)
@@ -212,6 +214,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserByBranchBrandRoleFunc = NewGetUserByBranchBrandRoleFunc(ctx, store)
 	server.getBranchBrandMonthlyYearStatisticFunc = NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo, server.getBranchBrandGoalFunc, server.getBranchBrandFunc, server.getBranchBrandSaleSumFunc)
 	server.getUsersByBranchBrandRoleFunc = NewGetUsersByBranchBrandRoleFunc(ctx, store)
+	server.getSaleSumByUserBrandTypePeriodFunc = userSaleSum
 }
 
 // Start runs the HTTP server a specific address

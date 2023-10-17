@@ -75,3 +75,14 @@ SELECT sb.brand_id, s.sale_date
 FROM sales_brands sb
          JOIN sales s ON s.id = sb.sale_id
 WHERE sb.sale_id = $1;
+
+-- name: GetSumByUserIdBrandIdPeriodSaleTypeId :one
+SELECT SUM(s.amount) AS total_sales
+FROM sales s
+         JOIN
+     sales_brands sb ON s.id = sb.sale_id AND sb.brand_id = $2 -- brand_id parameter
+         JOIN
+     user_brands ub ON ub.brand_id = sb.brand_id AND ub.user_id = s.user_id
+WHERE s.user_id = $1      -- user_id parameter
+  AND s.sale_type_id = $3 -- sale_type_id parameter
+  AND s.sale_date BETWEEN $4 AND $5; -- from_date and to_date parameters

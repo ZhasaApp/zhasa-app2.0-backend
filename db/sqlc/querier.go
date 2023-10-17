@@ -52,6 +52,7 @@ type Querier interface {
 	GetSalesByBrandId(ctx context.Context, brandID int32) ([]GetSalesByBrandIdRow, error)
 	GetSalesByBrandIdAndUserId(ctx context.Context, arg GetSalesByBrandIdAndUserIdParams) ([]GetSalesByBrandIdAndUserIdRow, error)
 	GetSalesTypes(ctx context.Context) ([]SaleType, error)
+	GetSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context, arg GetSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error)
 	GetUserBranch(ctx context.Context, id int32) (GetUserBranchRow, error)
 	GetUserBrand(ctx context.Context, arg GetUserBrandParams) (int32, error)
 	GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalParams) (int64, error)

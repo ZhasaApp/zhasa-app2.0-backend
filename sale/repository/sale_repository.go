@@ -2,11 +2,9 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"log"
-	handmade "zhasa2.0/db/hand-made"
 	. "zhasa2.0/db/sqlc"
 	. "zhasa2.0/statistic"
 	. "zhasa2.0/statistic/entities"
@@ -15,7 +13,6 @@ import (
 
 type SaleRepository interface {
 	AddOrEdit(saleToCreate AddSaleOrReplaceParams, brandId int32) error
-	GetSumByUserIdBrandIdPeriodSaleTypeId(params handmade.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error)
 	GetUserBrandMonthlyYearStatistic(year int32, userId int32, brandId int32) ([]MonthlyYearStatistic, error)
 	DeleteSale(id int32) error
 	GetSalesByBrandIdAndUserId(params GetSalesByBrandIdAndUserIdParams) ([]GetSalesByBrandIdAndUserIdRow, error)
@@ -28,8 +25,7 @@ type DBSaleRepository struct {
 	brandStore   UserBrandStore
 	saleTypeRepo SaleTypeRepository
 	brandGoal    UserBrandGoalFunc
-	querier      handmade.CustomQuerier
-	GetUserBrandFunc
+	userSaleSum  GetSaleSumByUserBrandTypePeriodFunc
 }
 
 func (d DBSaleRepository) GetSaleBrandId(saleId int32) (*GetSaleBrandBySaleIdRow, error) {
@@ -80,13 +76,8 @@ func (d DBSaleRepository) GetUserBrandMonthlyYearStatistic(year int32, userId in
 				FromDate_2: to,
 			})
 
-			sum, err := d.querier.GetSaleSumByUserIdBrandIdPeriodSaleTypeId(d.ctx, handmade.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams{
-				ID:         userId,
-				BrandID:    brandId,
-				SaleDate:   from,
-				SaleDate_2: to,
-				SaleTypeID: saleType.Id,
-			})
+			sum, err := d.userSaleSum(userId, brandId, saleType.Id, period)
+
 			if err != nil {
 				log.Println(err)
 			}
@@ -112,19 +103,6 @@ func (d DBSaleRepository) AddOrEdit(saleToCreate AddSaleOrReplaceParams, brandId
 	return nil
 }
 
-func (d DBSaleRepository) GetSumByUserIdBrandIdPeriodSaleTypeId(params handmade.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error) {
-	amount, err := d.querier.GetSaleSumByUserIdBrandIdPeriodSaleTypeId(d.ctx, params)
-	if err == sql.ErrNoRows {
-		log.Println(err)
-		return 0, nil
-	}
-	if err != nil {
-		fmt.Println(err)
-		return 0, err
-	}
-	return amount, err
-}
-
 func (d DBSaleRepository) DeleteSale(id int32) error {
 	err := d.store.DeleteSale(d.ctx, id)
 	if err != nil {
@@ -134,13 +112,13 @@ func (d DBSaleRepository) DeleteSale(id int32) error {
 	return nil
 }
 
-func NewSaleRepo(ctx context.Context, store *DBStore, saleTypeRepo SaleTypeRepository, goalFunc UserBrandGoalFunc, querier handmade.CustomQuerier) SaleRepository {
+func NewSaleRepo(ctx context.Context, store *DBStore, saleTypeRepo SaleTypeRepository, goalFunc UserBrandGoalFunc, userSaleSumFunc GetSaleSumByUserBrandTypePeriodFunc) SaleRepository {
 	return DBSaleRepository{
 		ctx:          ctx,
 		store:        store,
 		brandStore:   store,
 		saleTypeRepo: saleTypeRepo,
 		brandGoal:    goalFunc,
-		querier:      querier,
+		userSaleSum:  userSaleSumFunc,
 	}
 }

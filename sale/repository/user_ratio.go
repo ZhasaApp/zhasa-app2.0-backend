@@ -3,7 +3,6 @@ package repository
 import (
 	"errors"
 	"fmt"
-	handmade "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/rating"
 	"zhasa2.0/statistic"
@@ -12,7 +11,7 @@ import (
 
 type CalculateUserBrandRatio func(userId int32, brandId int32, period statistic.Period) (float32, error)
 
-func NewCalculateUserBrandRatio(saleTypeRepo SaleTypeRepository, saleRepo SaleRepository, goalFunc repository.UserBrandGoalFunc, brandFunc repository.GetUserBrandFunc) CalculateUserBrandRatio {
+func NewCalculateUserBrandRatio(saleTypeRepo SaleTypeRepository, userSaleSum GetSaleSumByUserBrandTypePeriodFunc, goalFunc repository.UserBrandGoalFunc, brandFunc repository.GetUserBrandFunc) CalculateUserBrandRatio {
 	return func(userId int32, brandId int32, period statistic.Period) (float32, error) {
 		var goalAchievementPercent float32
 		ratioRows := make([]rating.RatioRow, 0)
@@ -32,13 +31,7 @@ func NewCalculateUserBrandRatio(saleTypeRepo SaleTypeRepository, saleRepo SaleRe
 		}
 
 		for _, saleType := range *saleTypes {
-			amount, err := saleRepo.GetSumByUserIdBrandIdPeriodSaleTypeId(handmade.GetSaleSumByUserIdBrandIdPeriodSaleTypeIdParams{
-				ID:         userId,
-				BrandID:    brandId,
-				SaleDate:   from,
-				SaleDate_2: to,
-				SaleTypeID: saleType.Id,
-			})
+			amount, err := userSaleSum(userId, brandId, saleType.Id, period)
 			if err != nil {
 				fmt.Println(err)
 				return 0, err

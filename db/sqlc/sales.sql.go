@@ -289,3 +289,36 @@ func (q *Queries) GetSalesByBrandIdAndUserId(ctx context.Context, arg GetSalesBy
 	}
 	return items, nil
 }
+
+const getSumByUserIdBrandIdPeriodSaleTypeId = `-- name: GetSumByUserIdBrandIdPeriodSaleTypeId :one
+SELECT SUM(s.amount) AS total_sales
+FROM sales s
+         JOIN
+     sales_brands sb ON s.id = sb.sale_id AND sb.brand_id = $2 -- brand_id parameter
+         JOIN
+     user_brands ub ON ub.brand_id = sb.brand_id AND ub.user_id = s.user_id
+WHERE s.user_id = $1      -- user_id parameter
+  AND s.sale_type_id = $3 -- sale_type_id parameter
+  AND s.sale_date BETWEEN $4 AND $5
+`
+
+type GetSumByUserIdBrandIdPeriodSaleTypeIdParams struct {
+	UserID     int32     `json:"user_id"`
+	BrandID    int32     `json:"brand_id"`
+	SaleTypeID int32     `json:"sale_type_id"`
+	SaleDate   time.Time `json:"sale_date"`
+	SaleDate_2 time.Time `json:"sale_date_2"`
+}
+
+func (q *Queries) GetSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context, arg GetSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getSumByUserIdBrandIdPeriodSaleTypeId,
+		arg.UserID,
+		arg.BrandID,
+		arg.SaleTypeID,
+		arg.SaleDate,
+		arg.SaleDate_2,
+	)
+	var total_sales int64
+	err := row.Scan(&total_sales)
+	return total_sales, err
+}
