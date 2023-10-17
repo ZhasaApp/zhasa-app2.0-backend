@@ -162,6 +162,58 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (UserAvatarV
 	return i, err
 }
 
+const getUsersByBranchBrandRole = `-- name: GetUsersByBranchBrandRole :many
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       u.avatar_url
+FROM user_avatar_view u
+         JOIN user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
+         JOIN branch_users bu ON u.id = bu.user_id AND bu.branch_id = $2
+         JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3
+`
+
+type GetUsersByBranchBrandRoleParams struct {
+	BrandID  int32 `json:"brand_id"`
+	BranchID int32 `json:"branch_id"`
+	RoleID   int32 `json:"role_id"`
+}
+
+type GetUsersByBranchBrandRoleRow struct {
+	ID        int32  `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	AvatarUrl string `json:"avatar_url"`
+}
+
+func (q *Queries) GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByBranchBrandRoleParams) ([]GetUsersByBranchBrandRoleRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersByBranchBrandRole, arg.BrandID, arg.BranchID, arg.RoleID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersByBranchBrandRoleRow
+	for rows.Next() {
+		var i GetUsersByBranchBrandRoleRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.AvatarUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setUserBrandGoal = `-- name: SetUserBrandGoal :exec
 INSERT INTO user_brand_sale_type_goals (user_brand, sale_type_id, value, from_date, to_date)
 VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_brand, sale_type_id, from_date, to_date) DO

@@ -55,6 +55,7 @@ type Server struct {
 	setUserBrandGoalRequest                       SetUserBrandSaleTypeGoalFunc
 	getUserByBranchBrandRoleFunc                  GetUserByBranchBrandRoleFunc
 	getBranchBrandMonthlyYearStatisticFunc        GetBranchBrandMonthlyYearStatisticFunc
+	getUsersByBranchBrandRoleFunc                 GetUsersByBranchBrandRoleFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -149,6 +150,7 @@ func NewServer(ctx context.Context) *Server {
 	router.GET("user/brands", verifyToken(server.tokenService), server.GetUserBrands)
 	router.GET("branch/brands", verifyToken(server.tokenService), server.GetBranchBrands)
 	router.GET("brands", verifyToken(server.tokenService), server.GetAllBrands)
+
 	server.router = router
 	return server
 }
@@ -209,7 +211,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.setUserBrandGoalRequest = NewSetUserBrandSaleTypeGoalFunc(ctx, store)
 	server.getUserByBranchBrandRoleFunc = NewGetUserByBranchBrandRoleFunc(ctx, store)
 	server.getBranchBrandMonthlyYearStatisticFunc = NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo, server.getBranchBrandGoalFunc, server.getBranchBrandFunc, server.getBranchBrandSaleSumFunc)
-
+	server.getUsersByBranchBrandRoleFunc = NewGetUsersByBranchBrandRoleFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address
