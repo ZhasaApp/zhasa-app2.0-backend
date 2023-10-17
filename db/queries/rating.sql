@@ -14,7 +14,7 @@ FROM user_avatar_view u
      branches b ON bu.branch_id = b.id
          JOIN
      user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
-         LEFT JOIN
+         JOIN
      user_brand_ratio r ON u.id = r.user_id AND r.from_date = $2 AND r.to_date = $3
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $6
 WHERE (r.brand_id = $1 OR r.brand_id IS NULL)
@@ -37,7 +37,7 @@ FROM user_avatar_view u
      branches b ON bu.branch_id = b.id
          JOIN
      user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
-         LEFT JOIN
+         JOIN
      user_brand_ratio r ON u.id = r.user_id AND r.from_date = $2 AND r.to_date = $3
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $7
 WHERE (r.brand_id = $1 OR r.brand_id IS NULL)

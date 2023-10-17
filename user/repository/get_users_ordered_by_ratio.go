@@ -42,7 +42,7 @@ func NewGetUsersOrderedByRatioForGivenBrandFunc(ctx context.Context, store gener
 					FirstName: row.FirstName,
 					LastName:  row.LastName,
 				},
-				Ratio: float64(row.Ratio),
+				Ratio: float64(row.Ratio) * 100,
 				BranchInfo: entities.BranchInfo{
 					Id:    row.BranchID,
 					Title: row.BranchTitle,
