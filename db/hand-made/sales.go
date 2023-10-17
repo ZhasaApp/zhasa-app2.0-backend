@@ -13,9 +13,8 @@ FROM sales s
          JOIN
      user_brands ub ON ub.brand_id = sb.brand_id
          JOIN
-     users u ON u.id = ub.user_id
-WHERE u.id = $1                     -- user_id parameter
-  AND sb.brand_id = $2              -- brand_id parameter
+     users u ON u.id = ub.user_id AND u.id = $1
+WHERE sb.brand_id = $2              -- brand_id parameter
   AND s.sale_date BETWEEN $3 AND $4 -- from and to date parameters
   AND s.sale_type_id = $5 -- sale_type_id parameter
 `
