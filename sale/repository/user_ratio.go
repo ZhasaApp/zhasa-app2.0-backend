@@ -40,7 +40,7 @@ func NewCalculateUserBrandRatio(saleTypeRepo SaleTypeRepository, userSaleSum Get
 				UserBrand:  userBrand,
 				SaleTypeID: saleType.Id,
 				FromDate:   from,
-				FromDate_2: to,
+				ToDate:     to,
 			})
 
 			ratioRows = append(ratioRows, rating.RatioRow{

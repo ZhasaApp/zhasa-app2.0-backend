@@ -73,7 +73,7 @@ func (d DBSaleRepository) GetUserBrandMonthlyYearStatistic(year int32, userId in
 				UserBrand:  userBrand,
 				SaleTypeID: saleType.Id,
 				FromDate:   from,
-				FromDate_2: to,
+				ToDate:     to,
 			})
 
 			sum, err := d.userSaleSum(userId, brandId, saleType.Id, period)

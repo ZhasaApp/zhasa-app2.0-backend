@@ -58,7 +58,7 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 			UserBrand:  userBrand,
 			SaleTypeID: saleType.Id,
 			FromDate:   from,
-			FromDate_2: to,
+			ToDate:     to,
 		})
 
 		sTypeSums = append(sTypeSums, entities2.SalesStatisticsByTypesItem{
