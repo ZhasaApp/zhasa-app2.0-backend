@@ -93,13 +93,13 @@ func (q *Queries) GetSaleBrandBySaleId(ctx context.Context, saleID int32) (GetSa
 }
 
 const getSaleSumByBranchByTypeByBrand = `-- name: GetSaleSumByBranchByTypeByBrand :one
-SELECT b.id                       AS branch_id,
-       b.title                    AS branch_title,
-       br.id                      AS brand_id,
-       br.title                   AS brand_title,
-       st.id                      AS sale_type_id,
-       st.title                   AS sale_type_title,
-       COALESCE(SUM(s.amount), 0) AS total_sales
+SELECT b.id     AS branch_id,
+       b.title  AS branch_title,
+       br.id    AS brand_id,
+       br.title AS brand_title,
+       st.id    AS sale_type_id,
+       st.title AS sale_type_title,
+       COALESCE(SUM(s.amount), 0) ::bigint AS total_sales
 FROM sales s
 
          JOIN users sm ON s.user_id = sm.id
@@ -126,13 +126,13 @@ type GetSaleSumByBranchByTypeByBrandParams struct {
 }
 
 type GetSaleSumByBranchByTypeByBrandRow struct {
-	BranchID      int32       `json:"branch_id"`
-	BranchTitle   string      `json:"branch_title"`
-	BrandID       int32       `json:"brand_id"`
-	BrandTitle    string      `json:"brand_title"`
-	SaleTypeID    int32       `json:"sale_type_id"`
-	SaleTypeTitle string      `json:"sale_type_title"`
-	TotalSales    interface{} `json:"total_sales"`
+	BranchID      int32  `json:"branch_id"`
+	BranchTitle   string `json:"branch_title"`
+	BrandID       int32  `json:"brand_id"`
+	BrandTitle    string `json:"brand_title"`
+	SaleTypeID    int32  `json:"sale_type_id"`
+	SaleTypeTitle string `json:"sale_type_title"`
+	TotalSales    int64  `json:"total_sales"`
 }
 
 // Assuming you also have a sales table as previously discussed.
@@ -291,7 +291,7 @@ func (q *Queries) GetSalesByBrandIdAndUserId(ctx context.Context, arg GetSalesBy
 }
 
 const getSumByUserIdBrandIdPeriodSaleTypeId = `-- name: GetSumByUserIdBrandIdPeriodSaleTypeId :one
-SELECT SUM(s.amount) AS total_sales
+SELECT COALESCE(SUM(s.amount), 0) ::bigint AS total_sales
 FROM sales s
          JOIN
      sales_brands sb ON s.id = sb.sale_id AND sb.brand_id = $2 -- brand_id parameter

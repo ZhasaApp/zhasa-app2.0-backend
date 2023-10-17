@@ -15,13 +15,13 @@ WHERE id = $1;
 -- Assuming you also have a sales table as previously discussed.
 -- name: GetSaleSumByBranchByTypeByBrand :one
 -- Assuming you also have a sales table as previously discussed.
-SELECT b.id                       AS branch_id,
-       b.title                    AS branch_title,
-       br.id                      AS brand_id,
-       br.title                   AS brand_title,
-       st.id                      AS sale_type_id,
-       st.title                   AS sale_type_title,
-       COALESCE(SUM(s.amount), 0) AS total_sales
+SELECT b.id     AS branch_id,
+       b.title  AS branch_title,
+       br.id    AS brand_id,
+       br.title AS brand_title,
+       st.id    AS sale_type_id,
+       st.title AS sale_type_title,
+       COALESCE(SUM(s.amount), 0) ::bigint AS total_sales
 FROM sales s
 
 -- Join with relevant tables
@@ -77,7 +77,7 @@ FROM sales_brands sb
 WHERE sb.sale_id = $1;
 
 -- name: GetSumByUserIdBrandIdPeriodSaleTypeId :one
-SELECT SUM(s.amount) AS total_sales
+SELECT COALESCE(SUM(s.amount), 0) ::bigint AS total_sales
 FROM sales s
          JOIN
      sales_brands sb ON s.id = sb.sale_id AND sb.brand_id = $2 -- brand_id parameter
