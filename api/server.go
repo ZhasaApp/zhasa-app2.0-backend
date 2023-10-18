@@ -198,7 +198,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserRatingFunc = rating.NewGetUserRatingFunc(ctx, store)
 	server.userRepo = userRepo
 	server.getUserBranchFunc = NewGetUserBranchFunc(ctx, store)
-	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, userSaleSum, server.userBrandGoal, server.getUserBrandFunc)
+	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, userSaleSum, server.userBrandGoal)
 	server.getBranchBrands = NewGetBranchBrandsFunc(ctx, store)
 	server.getAllBrands = NewGetAllBrandsFunc(ctx, store)
 	server.getUserBrands = NewGetUserBrandsFunc(ctx, store)
