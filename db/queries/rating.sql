@@ -18,7 +18,7 @@ FROM user_avatar_view u
      user_brand_ratio r ON u.id = r.user_id AND r.from_date = $2 AND r.to_date = $3
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $6
 WHERE (r.brand_id = $1 OR r.brand_id IS NULL)
-ORDER BY r.ratio
+ORDER BY r.ratio DESC
 OFFSET $4 LIMIT $5;
 
 -- name: GetBranchUsersOrderedByRatioForGivenBrand :many
@@ -42,7 +42,7 @@ FROM user_avatar_view u
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $7
 WHERE (r.brand_id = $1 OR r.brand_id IS NULL)
   AND b.id = $6
-ORDER BY r.ratio
+ORDER BY r.ratio DESC
 OFFSET $4 LIMIT $5;
 
 
