@@ -28,22 +28,25 @@ func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) erro
 const getBranchBrandGoalByGivenDateRange = `-- name: GetBranchBrandGoalByGivenDateRange :one
 SELECT COALESCE(bg.value, 0) AS goal_amount
 FROM branch_brand_sale_type_goals bg
-WHERE bg.branch_brand = $1
-  AND bg.from_date = $2
-  AND bg.to_date = $3
-  AND bg.sale_type_id = $4
+WHERE bg.branch_id = $1
+  AND bg.brand_id = $2
+  AND bg.from_date = $3
+  AND bg.to_date = $4
+  AND bg.sale_type_id = $5
 `
 
 type GetBranchBrandGoalByGivenDateRangeParams struct {
-	BranchBrand int32     `json:"branch_brand"`
-	FromDate    time.Time `json:"from_date"`
-	ToDate      time.Time `json:"to_date"`
-	SaleTypeID  int32     `json:"sale_type_id"`
+	BranchID   int32     `json:"branch_id"`
+	BrandID    int32     `json:"brand_id"`
+	FromDate   time.Time `json:"from_date"`
+	ToDate     time.Time `json:"to_date"`
+	SaleTypeID int32     `json:"sale_type_id"`
 }
 
 func (q *Queries) GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getBranchBrandGoalByGivenDateRange,
-		arg.BranchBrand,
+		arg.BranchID,
+		arg.BrandID,
 		arg.FromDate,
 		arg.ToDate,
 		arg.SaleTypeID,
@@ -233,23 +236,25 @@ func (q *Queries) GetBranchesByBrandId(ctx context.Context, brandID int32) ([]Ge
 }
 
 const setBranchBrandGoal = `-- name: SetBranchBrandGoal :exec
-INSERT INTO branch_brand_sale_type_goals (branch_brand, sale_type_id, value, from_date, to_date)
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (branch_brand, sale_type_id, from_date, to_date) DO
+INSERT INTO branch_brand_sale_type_goals (branch_id, brand_id, sale_type_id, value, from_date, to_date)
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (branch_id, brand_id, sale_type_id, from_date, to_date) DO
 UPDATE
-    SET value = $3
+    SET value = $4
 `
 
 type SetBranchBrandGoalParams struct {
-	BranchBrand int32     `json:"branch_brand"`
-	SaleTypeID  int32     `json:"sale_type_id"`
-	Value       int64     `json:"value"`
-	FromDate    time.Time `json:"from_date"`
-	ToDate      time.Time `json:"to_date"`
+	BranchID   int32     `json:"branch_id"`
+	BrandID    int32     `json:"brand_id"`
+	SaleTypeID int32     `json:"sale_type_id"`
+	Value      int64     `json:"value"`
+	FromDate   time.Time `json:"from_date"`
+	ToDate     time.Time `json:"to_date"`
 }
 
 func (q *Queries) SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error {
 	_, err := q.db.ExecContext(ctx, setBranchBrandGoal,
-		arg.BranchBrand,
+		arg.BranchID,
+		arg.BrandID,
 		arg.SaleTypeID,
 		arg.Value,
 		arg.FromDate,

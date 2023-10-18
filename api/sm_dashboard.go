@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -31,18 +30,11 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 		return
 	}
 
-	userBrand, err := server.getUserBrandFunc(request.UserId, request.BrandId)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user brand not found")))
-		return
-	}
-
 	monthPeriod := statistic.MonthPeriod{
 		MonthNumber: request.Month,
 		Year:        request.Year,
 	}
 
-	from, to := monthPeriod.ConvertToTime()
 	sTypeSums := make([]entities2.SalesStatisticsByTypesItem, 0)
 	dashboardResponse := entities2.SalesManagerDashboardResponse{}
 
@@ -55,12 +47,7 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 			return
 		}
-		goal := server.userBrandGoal(generated.GetUserBrandGoalParams{
-			UserBrand:  userBrand,
-			SaleTypeID: saleType.Id,
-			FromDate:   from,
-			ToDate:     to,
-		})
+		goal := server.userBrandGoal(request.UserId, request.BrandId, saleType.Id, monthPeriod)
 
 		sTypeSums = append(sTypeSums, entities2.SalesStatisticsByTypesItem{
 			Color:    saleType.Color,

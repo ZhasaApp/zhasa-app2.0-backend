@@ -31,12 +31,6 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 		return
 	}
 
-	branchBrand, err := server.getBranchBrandFunc(request.BranchId, request.BrandId)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.New("branch brand not found"))
-		return
-	}
-
 	saleTypes, err := server.saleTypeRepo.GetSaleTypes()
 
 	if err != nil {
@@ -55,7 +49,7 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 
 	for _, saleType := range *saleTypes {
 		achieved, _ := server.getBranchBrandSaleSumFunc(request.BranchId, request.BrandId, saleType.Id, monthPeriod)
-		goal, _ := server.getBranchBrandGoalFunc(branchBrand, saleType.Id, monthPeriod)
+		goal, _ := server.getBranchBrandGoalFunc(request.BranchId, request.BrandId, saleType.Id, monthPeriod)
 
 		ratioRows = append(ratioRows, rating.RatioRow{
 			Achieved: achieved,

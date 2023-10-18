@@ -66,12 +66,13 @@ type BranchBrand struct {
 }
 
 type BranchBrandSaleTypeGoal struct {
-	ID          int32     `json:"id"`
-	BranchBrand int32     `json:"branch_brand"`
-	SaleTypeID  int32     `json:"sale_type_id"`
-	Value       int64     `json:"value"`
-	FromDate    time.Time `json:"from_date"`
-	ToDate      time.Time `json:"to_date"`
+	ID         int32     `json:"id"`
+	BranchID   int32     `json:"branch_id"`
+	BrandID    int32     `json:"brand_id"`
+	SaleTypeID int32     `json:"sale_type_id"`
+	Value      int64     `json:"value"`
+	FromDate   time.Time `json:"from_date"`
+	ToDate     time.Time `json:"to_date"`
 }
 
 type BranchBrandUser struct {
@@ -197,7 +198,8 @@ type UserBrandRatio struct {
 
 type UserBrandSaleTypeGoal struct {
 	ID         int32     `json:"id"`
-	UserBrand  int32     `json:"user_brand"`
+	UserID     int32     `json:"user_id"`
+	BrandID    int32     `json:"brand_id"`
 	SaleTypeID int32     `json:"sale_type_id"`
 	Value      int64     `json:"value"`
 	FromDate   time.Time `json:"from_date"`

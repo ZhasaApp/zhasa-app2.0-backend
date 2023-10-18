@@ -32,14 +32,16 @@ func (q *Queries) GetUserBrand(ctx context.Context, arg GetUserBrandParams) (int
 const getUserBrandGoal = `-- name: GetUserBrandGoal :one
 SELECT COALESCE(goals.value, 0)
 FROM user_brand_sale_type_goals goals
-WHERE goals.user_brand = $1
-  AND goals.sale_type_id = $2
-  AND goals.from_date = $3
-  AND goals.to_date = $4
+WHERE goals.user_id = $1
+  AND goals.brand_id = $2
+  AND goals.sale_type_id = $3
+  AND goals.from_date = $4
+  AND goals.to_date = $5
 `
 
 type GetUserBrandGoalParams struct {
-	UserBrand  int32     `json:"user_brand"`
+	UserID     int32     `json:"user_id"`
+	BrandID    int32     `json:"brand_id"`
 	SaleTypeID int32     `json:"sale_type_id"`
 	FromDate   time.Time `json:"from_date"`
 	ToDate     time.Time `json:"to_date"`
@@ -47,7 +49,8 @@ type GetUserBrandGoalParams struct {
 
 func (q *Queries) GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalParams) (int64, error) {
 	row := q.db.QueryRowContext(ctx, getUserBrandGoal,
-		arg.UserBrand,
+		arg.UserID,
+		arg.BrandID,
 		arg.SaleTypeID,
 		arg.FromDate,
 		arg.ToDate,

@@ -1,10 +1,11 @@
 -- name: GetUserBrandGoal :one
 SELECT COALESCE(goals.value, 0)
 FROM user_brand_sale_type_goals goals
-WHERE goals.user_brand = $1
-  AND goals.sale_type_id = $2
-  AND goals.from_date = $3
-  AND goals.to_date = $4;
+WHERE goals.user_id = $1
+  AND goals.brand_id = $2
+  AND goals.sale_type_id = $3
+  AND goals.from_date = $4
+  AND goals.to_date = $5;
 
 -- name: GetUserBrand :one
 SELECT ub.id AS user_brand

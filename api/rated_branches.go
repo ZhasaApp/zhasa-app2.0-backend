@@ -58,7 +58,7 @@ func (server *Server) GetRatedBranches(ctx *gin.Context) {
 		for _, saleType := range *sTypes {
 			salesSum, _ := server.getBranchBrandSaleSumFunc(branch.BranchId, request.BrandId, saleType.Id, period)
 
-			goal, _ := server.getBranchBrandGoalFunc(branch.BranchId, saleType.Id, period)
+			goal, _ := server.getBranchBrandGoalFunc(branch.BranchId, request.BrandId, saleType.Id, period)
 
 			branchRatioRows = append(branchRatioRows, rating.RatioRow{
 				Achieved: salesSum,

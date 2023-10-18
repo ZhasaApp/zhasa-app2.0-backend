@@ -8,11 +8,18 @@ import (
 )
 
 // UserBrandGoalFunc UserGoalFunc zero if goal is missing
-type UserBrandGoalFunc func(params GetUserBrandGoalParams) int64
+type UserBrandGoalFunc func(userId int32, brandId int32, saleTypeId int32, period statistic.Period) int64
 
 func NewUserGoalFunc(ctx context.Context, store UserBrandStore) UserBrandGoalFunc {
-	return func(params GetUserBrandGoalParams) int64 {
-		goal, err := store.GetUserBrandGoal(ctx, params)
+	return func(userId int32, brandId int32, saleTypeId int32, period statistic.Period) int64 {
+		from, to := period.ConvertToTime()
+		goal, err := store.GetUserBrandGoal(ctx, GetUserBrandGoalParams{
+			UserID:     userId,
+			BrandID:    brandId,
+			SaleTypeID: saleTypeId,
+			FromDate:   from,
+			ToDate:     to,
+		})
 		if err != nil {
 			fmt.Println(err)
 		}

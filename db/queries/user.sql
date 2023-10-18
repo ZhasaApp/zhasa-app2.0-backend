@@ -46,10 +46,10 @@ FROM users u
 WHERE u.id = $1;
 
 -- name: SetUserBrandGoal :exec
-INSERT INTO user_brand_sale_type_goals (user_brand, sale_type_id, value, from_date, to_date)
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_brand, sale_type_id, from_date, to_date) DO
+INSERT INTO user_brand_sale_type_goals (user_id, brand_id, sale_type_id, value, from_date, to_date)
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, brand_id, sale_type_id, from_date, to_date) DO
 UPDATE
-    SET value = $3;
+    SET value = $4;
 
 
 -- name: GetUsersByBranchBrandRole :many

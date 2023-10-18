@@ -215,14 +215,15 @@ func (q *Queries) GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByB
 }
 
 const setUserBrandGoal = `-- name: SetUserBrandGoal :exec
-INSERT INTO user_brand_sale_type_goals (user_brand, sale_type_id, value, from_date, to_date)
-VALUES ($1, $2, $3, $4, $5) ON CONFLICT (user_brand, sale_type_id, from_date, to_date) DO
+INSERT INTO user_brand_sale_type_goals (user_id, brand_id, sale_type_id, value, from_date, to_date)
+VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, brand_id, sale_type_id, from_date, to_date) DO
 UPDATE
-    SET value = $3
+    SET value = $4
 `
 
 type SetUserBrandGoalParams struct {
-	UserBrand  int32     `json:"user_brand"`
+	UserID     int32     `json:"user_id"`
+	BrandID    int32     `json:"brand_id"`
 	SaleTypeID int32     `json:"sale_type_id"`
 	Value      int64     `json:"value"`
 	FromDate   time.Time `json:"from_date"`
@@ -231,7 +232,8 @@ type SetUserBrandGoalParams struct {
 
 func (q *Queries) SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error {
 	_, err := q.db.ExecContext(ctx, setUserBrandGoal,
-		arg.UserBrand,
+		arg.UserID,
+		arg.BrandID,
 		arg.SaleTypeID,
 		arg.Value,
 		arg.FromDate,

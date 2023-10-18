@@ -27,14 +27,7 @@ func (server *Server) SetBranchGoal(ctx *gin.Context) {
 		Year:        request.Year,
 	}
 
-	branchBrand, err := server.getBranchBrandFunc(request.BranchId, request.BrandId)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	err = server.setBranchBrandSaleTypeGoal(branchBrand, request.SaleTypeID, request.Value, period)
+	err := server.setBranchBrandSaleTypeGoal(request.BranchId, request.BrandId, request.SaleTypeID, request.Value, period)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

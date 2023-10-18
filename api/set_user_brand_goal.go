@@ -27,14 +27,14 @@ func (server *Server) SetUserBrandGoal(ctx *gin.Context) {
 		Year:        request.Year,
 	}
 
-	userBrand, err := server.getUserBrandFunc(request.UserID, request.BrandId)
+	_, err := server.getUserBrandFunc(request.UserID, request.BrandId)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	err = server.setUserBrandGoalRequest(userBrand, request.SaleTypeID, request.Value, period)
+	err = server.setUserBrandGoalRequest(request.UserID, request.BrandId, request.SaleTypeID, request.Value, period)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

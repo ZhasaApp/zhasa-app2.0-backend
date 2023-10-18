@@ -53,10 +53,7 @@ func (d DBSaleRepository) GetUserBrandMonthlyYearStatistic(year int32, userId in
 		return nil, err
 	}
 	result := make([]MonthlyYearStatistic, 0)
-	userBrand, err := d.brandStore.GetUserBrand(d.ctx, GetUserBrandParams{
-		UserID:  userId,
-		BrandID: brandId,
-	})
+
 	if err != nil {
 		fmt.Println(err, "for user id", userId, "and brand id", brandId)
 		return nil, errors.New("user brand not found")
@@ -68,13 +65,9 @@ func (d DBSaleRepository) GetUserBrandMonthlyYearStatistic(year int32, userId in
 				MonthNumber: int32(month),
 				Year:        year,
 			}
-			from, to := period.ConvertToTime()
-			goal := d.brandGoal(GetUserBrandGoalParams{
-				UserBrand:  userBrand,
-				SaleTypeID: saleType.Id,
-				FromDate:   from,
-				ToDate:     to,
-			})
+			goal := d.brandGoal(
+				userId, brandId, saleType.Id, period,
+			)
 
 			sum, err := d.userSaleSum(userId, brandId, saleType.Id, period)
 

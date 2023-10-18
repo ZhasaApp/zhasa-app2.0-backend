@@ -7,13 +7,14 @@ import (
 	"zhasa2.0/statistic"
 )
 
-type SetUserBrandSaleTypeGoalFunc func(userBrand int32, saleTypeId int32, goal int64, period statistic.Period) error
+type SetUserBrandSaleTypeGoalFunc func(userId, brandId, saleTypeId int32, goal int64, period statistic.Period) error
 
 func NewSetUserBrandSaleTypeGoalFunc(ctx context.Context, store generated.UserBrandStore) SetUserBrandSaleTypeGoalFunc {
-	return func(userBrand int32, saleTypeId int32, goal int64, period statistic.Period) error {
+	return func(userId, brandId, saleTypeId int32, goal int64, period statistic.Period) error {
 		from, to := period.ConvertToTime()
 		err := store.SetUserBrandGoal(ctx, generated.SetUserBrandGoalParams{
-			UserBrand:  userBrand,
+			UserID:     userId,
+			BrandID:    brandId,
 			SaleTypeID: saleTypeId,
 			Value:      goal,
 			FromDate:   from,

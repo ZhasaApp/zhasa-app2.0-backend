@@ -20,7 +20,7 @@ func NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo SaleTypeRepository, 
 		}
 		result := make([]entities.MonthlyYearStatistic, 0)
 
-		branchBrand, err := branchBrandFunc(branchId, brandId)
+		_, err = branchBrandFunc(branchId, brandId)
 		if err != nil {
 			log.Println(err)
 			return nil, errors.New("branch brand not found")
@@ -32,7 +32,7 @@ func NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo SaleTypeRepository, 
 					MonthNumber: int32(month),
 					Year:        year,
 				}
-				goal, err := branchBrandGoalFunc(branchBrand, saleType.Id, period)
+				goal, err := branchBrandGoalFunc(branchId, brandId, saleType.Id, period)
 
 				sum, err := branchBrandSaleSumFunc(branchId, brandId, saleType.Id, period)
 				if err != nil {
