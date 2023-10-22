@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	entities2 "zhasa2.0/api/entities"
-	generated "zhasa2.0/db/sqlc"
+	"zhasa2.0/base"
 	"zhasa2.0/rating"
 	"zhasa2.0/statistic"
 )
@@ -79,28 +79,13 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 		fmt.Println(err)
 	}
 
-	lastSales, err := server.saleRepo.GetSalesByBrandIdAndUserId(generated.GetSalesByBrandIdAndUserIdParams{
-		BrandID: request.BrandId,
-		UserID:  request.UserId,
-		Limit:   5,
-		Offset:  0,
+	lastSales, err := server.salesByBrandUserFunc(request.UserId, request.BrandId, base.Pagination{
+		PageSize: 5,
+		Page:     0,
 	})
 
-	saleItems := make([]entities2.SaleItemResponse, 0)
-	for _, sale := range lastSales {
-		saleItems = append(saleItems, entities2.SaleItemResponse{
-			Id:     sale.ID,
-			Title:  sale.Description,
-			Date:   sale.SaleDate.Format("2006-01-02 15:04:05"),
-			Amount: sale.Amount,
-			Type: entities2.SaleTypeResponse{
-				Id:        sale.SaleTypeID,
-				Title:     sale.SaleTypeTitle,
-				Color:     sale.Color,
-				ValueType: string(sale.ValueType),
-			},
-		})
-	}
+	saleItems := entities2.SaleItemsFromSales(lastSales)
+
 	dashboardResponse.LastSales = saleItems
 
 	user, err := server.userRepo.GetUserById(request.UserId)

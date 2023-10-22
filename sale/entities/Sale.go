@@ -2,16 +2,14 @@ package entities
 
 import (
 	"time"
-	"zhasa2.0/manager/entities"
 )
 
 type Sale struct {
-	Id              SaleId
-	SaleManagerId   entities.SalesManagerId
+	Id              int32
 	SaleType        SaleType
-	SalesAmount     SaleAmount
+	SalesAmount     int64
 	SaleDate        time.Time
-	SaleDescription SaleDescription
+	SaleDescription string
 }
 
 type SaleId int32

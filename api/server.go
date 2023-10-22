@@ -57,6 +57,7 @@ type Server struct {
 	getBranchBrandMonthlyYearStatisticFunc        GetBranchBrandMonthlyYearStatisticFunc
 	getUsersByBranchBrandRoleFunc                 GetUsersByBranchBrandRoleFunc
 	getSaleSumByUserBrandTypePeriodFunc           GetSaleSumByUserBrandTypePeriodFunc
+	salesByBrandUserFunc                          SalesByBrandUserFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -215,6 +216,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getBranchBrandMonthlyYearStatisticFunc = NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo, server.getBranchBrandGoalFunc, server.getBranchBrandFunc, server.getBranchBrandSaleSumFunc)
 	server.getUsersByBranchBrandRoleFunc = NewGetUsersByBranchBrandRoleFunc(ctx, store)
 	server.getSaleSumByUserBrandTypePeriodFunc = userSaleSum
+	server.salesByBrandUserFunc = NewSalesByBrandUserFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address

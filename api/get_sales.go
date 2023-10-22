@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"zhasa2.0/api/entities"
-	generated "zhasa2.0/db/sqlc"
+	"zhasa2.0/base"
 )
 
 type GetSalesRequest struct {
@@ -26,18 +26,14 @@ func (server *Server) GetSales(ctx *gin.Context) {
 
 	fmt.Println(request)
 
-	sales, err := server.saleRepo.GetSalesByBrandIdAndUserId(generated.GetSalesByBrandIdAndUserIdParams{
-		BrandID: request.BrandId,
-		UserID:  request.UserId,
-		Limit:   request.Limit,
-		Offset:  (request.Page - 1) * request.Limit,
+	sales, err := server.salesByBrandUserFunc(request.UserId, request.BrandId, base.Pagination{
+		PageSize: request.Limit,
+		Page:     request.Page,
 	})
 
-	nextSales, err := server.saleRepo.GetSalesByBrandIdAndUserId(generated.GetSalesByBrandIdAndUserIdParams{
-		BrandID: request.BrandId,
-		UserID:  request.UserId,
-		Limit:   request.Limit,
-		Offset:  (request.Page) * request.Limit,
+	nextSales, err := server.salesByBrandUserFunc(request.UserId, request.BrandId, base.Pagination{
+		PageSize: request.Limit,
+		Page:     request.Page + 1,
 	})
 
 	if err != nil {

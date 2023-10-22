@@ -15,7 +15,6 @@ type SaleRepository interface {
 	AddOrEdit(saleToCreate AddSaleOrReplaceParams, brandId int32) error
 	GetUserBrandMonthlyYearStatistic(year int32, userId int32, brandId int32) ([]MonthlyYearStatistic, error)
 	DeleteSale(id int32) error
-	GetSalesByBrandIdAndUserId(params GetSalesByBrandIdAndUserIdParams) ([]GetSalesByBrandIdAndUserIdRow, error)
 	GetSaleBrandId(saleId int32) (*GetSaleBrandBySaleIdRow, error)
 }
 
@@ -35,15 +34,6 @@ func (d DBSaleRepository) GetSaleBrandId(saleId int32) (*GetSaleBrandBySaleIdRow
 		return nil, err
 	}
 	return &saleBrand, nil
-}
-
-func (d DBSaleRepository) GetSalesByBrandIdAndUserId(params GetSalesByBrandIdAndUserIdParams) ([]GetSalesByBrandIdAndUserIdRow, error) {
-	rows, err := d.store.GetSalesByBrandIdAndUserId(d.ctx, params)
-	if err != nil {
-		fmt.Println(err)
-		return nil, err
-	}
-	return rows, nil
 }
 
 func (d DBSaleRepository) GetUserBrandMonthlyYearStatistic(year int32, userId int32, brandId int32) ([]MonthlyYearStatistic, error) {
