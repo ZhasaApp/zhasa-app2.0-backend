@@ -51,7 +51,7 @@ func (server *Server) HandleAvatarUpload(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"url": "http://185.182.219.170/images/avatar/" + filename,
+		"url": "http://185.182.219.90/images/avatar/" + filename,
 	})
 }
 
@@ -83,7 +83,7 @@ func (server *Server) HandleNewsUpload(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"url": "http://185.182.219.170/images/news/" + filename,
+		"url": "http://185.182.219.90/images/news/" + filename,
 	})
 }
 
