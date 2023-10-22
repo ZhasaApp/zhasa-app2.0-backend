@@ -38,12 +38,6 @@ func (server *Server) GetRatedBranches(ctx *gin.Context) {
 		Year:        request.Year,
 	}
 
-	brandBranches, err := server.getBranchesByBrandFunc(request.BrandId)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
 	result := make([]BranchRatingItem, 0)
 
 	sTypes, err := server.saleTypeRepo.GetSaleTypes()
@@ -53,7 +47,9 @@ func (server *Server) GetRatedBranches(ctx *gin.Context) {
 		return
 	}
 
-	for _, branch := range brandBranches {
+	ratedBranches, err := server.ratedBranchesFunc(request.BrandId, period, *sTypes)
+
+	for _, branch := range ratedBranches {
 		branchRatioRows := make([]rating.RatioRow, 0)
 		for _, saleType := range *sTypes {
 			salesSum, _ := server.getBranchBrandSaleSumFunc(branch.BranchId, request.BrandId, saleType.Id, period)

@@ -60,6 +60,7 @@ type Server struct {
 	salesByBrandUserFunc                          SalesByBrandUserFunc
 	saleAddFunc                                   SaleAddFunc
 	saleEditFunc                                  SaleEditFunc
+	ratedBranchesFunc                             RatedBranchesFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -221,6 +222,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.salesByBrandUserFunc = NewSalesByBrandUserFunc(ctx, store)
 	server.saleAddFunc = NewSaleAddFunc(ctx, store)
 	server.saleEditFunc = NewSaleEditFunc(ctx, store)
+
+	server.ratedBranchesFunc = NewRatedBranchesFunc(ctx, store, server.getBranchBrandSaleSumFunc, server.getBranchBrandGoalFunc)
 }
 
 // Start runs the HTTP server a specific address

@@ -81,6 +81,17 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 		return
 	}
 
+	ratedBranches, err := server.ratedBranchesFunc(request.BrandId, monthPeriod, *saleTypes)
+	var rate int32
+	if ratedBranches != nil {
+		for index, branch := range ratedBranches {
+			if branch.BranchId == request.BranchId {
+				rate = int32(index + 1.)
+				break
+			}
+		}
+	}
+
 	ctx.JSON(http.StatusOK, entities2.BranchDashboardResponse{
 		SalesStatisticsByTypes: saleStatisticByTypes,
 		BestSalesManagers:      entities2.SalesManagerBranchItemsFromRatedUsers(bestSalesManagers),
@@ -89,7 +100,7 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 			Description: branchInfo.Description,
 		},
 		GoalAchievementPercent: goalAchievementPercent * 100,
-		Rating:                 0,
+		Rating:                 rate,
 		Profile: entities2.SimpleProfile{
 			Id:       director[0].Id,
 			Avatar:   director[0].AvatarPointer(),
