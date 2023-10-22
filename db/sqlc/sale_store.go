@@ -12,4 +12,5 @@ type SaleStore interface {
 	GetSaleSumByBranchByTypeByBrand(ctx context.Context, arg GetSaleSumByBranchByTypeByBrandParams) (GetSaleSumByBranchByTypeByBrandRow, error)
 	GetBranchBrandSaleSumByGivenDateRange(ctx context.Context, arg GetBranchBrandSaleSumByGivenDateRangeParams) (int64, error)
 	GetSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context, arg GetSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error)
+	EditSale(ctx context.Context, arg EditSaleParams) (Sale, error)
 }

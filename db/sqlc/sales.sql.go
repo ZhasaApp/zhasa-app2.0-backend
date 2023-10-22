@@ -77,6 +77,49 @@ func (q *Queries) DeleteSale(ctx context.Context, id int32) error {
 	return err
 }
 
+const editSale = `-- name: EditSale :one
+UPDATE sales
+SET
+    user_id = $1,
+    sale_date = $2,
+    amount = $3,
+    sale_type_id = $4,
+    description = $5
+WHERE id = $6
+    RETURNING id, user_id, sale_date, amount, sale_type_id, description, created_at
+`
+
+type EditSaleParams struct {
+	UserID      int32     `json:"user_id"`
+	SaleDate    time.Time `json:"sale_date"`
+	Amount      int64     `json:"amount"`
+	SaleTypeID  int32     `json:"sale_type_id"`
+	Description string    `json:"description"`
+	ID          int32     `json:"id"`
+}
+
+func (q *Queries) EditSale(ctx context.Context, arg EditSaleParams) (Sale, error) {
+	row := q.db.QueryRowContext(ctx, editSale,
+		arg.UserID,
+		arg.SaleDate,
+		arg.Amount,
+		arg.SaleTypeID,
+		arg.Description,
+		arg.ID,
+	)
+	var i Sale
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.SaleDate,
+		&i.Amount,
+		&i.SaleTypeID,
+		&i.Description,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getSaleBrandBySaleId = `-- name: GetSaleBrandBySaleId :one
 SELECT sb.brand_id, s.sale_date
 FROM sales_brands sb

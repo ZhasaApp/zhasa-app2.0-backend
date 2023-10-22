@@ -58,6 +58,8 @@ type Server struct {
 	getUsersByBranchBrandRoleFunc                 GetUsersByBranchBrandRoleFunc
 	getSaleSumByUserBrandTypePeriodFunc           GetSaleSumByUserBrandTypePeriodFunc
 	salesByBrandUserFunc                          SalesByBrandUserFunc
+	saleAddFunc                                   SaleAddFunc
+	saleEditFunc                                  SaleEditFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -123,7 +125,7 @@ func NewServer(ctx context.Context) *Server {
 	}
 
 	router.DELETE("sales/delete", server.DeleteSale).Use(verifyToken(server.tokenService))
-	router.POST("sales-manager/sale/new", server.EditSale).Use(verifyToken(server.tokenService))
+	router.POST("sales-manager/sale/new", server.AddSale).Use(verifyToken(server.tokenService))
 	router.POST("sales/edit", server.EditSale).Use(verifyToken(server.tokenService))
 
 	directorRouter := router.Group("director/")
@@ -217,6 +219,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUsersByBranchBrandRoleFunc = NewGetUsersByBranchBrandRoleFunc(ctx, store)
 	server.getSaleSumByUserBrandTypePeriodFunc = userSaleSum
 	server.salesByBrandUserFunc = NewSalesByBrandUserFunc(ctx, store)
+	server.saleAddFunc = NewSaleAddFunc(ctx, store)
+	server.saleEditFunc = NewSaleEditFunc(ctx, store)
 }
 
 // Start runs the HTTP server a specific address

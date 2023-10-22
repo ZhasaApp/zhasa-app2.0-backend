@@ -6,12 +6,10 @@ import (
 	"net/http"
 	"time"
 	"zhasa2.0/api/entities"
-	. "zhasa2.0/db/sqlc"
 	entities2 "zhasa2.0/statistic"
 )
 
-type EditSaleRequest struct {
-	ID      int32  `json:"id"`
+type AddSaleRequest struct {
 	Date    string `json:"date"`
 	TypeID  int32  `json:"type_id"`
 	Value   int64  `json:"value"`
@@ -19,8 +17,8 @@ type EditSaleRequest struct {
 	BrandId int32  `json:"brand_id"`
 }
 
-func (server *Server) EditSale(ctx *gin.Context) {
-	var requestBody EditSaleRequest
+func (server *Server) AddSale(ctx *gin.Context) {
+	var requestBody AddSaleRequest
 	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -36,13 +34,7 @@ func (server *Server) EditSale(ctx *gin.Context) {
 		return
 	}
 
-	err = server.saleRepo.AddOrEdit(AddSaleOrReplaceParams{
-		UserID:      userId,
-		SaleDate:    parsedTime,
-		Amount:      requestBody.Value,
-		SaleTypeID:  requestBody.TypeID,
-		Description: requestBody.Title,
-	}, requestBody.BrandId)
+	id, err := server.saleAddFunc(requestBody.Value, parsedTime, requestBody.BrandId, requestBody.TypeID, requestBody.Title)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -50,6 +42,7 @@ func (server *Server) EditSale(ctx *gin.Context) {
 	}
 
 	sType, err := server.saleTypeRepo.GetSaleType(requestBody.TypeID)
+
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -70,7 +63,7 @@ func (server *Server) EditSale(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, entities.SaleItemResponse{
-		Id:     requestBody.ID,
+		Id:     id,
 		Title:  requestBody.Title,
 		Date:   requestBody.Date,
 		Amount: requestBody.Value,

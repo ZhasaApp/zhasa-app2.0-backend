@@ -15,7 +15,7 @@ package repository
 //	GetSalesManagerSalesCount(salesManagerId SalesManagerId) (int32, error)
 //	GetSalesManagersListOrderedByRatio(pagination Pagination, from time.Time, to time.Time) (*[]SalesManager, error)
 //	DeleteSale(saleId SaleId) (*Sale, error)
-//	EditSale(body EditSaleBody) (*Sale, error)
+//	AddSale(body EditSaleBody) (*Sale, error)
 //}
 //
 //type SalesManagerStatisticRepository interface {
@@ -88,7 +88,7 @@ package repository
 //	customQuerier CustomQuerier
 //}
 //
-//func (p PostgresSalesManagerRepository) EditSale(body EditSaleBody) (*Sale, error) {
+//func (p PostgresSalesManagerRepository) AddSale(body EditSaleBody) (*Sale, error) {
 //	params := generated.EditSaleByIdParams{
 //		ID:          body.ID,
 //		SaleTypeID:  body.TypeID,

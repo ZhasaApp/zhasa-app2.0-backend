@@ -26,7 +26,7 @@ package service
 //	GetRatio(smId SalesManagerId, period Period) (Percent, error)
 //	GetSalesManagersOrderedByRatio(pagination Pagination, period Period) (*[]SalesManager, error)
 //	DeleteSale(saleId SaleId) (*Sale, error)
-//	EditSale(editBody EditSaleBody) (*Sale, error)
+//	AddSale(editBody EditSaleBody) (*Sale, error)
 //	GetSalesManagerRating(period Period, smId SalesManagerId) (int32, error)
 //	SetRatio(ratio Percent, smId SalesManagerId, period Period) error
 //}
@@ -47,8 +47,8 @@ package service
 //	return dbs.statisticRepo.GetSalesManagerRating(smId, from, to)
 //}
 //
-//func (dbs DBSalesManagerService) EditSale(editBody EditSaleBody) (*Sale, error) {
-//	return dbs.repo.EditSale(editBody)
+//func (dbs DBSalesManagerService) AddSale(editBody EditSaleBody) (*Sale, error) {
+//	return dbs.repo.AddSale(editBody)
 //}
 //
 //func (dbs DBSalesManagerService) DeleteSale(saleId SaleId) (*Sale, error) {

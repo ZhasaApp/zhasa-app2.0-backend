@@ -3,6 +3,18 @@
 INSERT INTO sales (user_id, sale_date, amount, sale_type_id, description)
 VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
+-- name: EditSale :one
+UPDATE sales
+SET
+    user_id = $1,
+    sale_date = $2,
+    amount = $3,
+    sale_type_id = $4,
+    description = $5
+WHERE id = $6
+    RETURNING *;
+
+
 -- name: AddSaleToBrand :one
 INSERT INTO sales_brands (sale_id, brand_id)
 VALUES ($1, $2) ON CONFLICT (sale_id, brand_id)
