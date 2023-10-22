@@ -47,7 +47,7 @@ func (q *Queries) AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplacePara
 
 const addSaleToBrand = `-- name: AddSaleToBrand :one
 INSERT INTO sales_brands (sale_id, brand_id)
-VALUES ($1, $2) RETURNING sale_id, brand_id
+VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING sale_id, brand_id
 `
 
 type AddSaleToBrandParams struct {

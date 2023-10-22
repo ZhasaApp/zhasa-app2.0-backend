@@ -5,7 +5,7 @@ VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: AddSaleToBrand :one
 INSERT INTO sales_brands (sale_id, brand_id)
-VALUES ($1, $2) RETURNING *;
+VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *;
 
 -- name: DeleteSale :exec
 DELETE
