@@ -57,7 +57,7 @@ func (q *Queries) GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg Ge
 }
 
 const getBranchBrandSaleSumByGivenDateRange = `-- name: GetBranchBrandSaleSumByGivenDateRange :one
-SELECT SUM(s.amount) AS total_sales
+SELECT COALESCE(SUM(s.amount), 0) ::bigint AS total_sales
 FROM sales s
          JOIN sales_brands sb ON s.id = sb.sale_id
          JOIN user_brands ub ON ub.user_id = s.user_id AND ub.brand_id = sb.brand_id
