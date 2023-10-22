@@ -53,7 +53,7 @@ func (store *DBStore) AddBrandSaleTx(ctx context.Context, params AddSaleOrReplac
 			BrandID: brandId,
 		})
 		if err != nil {
-			fmt.Println(err, " ", params, " ", brandId)
+			fmt.Println(err, " ", res.ID, " ", brandId)
 			return err
 		}
 		sale = &res
