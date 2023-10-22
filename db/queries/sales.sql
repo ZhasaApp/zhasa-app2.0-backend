@@ -5,7 +5,12 @@ VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: AddSaleToBrand :one
 INSERT INTO sales_brands (sale_id, brand_id)
-VALUES ($1, $2) ON CONFLICT DO NOTHING RETURNING *;
+VALUES ($1, $2) ON CONFLICT (sale_id, brand_id)
+DO
+UPDATE
+    SET sale_id = EXCLUDED.sale_id, brand_id = EXCLUDED.brand_id
+    RETURNING *;
+
 
 -- name: DeleteSale :exec
 DELETE
