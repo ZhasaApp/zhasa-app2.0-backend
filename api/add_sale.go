@@ -34,7 +34,7 @@ func (server *Server) AddSale(ctx *gin.Context) {
 		return
 	}
 
-	id, err := server.saleAddFunc(requestBody.Value, parsedTime, requestBody.BrandId, userId, requestBody.TypeID, requestBody.Title)
+	id, err := server.saleAddFunc(requestBody.Value, parsedTime, userId, requestBody.BrandId, requestBody.TypeID, requestBody.Title)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
