@@ -101,7 +101,10 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 		Id:       request.UserId,
 		Avatar:   user.AvatarPointer(),
 		FullName: user.GetFullName(),
-		Branch:   branch.Title,
+		Branch: entities2.SimpleBranch{
+			Id:    branch.ID,
+			Title: branch.Title,
+		},
 	}
 
 	ctx.JSON(http.StatusOK, dashboardResponse)

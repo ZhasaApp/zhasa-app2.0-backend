@@ -91,10 +91,15 @@ type SalesStatisticsByTypesItem struct {
 }
 
 type SalesManagerDashboardProfile struct {
-	Id       int32   `json:"id"`
-	Avatar   *string `json:"avatar"`
-	FullName string  `json:"full_name"`
-	Branch   string  `json:"branch"`
+	Id       int32        `json:"id"`
+	Avatar   *string      `json:"avatar"`
+	FullName string       `json:"full_name"`
+	Branch   SimpleBranch `json:"branch"`
+}
+
+type SimpleBranch struct {
+	Id    int32  `json:"id"`
+	Title string `json:"title"`
 }
 
 type SimpleProfile struct {
