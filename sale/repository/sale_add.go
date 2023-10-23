@@ -7,12 +7,12 @@ import (
 	generated "zhasa2.0/db/sqlc"
 )
 
-type SaleAddFunc func(saleAmount int64, saleDate time.Time, brandId int32, saleTypeId int32, saleDescription string) (int32, error)
+type SaleAddFunc func(saleAmount int64, saleDate time.Time, userId, brandId, saleTypeId int32, saleDescription string) (int32, error)
 
 func NewSaleAddFunc(ctx context.Context, store generated.SaleStore) SaleAddFunc {
-	return func(saleAmount int64, saleDate time.Time, brandId int32, saleTypeId int32, saleDescription string) (int32, error) {
+	return func(saleAmount int64, saleDate time.Time, userId, brandId, saleTypeId int32, saleDescription string) (int32, error) {
 		sale, err := store.AddBrandSaleTx(ctx, generated.AddSaleOrReplaceParams{
-			UserID:      1,
+			UserID:      userId,
 			SaleDate:    saleDate,
 			Amount:      saleAmount,
 			SaleTypeID:  saleTypeId,
