@@ -144,20 +144,40 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (GetUserByIdRow, er
 }
 
 const getUserByPhone = `-- name: GetUserByPhone :one
-SELECT id, phone, first_name, last_name, avatar_url
-FROM user_avatar_view
-WHERE phone = $1
+SELECT u.id,
+       u.phone,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       ur.role_id,
+       r.key as role_key
+FROM user_avatar_view u
+         JOIN user_roles ur on user_avatar_view.id = ur.user_id
+         JOIN roles r on ur.role_id = r.id
+WHERE u.phone = $1
 `
 
-func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error) {
+type GetUserByPhoneRow struct {
+	ID        int32  `json:"id"`
+	Phone     string `json:"phone"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	AvatarUrl string `json:"avatar_url"`
+	RoleID    int32  `json:"role_id"`
+	RoleKey   string `json:"role_key"`
+}
+
+func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (GetUserByPhoneRow, error) {
 	row := q.db.QueryRowContext(ctx, getUserByPhone, phone)
-	var i UserAvatarView
+	var i GetUserByPhoneRow
 	err := row.Scan(
 		&i.ID,
 		&i.Phone,
 		&i.FirstName,
 		&i.LastName,
 		&i.AvatarUrl,
+		&i.RoleID,
+		&i.RoleKey,
 	)
 	return i, err
 }

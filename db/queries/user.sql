@@ -6,9 +6,17 @@ UPDATE SET first_name = EXCLUDED.first_name, last_name = EXCLUDED.last_name
     RETURNING id;
 
 -- name: GetUserByPhone :one
-SELECT *
-FROM user_avatar_view
-WHERE phone = $1;
+SELECT u.id,
+       u.phone,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       ur.role_id,
+       r.key as role_key
+FROM user_avatar_view u
+         JOIN user_roles ur on user_avatar_view.id = ur.user_id
+         JOIN roles r on ur.role_id = r.id
+WHERE u.phone = $1;
 
 -- name: GetUserById :one
 SELECT *

@@ -8,6 +8,7 @@ import (
 	_ "github.com/lib/pq"
 	"log"
 	"os"
+	"zhasa2.0/apiadmin"
 	. "zhasa2.0/branch/repository"
 	. "zhasa2.0/branch_director/repo"
 	. "zhasa2.0/brand"
@@ -24,7 +25,8 @@ import (
 )
 
 type Server struct {
-	router                                        *gin.Engine
+	router *gin.Engine
+	apiadmin.Server
 	userService                                   service.UserService
 	tokenService                                  service.TokenService
 	authService                                   service.AuthorizationService
@@ -85,7 +87,6 @@ func (server *Server) InitSuperUser() error {
 }
 
 func NewServer(ctx context.Context) *Server {
-
 	server := &Server{}
 	initDependencies(server, ctx)
 
@@ -109,7 +110,7 @@ func NewServer(ctx context.Context) *Server {
 
 	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
-		adminRoute.POST("/user/new", server.createUser)
+		adminRoute.POST("/user", server.CreateUser)
 		adminRoute.POST("/sale-type/new", server.createSaleType)
 		adminRoute.POST("/branch-director/new", server.createBranchDirector)
 		adminRoute.GET("sale-type/list", server.getSaleTypes)
@@ -224,6 +225,11 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.saleEditFunc = NewSaleEditFunc(ctx, store)
 
 	server.ratedBranchesFunc = NewRatedBranchesFunc(ctx, store, server.getBranchBrandSaleSumFunc, server.getBranchBrandGoalFunc)
+
+	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
+	createUserFunc := NewCreateUserFunc(ctx, store)
+
+	server.Server = *apiadmin.NewServer(getUserByPhoneFunc, createUserFunc)
 }
 
 // Start runs the HTTP server a specific address

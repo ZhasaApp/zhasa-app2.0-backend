@@ -16,6 +16,10 @@ func NewPhone(phoneString string) (*Phone, error) {
 	return &phone, nil
 }
 
+func (p Phone) String() string {
+	return string(p)
+}
+
 func validatePhoneNumber(phoneNumber string) error {
 	// Check that the phone number matches the pattern for a Kazakhstan phone number
 	match, err := regexp.MatchString(`^\+7\d{10}$`, phoneNumber)
