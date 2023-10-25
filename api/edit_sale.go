@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"regexp"
 	"time"
 	"zhasa2.0/api/entities"
 	entities2 "zhasa2.0/statistic"
@@ -18,6 +19,16 @@ type EditSaleRequest struct {
 	BrandId int32  `json:"brand_id"`
 }
 
+func cleanDateTime(input string) string {
+	// This regex captures date and time up to seconds, and discards everything after it.
+	re := regexp.MustCompile(`^(\d{4}-\d{2}-\d{2} \d{1,2}:\d{2}:\d{2})`)
+	match := re.FindStringSubmatch(input)
+	if len(match) > 1 {
+		return match[1]
+	}
+	return input // return original if no match
+}
+
 func (server *Server) EditSale(ctx *gin.Context) {
 	var requestBody EditSaleRequest
 	if err := ctx.ShouldBindJSON(&requestBody); err != nil {
@@ -28,7 +39,7 @@ func (server *Server) EditSale(ctx *gin.Context) {
 	userId := int32(ctx.GetInt("user_id"))
 
 	layout := "2006-01-02 15:04:05"
-	parsedTime, err := time.Parse(layout, requestBody.Date)
+	parsedTime, err := time.Parse(layout, cleanDateTime(requestBody.Date))
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

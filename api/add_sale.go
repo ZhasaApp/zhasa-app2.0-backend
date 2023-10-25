@@ -27,7 +27,7 @@ func (server *Server) AddSale(ctx *gin.Context) {
 	userId := int32(ctx.GetInt("user_id"))
 
 	layout := "2006-01-02 15:04:05"
-	parsedTime, err := time.Parse(layout, requestBody.Date)
+	parsedTime, err := time.Parse(layout, cleanDateTime(requestBody.Date))
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
