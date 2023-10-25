@@ -44,12 +44,12 @@ func (server *Server) GetOrderedUsers(ctx *gin.Context) {
 			PageSize: request.Limit,
 		})
 	} else {
-		users, err = server.getBranchUsersOrderedByRatioForGivenBrandFunc(*request.BranchId, request.BrandId, monthPeriod, base.Pagination{
+		users, err = server.getBranchUsersOrderedByRatioForGivenBrandFunc(request.BrandId, *request.BranchId, monthPeriod, base.Pagination{
 			Page:     request.Page,
 			PageSize: request.Limit,
 		})
 
-		nextUsers, err = server.getBranchUsersOrderedByRatioForGivenBrandFunc(*request.BranchId, request.BrandId, monthPeriod, base.Pagination{
+		nextUsers, err = server.getBranchUsersOrderedByRatioForGivenBrandFunc(request.BrandId, *request.BranchId, monthPeriod, base.Pagination{
 			Page:     request.Page + 1,
 			PageSize: request.Limit,
 		})
