@@ -22,10 +22,6 @@ func NewGetUserByPhoneFunc(ctx context.Context, store generated.UserStore) GetUs
 			Avatar:    row.AvatarUrl,
 			FirstName: row.FirstName,
 			LastName:  row.LastName,
-			UserRole: entities.UserRole{
-				Id:  row.RoleID,
-				Key: row.RoleKey,
-			},
 		}, nil
 	}
 }

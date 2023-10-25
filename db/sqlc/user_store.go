@@ -8,6 +8,6 @@ type UserStore interface {
 	GetBranchUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetBranchUsersOrderedByRatioForGivenBrandParams) ([]GetBranchUsersOrderedByRatioForGivenBrandRow, error)
 	GetBranchBrandUserByRole(ctx context.Context, arg GetBranchBrandUserByRoleParams) ([]GetBranchBrandUserByRoleRow, error)
 	GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByBranchBrandRoleParams) ([]GetUsersByBranchBrandRoleRow, error)
-	GetUserByPhone(ctx context.Context, phone string) (GetUserByPhoneRow, error)
+	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (int32, error)
 }

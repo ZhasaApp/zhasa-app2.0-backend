@@ -10,12 +10,8 @@ SELECT u.id,
        u.phone,
        u.first_name,
        u.last_name,
-       u.avatar_url,
-       ur.role_id,
-       r.key as role_key
+       u.avatar_url
 FROM user_avatar_view u
-         JOIN user_roles ur on user_avatar_view.id = ur.user_id
-         JOIN roles r on ur.role_id = r.id
 WHERE u.phone = $1;
 
 -- name: GetUserById :one
