@@ -6,14 +6,16 @@ import (
 )
 
 type Server struct {
-	getUserByPhoneFunc repository.GetUserByPhoneFunc
-	createUserFunc     repository.CreateUserFunc
+	getUserByPhoneFunc    repository.GetUserByPhoneFunc
+	createUserFunc        repository.CreateUserFunc
+	makeUserAsManagerFunc repository.MakeUserAsManagerFunc
 }
 
-func NewServer(getUserByPhoneFunc repository.GetUserByPhoneFunc, createUserFunc repository.CreateUserFunc) *Server {
+func NewServer(getUserByPhoneFunc repository.GetUserByPhoneFunc, createUserFunc repository.CreateUserFunc, makeManagerAsUserFunc repository.MakeUserAsManagerFunc) *Server {
 	return &Server{
-		getUserByPhoneFunc: getUserByPhoneFunc,
-		createUserFunc:     createUserFunc,
+		getUserByPhoneFunc:    getUserByPhoneFunc,
+		createUserFunc:        createUserFunc,
+		makeUserAsManagerFunc: makeManagerAsUserFunc,
 	}
 }
 

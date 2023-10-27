@@ -65,3 +65,15 @@ FROM user_avatar_view u
          JOIN user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
          JOIN branch_users bu ON u.id = bu.user_id AND bu.branch_id = $2
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3;
+
+-- name: AddBrandToUser :exec
+INSERT INTO user_brands (user_id, brand_id)
+VALUES ($1, $2) ON CONFLICT DO NOTHING;
+
+-- name: AddRoleToUser :exec
+INSERT INTO user_roles (user_id, role_id)
+VALUES ($1, $2) ON CONFLICT DO NOTHING;
+
+-- name: AddUserToBranch :exec
+INSERT INTO branch_users (user_id, branch_id)
+VALUES ($1, $2) ON CONFLICT DO NOTHING;

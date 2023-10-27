@@ -10,6 +10,51 @@ import (
 	"time"
 )
 
+const addBrandToUser = `-- name: AddBrandToUser :exec
+INSERT INTO user_brands (user_id, brand_id)
+VALUES ($1, $2) ON CONFLICT DO NOTHING
+`
+
+type AddBrandToUserParams struct {
+	UserID  int32 `json:"user_id"`
+	BrandID int32 `json:"brand_id"`
+}
+
+func (q *Queries) AddBrandToUser(ctx context.Context, arg AddBrandToUserParams) error {
+	_, err := q.db.ExecContext(ctx, addBrandToUser, arg.UserID, arg.BrandID)
+	return err
+}
+
+const addRoleToUser = `-- name: AddRoleToUser :exec
+INSERT INTO user_roles (user_id, role_id)
+VALUES ($1, $2) ON CONFLICT DO NOTHING
+`
+
+type AddRoleToUserParams struct {
+	UserID int32 `json:"user_id"`
+	RoleID int32 `json:"role_id"`
+}
+
+func (q *Queries) AddRoleToUser(ctx context.Context, arg AddRoleToUserParams) error {
+	_, err := q.db.ExecContext(ctx, addRoleToUser, arg.UserID, arg.RoleID)
+	return err
+}
+
+const addUserToBranch = `-- name: AddUserToBranch :exec
+INSERT INTO branch_users (user_id, branch_id)
+VALUES ($1, $2) ON CONFLICT DO NOTHING
+`
+
+type AddUserToBranchParams struct {
+	UserID   int32 `json:"user_id"`
+	BranchID int32 `json:"branch_id"`
+}
+
+func (q *Queries) AddUserToBranch(ctx context.Context, arg AddUserToBranchParams) error {
+	_, err := q.db.ExecContext(ctx, addUserToBranch, arg.UserID, arg.BranchID)
+	return err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (phone, first_name, last_name)
 VALUES ($1, $2, $3) ON CONFLICT (phone)

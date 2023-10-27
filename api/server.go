@@ -111,6 +111,7 @@ func NewServer(ctx context.Context) *Server {
 	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
 		adminRoute.POST("/user", server.CreateUser)
+		adminRoute.POST("/manager", server.CreateManager)
 		adminRoute.POST("/sale-type/new", server.createSaleType)
 		adminRoute.POST("/branch-director/new", server.createBranchDirector)
 		adminRoute.GET("sale-type/list", server.getSaleTypes)
@@ -228,8 +229,9 @@ func initDependencies(server *Server, ctx context.Context) {
 
 	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
 	createUserFunc := NewCreateUserFunc(ctx, store)
+	makeUserAsManagerFunc := NewMakeUserAsManagerFunc(ctx, store)
 
-	server.Server = *apiadmin.NewServer(getUserByPhoneFunc, createUserFunc)
+	server.Server = *apiadmin.NewServer(getUserByPhoneFunc, createUserFunc, makeUserAsManagerFunc)
 }
 
 // Start runs the HTTP server a specific address

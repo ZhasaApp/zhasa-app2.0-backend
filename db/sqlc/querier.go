@@ -9,10 +9,13 @@ import (
 )
 
 type Querier interface {
+	AddBrandToUser(ctx context.Context, arg AddBrandToUserParams) error
 	AddLike(ctx context.Context, arg AddLikeParams) (Like, error)
+	AddRoleToUser(ctx context.Context, arg AddRoleToUserParams) error
 	// add sale into sales by given sale_type_id, amount, date, user_id and on conflict replace
 	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) (Sale, error)
 	AddSaleToBrand(ctx context.Context, arg AddSaleToBrandParams) (SalesBrand, error)
+	AddUserToBranch(ctx context.Context, arg AddUserToBranchParams) error
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)

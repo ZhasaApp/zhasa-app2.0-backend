@@ -22,8 +22,8 @@ func NewStore(db *sql.DB) *DBStore {
 	}
 }
 
-func (store *DBStore) execTx(ctx context.Context, fn func(*Queries) error) error {
-	tx, err := store.db.BeginTx(ctx, &sql.TxOptions{})
+func (db *DBStore) execTx(ctx context.Context, fn func(*Queries) error) error {
+	tx, err := db.db.BeginTx(ctx, &sql.TxOptions{})
 	if err != nil {
 		return err
 	}
@@ -40,10 +40,10 @@ func (store *DBStore) execTx(ctx context.Context, fn func(*Queries) error) error
 	return tx.Commit()
 }
 
-func (store *DBStore) AddBrandSaleTx(ctx context.Context, params AddSaleOrReplaceParams, brandId int32) (*Sale, error) {
+func (db *DBStore) AddBrandSaleTx(ctx context.Context, params AddSaleOrReplaceParams, brandId int32) (*Sale, error) {
 	var sale *Sale
 
-	err := store.execTx(ctx, func(queries *Queries) error {
+	err := db.execTx(ctx, func(queries *Queries) error {
 		res, err := queries.AddSaleOrReplace(ctx, params)
 		if err != nil {
 			return err
