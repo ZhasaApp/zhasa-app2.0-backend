@@ -27,7 +27,6 @@ import (
 type Server struct {
 	router *gin.Engine
 	apiadmin.Server
-	userService                                   service.UserService
 	tokenService                                  service.TokenService
 	authService                                   service.AuthorizationService
 	rankRepo                                      RankingsRepository
@@ -63,6 +62,13 @@ type Server struct {
 	saleAddFunc                                   SaleAddFunc
 	saleEditFunc                                  SaleEditFunc
 	ratedBranchesFunc                             RatedBranchesFunc
+
+	// user functions
+	createUserFunc     CreateUserFunc
+	getUserByPhoneFunc GetUserByPhoneFunc
+	getUserByIdFunc    GetUserByIdFunc
+	uploadAvatarFunc   UploadAvatarFunc
+	deleteAvatarFunc   DeleteAvatarFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -71,14 +77,14 @@ func (server *Server) InitSuperUser() error {
 		LastName:  "admin",
 		Phone:     "+77081070480",
 	}
-	_, err := server.userRepo.GetUserByPhone("+77081070480")
+	_, err := server.getUserByPhoneFunc(request.Phone)
 
 	if err == nil {
 		fmt.Println("super user already exist")
 		return nil
 	}
 
-	_, err = server.userService.CreateUser(request)
+	_, err = server.createUserFunc(request.FirstName, request.LastName, request.Phone)
 	if err != nil {
 		return err
 	}
@@ -181,7 +187,6 @@ func initDependencies(server *Server, ctx context.Context) {
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
 	postRepo := NewPostRepository(ctx, store, customQuerier)
 	ownerRepo := NewOwnerRepo(ctx, store)
-	userService := service.NewUserService(userRepo)
 	authService := service.NewAuthorizationService(ctx, userRepo)
 	brandGoal := NewUserGoalFunc(ctx, store)
 	userSaleSum := NewGetSaleSumByUserBrandTypePeriodFunc(ctx, store)
@@ -189,7 +194,6 @@ func initDependencies(server *Server, ctx context.Context) {
 	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 
 	tokenService := service.NewTokenService(&encKey)
-	server.userService = userService
 	server.tokenService = tokenService
 	server.authService = authService
 	server.postRepository = postRepo
@@ -226,6 +230,13 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.saleEditFunc = NewSaleEditFunc(ctx, store)
 
 	server.ratedBranchesFunc = NewRatedBranchesFunc(ctx, store, server.getBranchBrandSaleSumFunc, server.getBranchBrandGoalFunc)
+
+	// user functions
+	server.createUserFunc = NewCreateUserFunc(ctx, store)
+	server.getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
+	server.getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
+	server.uploadAvatarFunc = NewUploadAvatarFunc(ctx, store)
+	server.deleteAvatarFunc = NewDeleteAvatarFunc(ctx, store)
 
 	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
 	createUserFunc := NewCreateUserFunc(ctx, store)

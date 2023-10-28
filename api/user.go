@@ -33,7 +33,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		return
 	}
 
-	user, err := server.userRepo.GetUserById(userTokenData.Id)
+	user, err := server.getUserByIdFunc(userTokenData.Id)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("user not found")))
 		return

@@ -81,13 +81,7 @@ func (server *Server) createBranchDirector(ctx *gin.Context) {
 		return
 	}
 
-	createUserRequest := entities2.CreateUserRequest{
-		Phone:     *phone,
-		FirstName: *firstName,
-		LastName:  *lastName,
-	}
-
-	user, err := server.userService.GetUserByPhone(*phone)
+	user, err := server.getUserByPhoneFunc(*phone)
 	if user != nil && err == nil {
 
 		//id, err := server.directorService.CreateBranchDirector(user.Id, body.BranchId)
@@ -103,13 +97,13 @@ func (server *Server) createBranchDirector(ctx *gin.Context) {
 		return
 	}
 
-	_, err = server.userService.CreateUser(createUserRequest)
+	_, err = server.createUserFunc(*firstName, *lastName, *phone)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	user, err = server.userService.GetUserByPhone(*phone)
+	user, err = server.getUserByPhoneFunc(*phone)
 	if user == nil && err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

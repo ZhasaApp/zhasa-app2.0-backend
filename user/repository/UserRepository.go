@@ -8,39 +8,15 @@ import (
 )
 
 type UserRepository interface {
-	CreateUser(request CreateUserRequest) (int32, error)
 	GetUserByPhone(phone Phone) (*User, error)
 	GetUserById(id int32) (*User, error)
 	AddUserCode(userId UserId, code OtpCode) (OtpId, error)
 	GetAuthCodeById(id OtpId) (*UserAuth, error)
-	UploadAvatar(userId UserId, avatarUrl string) error
-	DeleteAvatar(userId UserId) error
 }
 
 type PostgresUserRepository struct {
 	ctx     context.Context
 	querier db_generated.Querier
-}
-
-func (pur PostgresUserRepository) DeleteAvatar(userId UserId) error {
-	err := pur.querier.DeleteUserAvatar(pur.ctx, int32(userId))
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	return err
-}
-
-func (pur PostgresUserRepository) UploadAvatar(userId UserId, avatarUrl string) error {
-	err := pur.querier.UploadUserAvatar(pur.ctx, db_generated.UploadUserAvatarParams{
-		UserID:    int32(userId),
-		AvatarUrl: avatarUrl,
-	})
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	return nil
 }
 
 func (pur PostgresUserRepository) AddUserCode(userId UserId, code OtpCode) (OtpId, error) {
@@ -110,13 +86,4 @@ func (pur PostgresUserRepository) GetUserByPhone(phone Phone) (*User, error) {
 		LastName:  res.LastName,
 	}
 	return &user, err
-}
-
-func (pur PostgresUserRepository) CreateUser(request CreateUserRequest) (int32, error) {
-	params := db_generated.CreateUserParams{
-		Phone:     string(request.Phone),
-		FirstName: string(request.FirstName),
-		LastName:  string(request.LastName),
-	}
-	return pur.querier.CreateUser(pur.ctx, params)
 }
