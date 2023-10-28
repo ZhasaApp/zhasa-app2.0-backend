@@ -25,5 +25,5 @@ func (s *Server) CreateManager(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Status(http.StatusOK)
+	ctx.Status(http.StatusNoContent)
 }

@@ -2,6 +2,8 @@ package apiadmin
 
 import (
 	"github.com/gin-gonic/gin"
+	repository2 "zhasa2.0/branch/repository"
+	"zhasa2.0/brand"
 	"zhasa2.0/user/repository"
 )
 
@@ -9,13 +11,17 @@ type Server struct {
 	getUserByPhoneFunc    repository.GetUserByPhoneFunc
 	createUserFunc        repository.CreateUserFunc
 	makeUserAsManagerFunc repository.MakeUserAsManagerFunc
+	getAllBranchesFunc    repository2.GetAllBranches
+	getAllBrandsFunc      brand.GetAllBrandsFunc
 }
 
-func NewServer(getUserByPhoneFunc repository.GetUserByPhoneFunc, createUserFunc repository.CreateUserFunc, makeManagerAsUserFunc repository.MakeUserAsManagerFunc) *Server {
+func NewServer(getUserByPhoneFunc repository.GetUserByPhoneFunc, createUserFunc repository.CreateUserFunc, makeManagerAsUserFunc repository.MakeUserAsManagerFunc, branchesFunc repository2.GetAllBranches, brandsFunc brand.GetAllBrandsFunc) *Server {
 	return &Server{
 		getUserByPhoneFunc:    getUserByPhoneFunc,
 		createUserFunc:        createUserFunc,
 		makeUserAsManagerFunc: makeManagerAsUserFunc,
+		getAllBranchesFunc:    branchesFunc,
+		getAllBrandsFunc:      brandsFunc,
 	}
 }
 
