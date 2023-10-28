@@ -25,6 +25,41 @@ func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) erro
 	return err
 }
 
+const getAllBranches = `-- name: GetAllBranches :many
+
+SELECT id, title, description, created_at
+FROM branches
+`
+
+// Replace with the desired period (from_date and to_date)
+func (q *Queries) GetAllBranches(ctx context.Context) ([]Branch, error) {
+	rows, err := q.db.QueryContext(ctx, getAllBranches)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Branch
+	for rows.Next() {
+		var i Branch
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getBranchBrandGoalByGivenDateRange = `-- name: GetBranchBrandGoalByGivenDateRange :one
 SELECT COALESCE(bg.value, 0) AS goal_amount
 FROM branch_brand_sale_type_goals bg

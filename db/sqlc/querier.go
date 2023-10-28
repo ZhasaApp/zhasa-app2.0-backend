@@ -29,6 +29,8 @@ type Querier interface {
 	DeleteSale(ctx context.Context, id int32) error
 	DeleteUserAvatar(ctx context.Context, userID int32) error
 	EditSale(ctx context.Context, arg EditSaleParams) (Sale, error)
+	// Replace with the desired period (from_date and to_date)
+	GetAllBranches(ctx context.Context) ([]Branch, error)
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchBrand(ctx context.Context, arg GetBranchBrandParams) (int32, error)
 	GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error)

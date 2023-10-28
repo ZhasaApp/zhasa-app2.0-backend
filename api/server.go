@@ -112,9 +112,8 @@ func NewServer(ctx context.Context) *Server {
 	{
 		adminRoute.POST("/user", server.CreateUser)
 		adminRoute.POST("/manager", server.CreateManager)
-		adminRoute.POST("/sale-type/new", server.createSaleType)
-		adminRoute.POST("/branch-director/new", server.createBranchDirector)
-		adminRoute.GET("sale-type/list", server.getSaleTypes)
+		adminRoute.GET("/branches", server.GetAllBranches)
+		adminRoute.GET("/brands", server.GetAllBrands)
 	}
 
 	smRoute := router.Group("sales-manager/")
@@ -186,6 +185,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	brandGoal := NewUserGoalFunc(ctx, store)
 	userSaleSum := NewGetSaleSumByUserBrandTypePeriodFunc(ctx, store)
 	saleRepo := NewSaleRepo(ctx, store, saleTypeRepo, brandGoal, userSaleSum)
+	allBrands := NewGetAllBrandsFunc(ctx, store)
 	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 
 	tokenService := service.NewTokenService(&encKey)
@@ -206,7 +206,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserBranchFunc = NewGetUserBranchFunc(ctx, store)
 	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, userSaleSum, server.userBrandGoal)
 	server.getBranchBrands = NewGetBranchBrandsFunc(ctx, store)
-	server.getAllBrands = NewGetAllBrandsFunc(ctx, store)
+	server.getAllBrands = allBrands
 	server.getUserBrands = NewGetUserBrandsFunc(ctx, store)
 	server.getBranchBrandFunc = NewGetBranchBrand(ctx, store)
 	server.getBranchBrandSaleSumFunc = NewGetBranchBrandSaleSumFunc(ctx, store)
@@ -230,8 +230,9 @@ func initDependencies(server *Server, ctx context.Context) {
 	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
 	createUserFunc := NewCreateUserFunc(ctx, store)
 	makeUserAsManagerFunc := NewMakeUserAsManagerFunc(ctx, store)
+	getAllBranches := NewGetAllBranchesFunc(ctx, store)
 
-	server.Server = *apiadmin.NewServer(getUserByPhoneFunc, createUserFunc, makeUserAsManagerFunc)
+	server.Server = *apiadmin.NewServer(getUserByPhoneFunc, createUserFunc, makeUserAsManagerFunc, getAllBranches, allBrands)
 }
 
 // Start runs the HTTP server a specific address

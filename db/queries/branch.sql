@@ -54,4 +54,9 @@ FROM sales s
 WHERE bu.branch_id = $1   -- Replace with the desired branch_id
   AND sb.brand_id = $2    -- Replace with the desired brand_id
   AND s.sale_type_id = $3 -- Replace with the desired sale_type_id
-  AND s.sale_date BETWEEN $4 AND $5; -- Replace with the desired period (from_date and to_date)
+  AND s.sale_date BETWEEN $4 AND $5;
+-- Replace with the desired period (from_date and to_date)
+
+-- name: GetAllBranches :many
+SELECT *
+FROM branches;
