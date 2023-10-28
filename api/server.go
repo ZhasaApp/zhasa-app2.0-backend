@@ -39,7 +39,6 @@ type Server struct {
 	getUserBrandFunc                              GetUserBrandFunc
 	updateUserBrandRatio                          UpdateUserBrandRatioFunc
 	getUserRatingFunc                             rating.GetUserRatingFunc
-	userRepo                                      UserRepository
 	getUserBranchFunc                             GetUserBranchFunc
 	calculateUserBrandRatio                       CalculateUserBrandRatio
 	getBranchBrands                               GetBranchBrandsFunc
@@ -179,14 +178,25 @@ func initDependencies(server *Server, ctx context.Context) {
 
 	store := generated.NewStore(conn)
 	customQuerier := NewCustomQuerier(conn)
-	userRepo := NewUserRepository(ctx, store)
 	saleTypeRepo := NewSaleTypeRepository(ctx, store)
 	branchRepo := NewBranchRepository(ctx, store, customQuerier, saleTypeRepo)
 	directorRepo := NewBranchDirectorRepository(ctx, store)
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
 	postRepo := NewPostRepository(ctx, store, customQuerier)
 	ownerRepo := NewOwnerRepo(ctx, store)
-	authService := service.NewAuthorizationService(ctx, userRepo)
+
+	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
+	getUserByIdFunc := NewGetUserByIdFunc(ctx, store)
+	addUserCodeFunc := NewAddUserCodeFunc(ctx, store)
+	getAuthCodeByIdFunc := NewGetAuthCodeByIdFunc(ctx, store)
+	authService := service.NewAuthorizationService(
+		ctx,
+		getUserByPhoneFunc,
+		addUserCodeFunc,
+		getUserByIdFunc,
+		getAuthCodeByIdFunc,
+	)
+
 	brandGoal := NewUserGoalFunc(ctx, store)
 	userSaleSum := NewGetSaleSumByUserBrandTypePeriodFunc(ctx, store)
 	saleRepo := NewSaleRepo(ctx, store, saleTypeRepo, brandGoal, userSaleSum)
@@ -206,7 +216,6 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserBrandFunc = NewGetUserBrandFunc(ctx, store)
 	server.updateUserBrandRatio = NewUpdateUserBrandRatioFunc(ctx, store)
 	server.getUserRatingFunc = rating.NewGetUserRatingFunc(ctx, store)
-	server.userRepo = userRepo
 	server.getUserBranchFunc = NewGetUserBranchFunc(ctx, store)
 	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, userSaleSum, server.userBrandGoal)
 	server.getBranchBrands = NewGetBranchBrandsFunc(ctx, store)
@@ -238,7 +247,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.uploadAvatarFunc = NewUploadAvatarFunc(ctx, store)
 	server.deleteAvatarFunc = NewDeleteAvatarFunc(ctx, store)
 
-	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
+	getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
 	createUserFunc := NewCreateUserFunc(ctx, store)
 	makeUserAsManagerFunc := NewMakeUserAsManagerFunc(ctx, store)
 	getAllBranches := NewGetAllBranchesFunc(ctx, store)

@@ -13,6 +13,8 @@ type UserStore interface {
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error
 	DeleteUserAvatar(ctx context.Context, userID int32) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (int32, error)
+	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
+	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	AddBrandToUser(ctx context.Context, arg AddBrandToUserParams) error
 	AddRoleToUser(ctx context.Context, arg AddRoleToUserParams) error
 	AddUserToBranch(ctx context.Context, arg AddUserToBranchParams) error
