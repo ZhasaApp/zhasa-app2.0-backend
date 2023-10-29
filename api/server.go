@@ -27,7 +27,6 @@ import (
 type Server struct {
 	router *gin.Engine
 	apiadmin.Server
-	userService                                   service.UserService
 	tokenService                                  service.TokenService
 	authService                                   service.AuthorizationService
 	rankRepo                                      RankingsRepository
@@ -40,7 +39,6 @@ type Server struct {
 	getUserBrandFunc                              GetUserBrandFunc
 	updateUserBrandRatio                          UpdateUserBrandRatioFunc
 	getUserRatingFunc                             rating.GetUserRatingFunc
-	userRepo                                      UserRepository
 	getUserBranchFunc                             GetUserBranchFunc
 	calculateUserBrandRatio                       CalculateUserBrandRatio
 	getBranchBrands                               GetBranchBrandsFunc
@@ -63,6 +61,13 @@ type Server struct {
 	saleAddFunc                                   SaleAddFunc
 	saleEditFunc                                  SaleEditFunc
 	ratedBranchesFunc                             RatedBranchesFunc
+
+	// user functions
+	createUserFunc     CreateUserFunc
+	getUserByPhoneFunc GetUserByPhoneFunc
+	getUserByIdFunc    GetUserByIdFunc
+	uploadAvatarFunc   UploadAvatarFunc
+	deleteAvatarFunc   DeleteAvatarFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -71,14 +76,14 @@ func (server *Server) InitSuperUser() error {
 		LastName:  "admin",
 		Phone:     "+77081070480",
 	}
-	_, err := server.userRepo.GetUserByPhone("+77081070480")
+	_, err := server.getUserByPhoneFunc(request.Phone)
 
 	if err == nil {
 		fmt.Println("super user already exist")
 		return nil
 	}
 
-	_, err = server.userService.CreateUser(request)
+	_, err = server.createUserFunc(request.FirstName, request.LastName, request.Phone)
 	if err != nil {
 		return err
 	}
@@ -172,15 +177,25 @@ func initDependencies(server *Server, ctx context.Context) {
 
 	store := generated.NewStore(conn)
 	customQuerier := NewCustomQuerier(conn)
-	userRepo := NewUserRepository(ctx, store)
 	saleTypeRepo := NewSaleTypeRepository(ctx, store)
 	branchRepo := NewBranchRepository(ctx, store, customQuerier, saleTypeRepo)
 	directorRepo := NewBranchDirectorRepository(ctx, store)
 	rankingsRepo := NewRankingsRepository(ctx, customQuerier, branchRepo)
 	postRepo := NewPostRepository(ctx, store, customQuerier)
 	ownerRepo := NewOwnerRepo(ctx, store)
-	userService := service.NewUserService(userRepo)
-	authService := service.NewAuthorizationService(ctx, userRepo)
+
+	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
+	getUserByIdFunc := NewGetUserByIdFunc(ctx, store)
+	addUserCodeFunc := NewAddUserCodeFunc(ctx, store)
+	getAuthCodeByIdFunc := NewGetAuthCodeByIdFunc(ctx, store)
+	authService := service.NewAuthorizationService(
+		ctx,
+		getUserByPhoneFunc,
+		addUserCodeFunc,
+		getUserByIdFunc,
+		getAuthCodeByIdFunc,
+	)
+
 	brandGoal := NewUserGoalFunc(ctx, store)
 	userSaleSum := NewGetSaleSumByUserBrandTypePeriodFunc(ctx, store)
 	saleRepo := NewSaleRepo(ctx, store, saleTypeRepo, brandGoal, userSaleSum)
@@ -188,7 +203,6 @@ func initDependencies(server *Server, ctx context.Context) {
 	encKey := []byte("YELLOW SUBMARINE, BLACK WIZARDRY")
 
 	tokenService := service.NewTokenService(&encKey)
-	server.userService = userService
 	server.tokenService = tokenService
 	server.authService = authService
 	server.postRepository = postRepo
@@ -201,7 +215,6 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserBrandFunc = NewGetUserBrandFunc(ctx, store)
 	server.updateUserBrandRatio = NewUpdateUserBrandRatioFunc(ctx, store)
 	server.getUserRatingFunc = rating.NewGetUserRatingFunc(ctx, store)
-	server.userRepo = userRepo
 	server.getUserBranchFunc = NewGetUserBranchFunc(ctx, store)
 	server.calculateUserBrandRatio = NewCalculateUserBrandRatio(saleTypeRepo, userSaleSum, server.userBrandGoal)
 	server.getBranchBrands = NewGetBranchBrandsFunc(ctx, store)
@@ -226,7 +239,14 @@ func initDependencies(server *Server, ctx context.Context) {
 
 	server.ratedBranchesFunc = NewRatedBranchesFunc(ctx, store, server.getBranchBrandSaleSumFunc, server.getBranchBrandGoalFunc)
 
-	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
+	// user functions
+	server.createUserFunc = NewCreateUserFunc(ctx, store)
+	server.getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
+	server.getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
+	server.uploadAvatarFunc = NewUploadAvatarFunc(ctx, store)
+	server.deleteAvatarFunc = NewDeleteAvatarFunc(ctx, store)
+
+	getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
 	createUserFunc := NewCreateUserFunc(ctx, store)
 	makeUserAsManagerFunc := NewMakeUserAsManagerFunc(ctx, store)
 	getAllBranches := NewGetAllBranchesFunc(ctx, store)

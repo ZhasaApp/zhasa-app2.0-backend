@@ -8,13 +8,13 @@ import (
 	"zhasa2.0/user/entities"
 )
 
-type CreateUserFunc func(firstName, lastName string, phone entities.Phone) (int32, error)
+type CreateUserFunc func(firstName, lastName entities.Name, phone entities.Phone) (int32, error)
 
 func NewCreateUserFunc(ctx context.Context, store generated.UserStore) CreateUserFunc {
-	return func(firstName, lastName string, phone entities.Phone) (int32, error) {
+	return func(firstName, lastName entities.Name, phone entities.Phone) (int32, error) {
 		id, err := store.CreateUser(ctx, generated.CreateUserParams{
-			FirstName: firstName,
-			LastName:  lastName,
+			FirstName: firstName.String(),
+			LastName:  lastName.String(),
 			Phone:     phone.String(),
 		})
 

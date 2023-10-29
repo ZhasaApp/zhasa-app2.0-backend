@@ -65,6 +65,10 @@ func NewName(name string) (*Name, error) {
 	return &res, nil
 }
 
+func (n Name) String() string {
+	return string(n)
+}
+
 type UserRole struct {
 	Id  int32
 	Key string

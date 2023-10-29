@@ -88,7 +88,7 @@ func (server *Server) SMDashboard(ctx *gin.Context) {
 
 	dashboardResponse.LastSales = saleItems
 
-	user, err := server.userRepo.GetUserById(request.UserId)
+	user, err := server.getUserByIdFunc(request.UserId)
 
 	branch, err := server.getUserBranchFunc(request.UserId)
 
