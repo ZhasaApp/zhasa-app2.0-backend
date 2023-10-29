@@ -9,10 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"time"
-	. "zhasa2.0/user/entities"
 )
 
 // Generate a random string for image name
@@ -25,7 +23,7 @@ func generateRandomString(n int) string {
 	return string(s)
 }
 
-func (server Server) HandleAvatarUpload(c *gin.Context) {
+func (server *Server) HandleAvatarUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -53,11 +51,11 @@ func (server Server) HandleAvatarUpload(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"url": "http://185.182.219.170/images/avatar/" + filename,
+		"url": "http://185.182.219.90/images/avatar/" + filename,
 	})
 }
 
-func (server Server) HandleNewsUpload(c *gin.Context) {
+func (server *Server) HandleNewsUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -85,11 +83,11 @@ func (server Server) HandleNewsUpload(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"url": "http://185.182.219.170/images/news/" + filename,
+		"url": "http://185.182.219.90/images/news/" + filename,
 	})
 }
 
-func (server Server) HandleManagersUpload(c *gin.Context) {
+func (server *Server) HandleManagersUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -123,23 +121,23 @@ func (server Server) HandleManagersUpload(c *gin.Context) {
 	}
 
 	for _, rec := range records {
-		phone, err := NewPhone(transformPhoneNumber(rec[0]))
-
+		//	phone, err := NewPhone(transformPhoneNumber(rec[0]))
+		fmt.Println(rec[0])
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		id, err := server.userService.CreateUser(CreateUserRequest{
-			Phone:     *phone,
-			FirstName: Name(rec[1]),
-			LastName:  Name(rec[2]),
-		})
+		//id, err := server.userService.CreateUser(CreateUserRequest{
+		//	Phone:     *phone,
+		//	FirstName: Name(rec[1]),
+		//	LastName:  Name(rec[2]),
+		//})
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
-		branchId, err := strconv.Atoi(rec[3])
-		err = server.salesManagerService.CreateSalesManager(id, int32(branchId))
+		//	branchId, err := strconv.Atoi(rec[3])
+		//err = server.salesManagerService.CreateSalesManager(id, int32(branchId))
 
 		if err != nil {
 			fmt.Println(err)
@@ -147,7 +145,7 @@ func (server Server) HandleManagersUpload(c *gin.Context) {
 	}
 }
 
-func (server Server) HandleDirectorsUpload(c *gin.Context) {
+func (server *Server) HandleDirectorsUpload(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -175,34 +173,34 @@ func (server Server) HandleDirectorsUpload(c *gin.Context) {
 	}
 
 	// Read remaining records
-	records, err := r.ReadAll()
-	if err != nil {
-		log.Fatalf("error reading CSV: %s", err)
-	}
-
-	for _, rec := range records {
-		phone, err := NewPhone(transformPhoneNumber(rec[0]))
-
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		id, err := server.userService.CreateUser(CreateUserRequest{
-			Phone:     *phone,
-			FirstName: Name(rec[1]),
-			LastName:  Name(rec[2]),
-		})
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		branchId, err := strconv.Atoi(rec[3])
-		_, err = server.directorService.CreateBranchDirector(id, int32(branchId))
-
-		if err != nil {
-			fmt.Println(err)
-		}
-	}
+	//records, err := r.ReadAll()
+	//if err != nil {
+	//	log.Fatalf("error reading CSV: %s", err)
+	//}
+	//
+	//for _, rec := range records {
+	//	//phone, err := NewPhone(transformPhoneNumber(rec[0]))
+	//
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		continue
+	//	}
+	//	//id, err := server.userService.CreateUser(CreateUserRequest{
+	//	//	Phone:     *phone,
+	//	//	FirstName: Name(rec[1]),
+	//	//	LastName:  Name(rec[2]),
+	//	//})
+	//	if err != nil {
+	//		fmt.Println(err)
+	//		continue
+	//	}
+	////	branchId, err := strconv.Atoi(rec[3])
+	////	_, err = server.directorService.CreateBranchDirector(id, int32(branchId))
+	//
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//}
 }
 
 func transformPhoneNumber(phone string) string {

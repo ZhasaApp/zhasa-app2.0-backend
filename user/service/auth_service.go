@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 	"zhasa2.0/user/entities"
-
-	"zhasa2.0/user/repository"
+	. "zhasa2.0/user/repository"
 )
 
 type AuthorizationService interface {
@@ -19,27 +19,39 @@ type AuthResponse struct {
 }
 
 type SafeAuthorizationService struct {
-	ctx             context.Context
-	repo            repository.UserRepository
-	recoveryService RecoveryService
+	ctx                 context.Context
+	recoveryService     RecoveryService
+	getUserByPhoneFunc  GetUserByPhoneFunc
+	getUserByIdFunc     GetUserByIdFunc
+	addUserCodeFunc     AddUserCodeFunc
+	getAuthCodeByIdFunc GetAuthCodeByIdFunc
 }
 
-func NewAuthorizationService(ctx context.Context, repo repository.UserRepository) AuthorizationService {
+func NewAuthorizationService(
+	ctx context.Context,
+	getUserByPhoneFunc GetUserByPhoneFunc,
+	addUserCodeFunc AddUserCodeFunc,
+	getUserByIdFunc GetUserByIdFunc,
+	getAuthCodeByIdFunc GetAuthCodeByIdFunc,
+) AuthorizationService {
 	return SafeAuthorizationService{
-		ctx:             ctx,
-		repo:            repo,
-		recoveryService: NewRecoveryService(),
+		ctx:                 ctx,
+		recoveryService:     NewRecoveryService(),
+		getUserByPhoneFunc:  getUserByPhoneFunc,
+		addUserCodeFunc:     addUserCodeFunc,
+		getUserByIdFunc:     getUserByIdFunc,
+		getAuthCodeByIdFunc: getAuthCodeByIdFunc,
 	}
 }
 
 func (service SafeAuthorizationService) RequestCode(phone entities.Phone) (entities.OtpId, error) {
-	user, err := service.repo.GetUserByPhone(phone)
+	user, err := service.getUserByPhoneFunc(phone)
 	if err != nil {
 		return 0, errors.New("user not found")
 	}
 
 	otp, err := service.recoveryService.GenerateSendRecoveryCode(*user)
-	id, err := service.repo.AddUserCode(entities.UserId(user.Id), *otp)
+	id, err := service.addUserCodeFunc(entities.UserId(user.Id), *otp)
 	return id, err
 }
 
@@ -50,8 +62,9 @@ func (service SafeAuthorizationService) Login(otpId entities.OtpId, code entitie
 		return nil, err
 	}
 
-	user, err := service.repo.GetUserById(userId)
+	user, err := service.getUserByIdFunc(int32(userId))
 	if err != nil {
+		fmt.Println(err, "userId: ", userId)
 		return nil, errors.New("user not found")
 	}
 
@@ -60,7 +73,7 @@ func (service SafeAuthorizationService) Login(otpId entities.OtpId, code entitie
 
 func (service SafeAuthorizationService) VerifyRecoveryCode(otpId entities.OtpId, code entities.OtpCode) (entities.UserId, error) {
 
-	auth, err := service.repo.GetAuthCodeById(otpId)
+	auth, err := service.getAuthCodeByIdFunc(otpId)
 
 	if err != nil {
 		return 0, errors.New("otp code not found")

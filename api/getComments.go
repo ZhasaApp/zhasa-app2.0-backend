@@ -25,7 +25,7 @@ type CommentsResponse struct {
 	Count   int32         `json:"count"`
 }
 
-func (server Server) GetComments(ctx *gin.Context) {
+func (server *Server) GetComments(ctx *gin.Context) {
 	var req *getCommentsRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

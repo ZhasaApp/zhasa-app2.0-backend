@@ -1,15 +1,14 @@
 package api
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
-	. "zhasa2.0/sale/entities"
-	"zhasa2.0/statistic/entities"
+	"zhasa2.0/statistic"
 )
 
 type GetGoalRequest struct {
 	UserID     int32 `json:"user_id" form:"user_id"`
+	BrandId    int32 `json:"brand_id" form:"brand_id"`
 	Month      int32 `json:"month" form:"month"`
 	Year       int32 `json:"year" form:"year"`
 	SaleTypeID int32 `json:"sale_type_id" form:"sale_type_id"`
@@ -25,34 +24,22 @@ func (server *Server) GetSmGoal(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	sm, err := server.salesManagerService.GetSalesManagerByUserId(request.UserID)
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("sales manager not found")))
-		return
-	}
-
-	period := entities.MonthPeriod{
+	period := statistic.MonthPeriod{
 		MonthNumber: request.Month,
 		Year:        request.Year,
 	}
 
-	goal, err := server.salesManagerService.GetSalesManagerGoalByType(period, sm.Id, SaleTypeId(request.SaleTypeID))
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+	goal := server.userBrandGoal(request.UserID, request.BrandId, request.SaleTypeID, period)
 
 	if goal == 0 {
-		ctx.JSON(http.StatusOK, GetGoalResponse{
+		ctx.JSON(http.StatusOK, GetBranchGoalResponse{
 			Value: nil,
 		})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, GetGoalResponse{
-		Value: (*int64)(&(goal)),
+	ctx.JSON(http.StatusOK, GetBranchGoalResponse{
+		Value: &(goal),
 	})
+
 }

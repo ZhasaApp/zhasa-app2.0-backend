@@ -4,17 +4,18 @@ import (
 	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+	"zhasa2.0/statistic"
 )
 
 func TestGetMondayDate(t *testing.T) {
 	testCases := []struct {
 		name     string
-		w        WeekPeriod
+		w        statistic.WeekPeriod
 		expected time.Time
 	}{
 		{
 			name: "Case 1: Week 20 in 2023",
-			w: WeekPeriod{
+			w: statistic.WeekPeriod{
 				Year:       2023,
 				WeekNumber: 20,
 			},
@@ -22,7 +23,7 @@ func TestGetMondayDate(t *testing.T) {
 		},
 		{
 			name: "Case 2: Week 1 in 2022",
-			w: WeekPeriod{
+			w: statistic.WeekPeriod{
 				Year:       2022,
 				WeekNumber: 1,
 			},
@@ -30,7 +31,7 @@ func TestGetMondayDate(t *testing.T) {
 		},
 		{
 			name: "Case 3: Week 53 in 2020",
-			w: WeekPeriod{
+			w: statistic.WeekPeriod{
 				Year:       2020,
 				WeekNumber: 53,
 			},
@@ -40,7 +41,7 @@ func TestGetMondayDate(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			from := tc.w.getMondayDate()
+			from := tc.w.GetMondayDate()
 			require.Equal(t, from, tc.expected)
 		})
 	}

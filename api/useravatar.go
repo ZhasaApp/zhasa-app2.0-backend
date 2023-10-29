@@ -40,7 +40,7 @@ func (server *Server) UploadUserAvatar(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user not found")))
 		return
 	}
-	err := server.userService.UploadAvatar(UserId(userId), request.Url)
+	err := server.uploadAvatarFunc(UserId(userId), request.Url)
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -50,7 +50,7 @@ func (server *Server) UploadUserAvatar(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-func (server Server) DeleteAvatar(ctx *gin.Context) {
+func (server *Server) DeleteAvatar(ctx *gin.Context) {
 	userId := ctx.GetInt("user_id")
 
 	if userId == 0 {
@@ -58,7 +58,7 @@ func (server Server) DeleteAvatar(ctx *gin.Context) {
 		return
 	}
 
-	err := server.userService.DeleteAvatar(UserId(userId))
+	err := server.deleteAvatarFunc(UserId(userId))
 
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)

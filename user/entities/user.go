@@ -3,6 +3,7 @@ package entities
 import (
 	"errors"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -16,8 +17,9 @@ type User struct {
 	Id        int32
 	Phone     Phone
 	Avatar    string
-	FirstName Name
-	LastName  Name
+	FirstName string
+	LastName  string
+	UserRole  UserRole
 }
 
 func (u User) AvatarPointer() *string {
@@ -28,7 +30,7 @@ func (u User) AvatarPointer() *string {
 }
 
 func (u User) GetFullName() string {
-	return string(u.FirstName) + " " + string(u.LastName)
+	return strings.TrimSpace(u.FirstName) + " " + strings.TrimSpace(u.LastName)
 }
 
 type UserAuth struct {
@@ -61,4 +63,24 @@ func NewName(name string) (*Name, error) {
 	}
 	res := Name(name)
 	return &res, nil
+}
+
+func (n Name) String() string {
+	return string(n)
+}
+
+type UserRole struct {
+	Id  int32
+	Key string
+}
+
+type RatedUser struct {
+	User
+	Ratio float64
+	BranchInfo
+}
+
+type BranchInfo struct {
+	Id    int32
+	Title string
 }

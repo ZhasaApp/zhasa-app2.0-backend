@@ -3,13 +3,12 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
-	. "zhasa2.0/branch/entities"
-	. "zhasa2.0/sale/entities"
-	"zhasa2.0/statistic/entities"
+	"zhasa2.0/statistic"
 )
 
 type GetBranchGoalRequest struct {
 	BranchId   int32 `json:"branch_id" form:"branch_id"`
+	BrandId    int32 `json:"brand_id" form:"brand_id"`
 	Month      int32 `json:"month" form:"month"`
 	Year       int32 `json:"year" form:"year"`
 	SaleTypeID int32 `json:"sale_type_id" form:"sale_type_id"`
@@ -26,12 +25,12 @@ func (server *Server) GetBranchGoal(ctx *gin.Context) {
 		return
 	}
 
-	period := entities.MonthPeriod{
+	period := statistic.MonthPeriod{
 		MonthNumber: request.Month,
 		Year:        request.Year,
 	}
 
-	goal, err := server.branchService.GetBranchGoal(period, BranchId(request.BranchId), SaleTypeId(request.SaleTypeID))
+	goal, err := server.getBranchBrandGoalFunc(request.BranchId, request.BrandId, request.SaleTypeID, period)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -46,6 +45,6 @@ func (server *Server) GetBranchGoal(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, GetBranchGoalResponse{
-		Value: (*int64)(&(goal)),
+		Value: &(goal),
 	})
 }

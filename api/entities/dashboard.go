@@ -1,5 +1,7 @@
 package entities
 
+import "zhasa2.0/user/entities"
+
 type CreateSalesManagerBody struct {
 	CreateUserBody
 	BranchId int32 `json:"branch_id"`
@@ -34,6 +36,25 @@ type SalesManagerBranchItem struct {
 	BranchId    int32   `json:"branch_id"`
 }
 
+func SalesManagerBranchItemFromRatedUser(ratedUser entities.RatedUser) SalesManagerBranchItem {
+	return SalesManagerBranchItem{
+		Id:          ratedUser.User.Id,
+		Avatar:      ratedUser.AvatarPointer(),
+		FullName:    ratedUser.GetFullName(),
+		Ratio:       ratedUser.Ratio,
+		BranchTitle: ratedUser.BranchInfo.Title,
+		BranchId:    ratedUser.BranchInfo.Id,
+	}
+}
+
+func SalesManagerBranchItemsFromRatedUsers(ratedUsers []entities.RatedUser) []SalesManagerBranchItem {
+	salesManagerBranchItems := make([]SalesManagerBranchItem, 0)
+	for _, ratedUser := range ratedUsers {
+		salesManagerBranchItems = append(salesManagerBranchItems, SalesManagerBranchItemFromRatedUser(ratedUser))
+	}
+	return salesManagerBranchItems
+}
+
 type SalesManagersListResponse struct {
 	Result  []SalesManagerBranchItem `json:"result"`
 	Count   int32                    `json:"count"`
@@ -54,26 +75,12 @@ type BranchDashboardResponse struct {
 	Profile                SimpleProfile                `json:"profile"`
 }
 
-type SaleItemResponse struct {
-	Id     int32            `json:"id"`
-	Title  string           `json:"title"`
-	Date   string           `json:"date"`
-	Amount int64            `json:"value"`
-	Type   SaleTypeResponse `json:"type"`
-}
-
 type CreateSaleResponse struct {
 	Id     int32  `json:"id"`
 	Title  string `json:"title"`
 	Date   string `json:"date"`
 	Amount int64  `json:"amount"`
 	TypeId int32  `json:"type_id"`
-}
-
-type SalesResponse struct {
-	Result  []SaleItemResponse `json:"result"`
-	Count   int32              `json:"count"`
-	HasNext bool               `json:"has_next"`
 }
 
 type SalesStatisticsByTypesItem struct {
@@ -84,10 +91,15 @@ type SalesStatisticsByTypesItem struct {
 }
 
 type SalesManagerDashboardProfile struct {
-	Id       int32   `json:"id"`
-	Avatar   *string `json:"avatar"`
-	FullName string  `json:"full_name"`
-	Branch   string  `json:"branch"`
+	Id       int32        `json:"id"`
+	Avatar   *string      `json:"avatar"`
+	FullName string       `json:"full_name"`
+	Branch   SimpleBranch `json:"branch"`
+}
+
+type SimpleBranch struct {
+	Id    int32  `json:"id"`
+	Title string `json:"title"`
 }
 
 type SimpleProfile struct {

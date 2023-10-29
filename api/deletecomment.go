@@ -9,7 +9,7 @@ type deleteCommentRequest struct {
 	CommentId int32 `json:"id" binding:"required"`
 }
 
-func (server Server) DeleteComment(ctx *gin.Context) {
+func (server *Server) DeleteComment(ctx *gin.Context) {
 	var req *deleteCommentRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

@@ -2,7 +2,9 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	. "zhasa2.0/api/entities"
 	. "zhasa2.0/user/entities"
@@ -31,80 +33,38 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		return
 	}
 
-	sm, err := server.salesManagerService.GetSalesManagerByUserId(userTokenData.Id)
-	branches := make([]BranchResponse, 0)
-
-	if sm != nil {
-		var avatar *string
-		if len(sm.AvatarUrl) != 0 {
-			avatar = &sm.AvatarUrl
-		}
-		branches = append(branches, BranchResponse{
-			Id:          int32(sm.Branch.BranchId),
-			Description: string(sm.Branch.Title),
-		})
-
-		response := UserProfileResponse{
-			Id:       userTokenData.Id,
-			Avatar:   avatar,
-			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
-			Phone:    userTokenData.Phone,
-			Branch: BranchResponse{
-				Id:          int32(sm.Branch.BranchId),
-				Description: string(sm.Branch.Title),
-			},
-			Role:     "sales_manager",
-			Branches: &branches,
-		}
-
-		ctx.JSON(http.StatusOK, response)
+	user, err := server.getUserByIdFunc(userTokenData.Id)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("user not found")))
 		return
 	}
 
-	bd, err := server.directorService.GetBranchDirectorByUserId(UserId(userTokenData.Id))
+	branch, err := server.getUserBranchFunc(user.Id)
 
-	if bd != nil && err == nil && len(bd) > 0 {
-		for _, br := range bd {
-			branches = append(branches, BranchResponse{
-				Id:          int32(br.Branch.BranchId),
-				Description: string(br.Branch.Title),
-			})
-		}
-		response := UserProfileResponse{
-			Id:       userTokenData.Id,
-			Avatar:   bd[0].AvatarPointer(),
-			FullName: userTokenData.FirstName + " " + userTokenData.LastName,
-			Phone:    userTokenData.Phone,
-			Branch: BranchResponse{
-				Id:          int32(bd[0].Branch.BranchId),
-				Description: string(bd[0].Branch.Title),
-			},
-			Branches: &branches,
-			Role:     "branch_director",
-		}
+	var branchResponse *BranchResponse
 
-		ctx.JSON(http.StatusOK, response)
-		return
+	if branch != nil {
+		brands, err := server.getBranchBrands(branch.ID)
+		if err != nil {
+			fmt.Println(err)
+			log.Fatal("no brands for branch")
+		}
+		branchResponse = &BranchResponse{
+			Id:          branch.ID,
+			Description: branch.Title,
+			Brands:      BrandItemsFromBrands(brands),
+		}
 	}
 
-	owner, err := server.ownerRepository.GetOwnerByUserId(userTokenData.Id)
-
-	if owner != nil && err == nil {
-		response := UserProfileResponse{
-			Id:       userTokenData.Id,
-			Avatar:   owner.AvatarPointer(),
-			FullName: owner.GetFullName(),
-			Phone:    userTokenData.Phone,
-			Branch:   BranchResponse{},
-			Role:     "owner",
-		}
-
-		ctx.JSON(http.StatusOK, response)
-		return
-	}
-
-	ctx.JSON(http.StatusUnauthorized, errorResponse(err))
-	return
+	ctx.JSON(http.StatusOK, UserProfileResponse{
+		Id:       user.Id,
+		Avatar:   user.AvatarPointer(),
+		FullName: user.GetFullName(),
+		Phone:    string(user.Phone),
+		Branch:   branchResponse,
+		Role:     user.UserRole.Key,
+		Branches: nil,
+	})
 }
 
 func (server *Server) tryAuth(ctx *gin.Context) {
@@ -122,8 +82,8 @@ func (server *Server) tryAuth(ctx *gin.Context) {
 	}
 	userTokenData := service.UserTokenData{
 		Id:        user.Id,
-		FirstName: string(user.FirstName),
-		LastName:  string(user.LastName),
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
 		Phone:     string(user.Phone),
 	}
 	token, err := server.tokenService.GenerateToken(&userTokenData)
@@ -162,49 +122,4 @@ func (server *Server) requestAuthCode(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, response)
-}
-func (server *Server) createUser(ctx *gin.Context) {
-	var createUserBody CreateUserBody
-	if err := ctx.ShouldBindJSON(&createUserBody); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	firstName, err := NewName(createUserBody.FirstName)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	lastName, err := NewName(createUserBody.LastName)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	phone, err := NewPhone(createUserBody.Phone)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	request := CreateUserRequest{
-		Phone:     *phone,
-		FirstName: *firstName,
-		LastName:  *lastName,
-	}
-
-	user, err := server.userService.GetUserByPhone(*phone)
-	if user != nil && err == nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("user already exist")))
-		return
-	}
-
-	_, err = server.userService.CreateUser(request)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	ctx.Status(http.StatusOK)
 }

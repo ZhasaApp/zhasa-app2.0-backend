@@ -11,7 +11,7 @@ import (
 )
 
 func (server *Server) getSaleTypes(ctx *gin.Context) {
-	types, err := server.saleTypeService.GetSaleTypes()
+	types, err := server.saleTypeRepo.GetSaleTypes()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
@@ -44,7 +44,7 @@ func (server *Server) createSaleType(ctx *gin.Context) {
 		Description: createSaleTypeBody.Description,
 	}
 
-	id, err := server.saleTypeService.CreateSaleType(body)
+	id, err := server.saleTypeRepo.CreateSaleType(body)
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -81,49 +81,43 @@ func (server *Server) createBranchDirector(ctx *gin.Context) {
 		return
 	}
 
-	createUserRequest := entities2.CreateUserRequest{
-		Phone:     *phone,
-		FirstName: *firstName,
-		LastName:  *lastName,
-	}
-
-	user, err := server.userService.GetUserByPhone(*phone)
+	user, err := server.getUserByPhoneFunc(*phone)
 	if user != nil && err == nil {
 
-		id, err := server.directorService.CreateBranchDirector(user.Id, body.BranchId)
-
-		if err != nil {
-			fmt.Println(err)
-			ctx.JSON(http.StatusBadRequest, errors.New("create branch director error"))
-			return
-		}
-		ctx.JSON(http.StatusOK, IdResponse{
-			Id: int32(id),
-		})
+		//id, err := server.directorService.CreateBranchDirector(user.Id, body.BranchId)
+		//
+		//if err != nil {
+		//	fmt.Println(err)
+		//	ctx.JSON(http.StatusBadRequest, errors.New("create branch director error"))
+		//	return
+		//}
+		//ctx.JSON(http.StatusOK, IdResponse{
+		//	Id: int32(id),
+		//})
 		return
 	}
 
-	_, err = server.userService.CreateUser(createUserRequest)
+	_, err = server.createUserFunc(*firstName, *lastName, *phone)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	user, err = server.userService.GetUserByPhone(*phone)
+	user, err = server.getUserByPhoneFunc(*phone)
 	if user == nil && err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
-	id, err := server.directorService.CreateBranchDirector(user.Id, body.BranchId)
+	//	id, err := server.directorService.CreateBranchDirector(user.Id, body.BranchId)
 
 	if err != nil {
 		fmt.Println(err)
 		ctx.JSON(http.StatusBadRequest, errors.New("create branch director error"))
 		return
 	}
-	response := IdResponse{
-		Id: int32(id),
-	}
-	ctx.JSON(http.StatusOK, response)
+	//response := IdResponse{
+	//	Id: int32(id),
+	//}
+	//ctx.JSON(http.StatusOK, response)
 }

@@ -35,7 +35,7 @@ type GetPostsRequest struct {
 	PageSize int32 `json:"limit" form:"limit"`
 }
 
-func (server Server) GetPosts(ctx *gin.Context) {
+func (server *Server) GetPosts(ctx *gin.Context) {
 	var req *GetPostsRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
