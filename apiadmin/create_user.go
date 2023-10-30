@@ -4,6 +4,8 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+	"strings"
 	"zhasa2.0/user/entities"
 )
 
@@ -53,4 +55,57 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"id": id,
 	})
+}
+
+func (s *Server) GetUserForm(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "create-user-form.html", gin.H{})
+}
+
+func (s *Server) CreateUserFromForm(ctx *gin.Context) {
+	firstNameForm := ctx.PostForm("first_name")
+	lastNameForm := ctx.PostForm("last_name")
+	phone := ctx.PostForm("phone")
+	phone = strings.ReplaceAll(phone, " ", "")
+
+	var errors []string
+
+	firstName, err := entities.NewName(firstNameForm)
+	if err != nil {
+		errors = append(errors, err.Error())
+	}
+
+	lastName, err := entities.NewName(lastNameForm)
+	if err != nil {
+		errors = append(errors, err.Error())
+	}
+
+	validatedPhone, err := entities.NewPhone(phone)
+	if err != nil {
+		errors = append(errors, err.Error())
+	}
+
+	if len(errors) > 0 {
+		ctx.HTML(http.StatusOK, "create-user-form.html", gin.H{
+			"errors": errors,
+		})
+	}
+
+	user, err := s.getUserByPhoneFunc(*validatedPhone)
+	if user != nil {
+		ctx.HTML(http.StatusOK, "create-user-form.html", gin.H{
+			"errors": []string{"user already exists for the given phone number"},
+		})
+		return
+	}
+
+	id, err := s.createUserFunc(*firstName, *lastName, *validatedPhone)
+	if err != nil {
+		ctx.HTML(http.StatusOK, "create-user-form.html", gin.H{
+			"errors": []string{err.Error()},
+		})
+		return
+	}
+
+	ctx.Redirect(http.StatusSeeOther,
+		"/create-manager?id="+strconv.Itoa(int(id)))
 }

@@ -97,6 +97,8 @@ func NewServer(ctx context.Context) *Server {
 
 	router := gin.Default()
 
+	router.LoadHTMLGlob("templates/*")
+
 	router.POST("/image/avatar/upload", verifyToken(server.tokenService), server.HandleAvatarUpload)
 	router.POST("/image/news/upload", verifyToken(server.tokenService), server.HandleNewsUpload)
 
@@ -104,6 +106,11 @@ func NewServer(ctx context.Context) *Server {
 	router.DELETE("/user/avatar", verifyToken(server.tokenService), server.DeleteAvatar)
 	router.POST("/csv/managers", verifyToken(server.tokenService), server.HandleManagersUpload)
 	router.POST("/csv/directors", verifyToken(server.tokenService), server.HandleDirectorsUpload)
+
+	router.GET("/create-user", server.GetUserForm)
+	router.POST("/create-user", server.CreateUserFromForm)
+	router.GET("/create-manager", server.CreateManagerForm)
+	router.POST("/create-manager", server.CreateManagerFromForm)
 
 	authRoute := router.Group("auth/")
 	{
@@ -251,9 +258,17 @@ func initDependencies(server *Server, ctx context.Context) {
 	getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
 	createUserFunc := NewCreateUserFunc(ctx, store)
 	makeUserAsManagerFunc := NewMakeUserAsManagerFunc(ctx, store)
+	getUsersWithoutRolesFunc := NewGetUsersWithoutRolesFunc(ctx, store)
 	getAllBranches := NewGetAllBranchesFunc(ctx, store)
 
-	server.Server = *apiadmin.NewServer(getUserByPhoneFunc, createUserFunc, makeUserAsManagerFunc, getAllBranches, allBrands)
+	server.Server = *apiadmin.NewServer(
+		getUserByPhoneFunc,
+		createUserFunc,
+		makeUserAsManagerFunc,
+		getUsersWithoutRolesFunc,
+		getAllBranches,
+		allBrands,
+	)
 }
 
 // Start runs the HTTP server a specific address
