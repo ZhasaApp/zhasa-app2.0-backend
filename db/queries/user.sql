@@ -80,15 +80,12 @@ VALUES ($1, $2) ON CONFLICT DO NOTHING;
 
 -- name: GetUsersWithoutRoles :many
 SELECT u.id,
+       u.phone,
        u.first_name,
        u.last_name,
-       u.phone
+       u.created_at
 FROM users u
-WHERE
-    NOT EXISTS(
-        SELECT 1
-         FROM user_roles ur
-         WHERE ur.user_id = u.id
-    ) AND (u.last_name || ' ' || u.first_name) ILIKE @search::text || '%'
+    LEFT JOIN user_roles ur ON u.id = ur.user_id
+WHERE ur.user_id IS NULL AND (u.last_name || ' ' || u.first_name) ILIKE @search::text || '%'
 ORDER BY u.created_at DESC
 LIMIT 10;

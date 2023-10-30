@@ -105,9 +105,9 @@ func (s *Server) CreateManagerFromForm(ctx *gin.Context) {
 			ctx.HTML(http.StatusOK, "create-manager-form.html", gin.H{
 				"errors": []string{err.Error()},
 			})
-		} else {
-			brandsIds[i] = int32(num)
+			return
 		}
+		brandsIds[i] = int32(num)
 	}
 
 	err = s.makeUserAsManagerFunc(int32(userId), int32(branchId), brandsIds)
