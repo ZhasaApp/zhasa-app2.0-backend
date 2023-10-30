@@ -117,7 +117,7 @@ func NewServer(ctx context.Context) *Server {
 	{
 		adminRoute.POST("/user", server.CreateUser)
 		adminRoute.POST("/manager", server.CreateManager)
-		adminRoute.GET("sale-type/list", server.getSaleTypes)
+		adminRoute.GET("/sale-type/list", server.getSaleTypes)
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
 	}
