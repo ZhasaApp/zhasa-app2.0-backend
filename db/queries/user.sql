@@ -77,3 +77,18 @@ VALUES ($1, $2) ON CONFLICT DO NOTHING;
 -- name: AddUserToBranch :exec
 INSERT INTO branch_users (user_id, branch_id)
 VALUES ($1, $2) ON CONFLICT DO NOTHING;
+
+-- name: GetUsersWithoutRoles :many
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       u.phone
+FROM users u
+WHERE
+    NOT EXISTS(
+        SELECT 1
+         FROM user_roles ur
+         WHERE ur.user_id = u.id
+    ) AND (u.last_name || ' ' || u.first_name) ILIKE @search::text || '%'
+ORDER BY u.created_at DESC
+LIMIT 10;
