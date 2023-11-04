@@ -10,6 +10,16 @@ import (
 	"time"
 )
 
+const deleteUserBrandByUserId = `-- name: DeleteUserBrandByUserId :exec
+DELETE FROM user_brands
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserBrandByUserId(ctx context.Context, userID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteUserBrandByUserId, userID)
+	return err
+}
+
 const getUserBrand = `-- name: GetUserBrand :one
 SELECT ub.id AS user_brand
 FROM user_brands ub

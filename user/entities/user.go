@@ -74,3 +74,11 @@ type BranchInfo struct {
 	Id    int32
 	Title string
 }
+
+type UserWithBrands struct {
+	Id          int32
+	FirstName   string
+	LastName    string
+	BranchTitle string
+	Brands      string
+}

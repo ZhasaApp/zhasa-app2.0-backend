@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Zhasa</title>
+    <style>
+        table {
+            width: 80%;
+            margin: 30px auto;
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            height: 25px;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .action-links a {
+            padding: 5px 20px;
+            text-decoration: none;
+            color: white;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .edit-btn {
+            background-color: #4CAF50;
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+        }
+
+        .edit-btn:hover {
+            background-color: #46a049;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .create-btn {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px;
+            text-align: center;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .create-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<a href="/create-user" class="create-btn">Создать пользователя</a>
+<table>
+    <tr>
+        <th>Имя</th>
+        <th>Фамилия</th>
+        <th>Филиал</th>
+        <th>Бренды</th>
+        <th>Действия</th>
+    </tr>
+    {{ range .users }}
+    <tr>
+        <td>{{ .FirstName }}</td>
+        <td>{{ .LastName }}</td>
+        <td>{{ .BranchTitle }}</td>
+        <td>{{ .Brands }}</td>
+        <td>
+            <div class="action-links">
+                <a href="/users/edit/{{ .Id }}" class="edit-btn">Изменить</a>
+                <!--                <a href="/delete-user/{{ .Id }}"-->
+                <!--                   class="delete-btn"-->
+                <!--                   onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?');"-->
+                <!--                >Удалить</a>-->
+            </div>
+        </td>
+    </tr>
+    {{ end }}
+</table>
+
+</body>
+</html>

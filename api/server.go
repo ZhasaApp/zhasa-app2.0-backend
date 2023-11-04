@@ -111,6 +111,9 @@ func NewServer(ctx context.Context) *Server {
 	router.POST("/create-user", server.CreateUserFromForm)
 	router.GET("/create-manager", server.CreateManagerForm)
 	router.POST("/create-manager", server.CreateManagerFromForm)
+	router.GET("/users/all", server.GetAllUsersForm)
+	router.GET("/users/edit/:id", server.EditUserForm)
+	router.POST("/users/edit/:id", server.PerformEditUserFromForm)
 
 	authRoute := router.Group("auth/")
 	{
@@ -259,15 +262,27 @@ func initDependencies(server *Server, ctx context.Context) {
 	createUserFunc := NewCreateUserFunc(ctx, store)
 	makeUserAsManagerFunc := NewMakeUserAsManagerFunc(ctx, store)
 	getUsersWithoutRolesFunc := NewGetUsersWithoutRolesFunc(ctx, store)
+	getUsersByRoleFunc := NewGetUsersByRoleFunc(ctx, store)
+	getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
+	updateUserBranchBrandsFunc := NewUpdateUserBranchBrandsFunc(ctx, store)
+	updateUserFunc := NewUpdateUserFunc(ctx, store)
+	getUserBranchFunc := NewGetUserBranchFunc(ctx, store)
 	getAllBranches := NewGetAllBranchesFunc(ctx, store)
+	getUserBrandsFunc := NewGetUserBrandsFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		getUserByPhoneFunc,
 		createUserFunc,
 		makeUserAsManagerFunc,
 		getUsersWithoutRolesFunc,
+		getUsersByRoleFunc,
+		getUserByIdFunc,
+		getUserBranchFunc,
+		updateUserBranchBrandsFunc,
+		updateUserFunc,
 		getAllBranches,
 		allBrands,
+		getUserBrandsFunc,
 	)
 }
 

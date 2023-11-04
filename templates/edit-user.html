@@ -96,39 +96,55 @@
         input[type="submit"]:hover, .edit-btn:hover {
             background-color: #0056b3;
         }
+
     </style>
 
 </head>
 <body>
-    <h1>Создать пользователя</h1>
-    <form action="/create-user" method="post">
-        <label for="first_name">Имя:</label>
-        <input type="text" id="first_name" name="first_name">
-        <br>
-        <label for="last_name">Фамилия:</label>
-        <input type="text" id="last_name" name="last_name">
-        <br>
-        <label for="phone">Номер телефона:</label>
-        <input type="text" id="phone" name="phone" placeholder="+7 777 777 77 77">
-        <br>
-        <input type="submit" value="Создать пользователя">
-        <a href="/users/all" class="edit-btn">Назад</a>
-    </form>
+<h1>Изменить пользователя</h1>
+<form action="/users/edit/{{ .user.Id }}" method="POST">
+    <label for="first_name">Имя:</label>
+    <input type="text" id="first_name" name="first_name" value="{{ .user.FirstName }}">
+    <br>
+    <label for="last_name">Фамилия:</label>
+    <input type="text" id="last_name" name="last_name" value="{{ .user.LastName }}">
+    <br>
+    <label for="phone">Номер телефона:</label>
+    <input type="text" id="phone" name="phone" placeholder="+7 777 777 77 77" value="{{ .user.Phone }}">
+    <br>
 
-    {{ if .errors }}
-        <div class="error">
-            {{ range .errors }}
-            <p>{{ . }}</p>
-            {{ end }}
-        </div>
+    <label for="branch">Филиал:</label>
+    <select id="branch" name="branch">
+        {{ range .branches }}
+        <option value="{{ .BranchId }}" {{ if eq .BranchId $.userBranch.ID }} selected {{ end }} >{{ .Title }}</option>
+        {{ end }}
+    </select>
+
+    <label for="brand">Бренд:</label>
+    <select id="brand" name="brand" multiple>
+        {{ range .brands }}
+        <option value="{{ .Id }}" {{ if .Selected }} selected {{ end }}>{{ .Title }}</option>
+        {{ end }}
+    </select>
+
+    <input type="submit" value="Изменить пользователя">
+    <a href="/users/all" class="edit-btn">Назад</a>
+</form>
+
+{{ if .errors }}
+<div class="error">
+    {{ range .errors }}
+    <p>{{ . }}</p>
     {{ end }}
+</div>
+{{ end }}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
-    <script>
-        $(document).ready(function () {
-            $('#phone').inputmask("+7 999 999 99 99");
-        });
-    </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.8/jquery.inputmask.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#phone').inputmask("+7 999 999 99 99");
+    });
+</script>
 </body>
 </html>
