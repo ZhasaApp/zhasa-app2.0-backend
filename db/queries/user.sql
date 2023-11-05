@@ -110,3 +110,8 @@ ORDER BY u.id DESC;
 UPDATE users
 SET first_name = $1, last_name = $2, phone = $3
 WHERE id = $4;
+
+-- name: UpdateUserBranch :exec
+UPDATE branch_users
+SET branch_id = $1
+WHERE user_id = $2;

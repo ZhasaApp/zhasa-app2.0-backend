@@ -264,8 +264,9 @@ func initDependencies(server *Server, ctx context.Context) {
 	getUsersWithoutRolesFunc := NewGetUsersWithoutRolesFunc(ctx, store)
 	getUsersByRoleFunc := NewGetUsersByRoleFunc(ctx, store)
 	getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
-	updateUserBranchBrandsFunc := NewUpdateUserBranchBrandsFunc(ctx, store)
+	updateUserBrandsFunc := NewUpdateUserBrandsFunc(ctx, store)
 	updateUserFunc := NewUpdateUserFunc(ctx, store)
+	updateUserBranchFunc := NewUpdateUserBranchFunc(ctx, store)
 	getUserBranchFunc := NewGetUserBranchFunc(ctx, store)
 	getAllBranches := NewGetAllBranchesFunc(ctx, store)
 	getUserBrandsFunc := NewGetUserBrandsFunc(ctx, store)
@@ -278,8 +279,9 @@ func initDependencies(server *Server, ctx context.Context) {
 		getUsersByRoleFunc,
 		getUserByIdFunc,
 		getUserBranchFunc,
-		updateUserBranchBrandsFunc,
+		updateUserBrandsFunc,
 		updateUserFunc,
+		updateUserBranchFunc,
 		getAllBranches,
 		allBrands,
 		getUserBrandsFunc,
