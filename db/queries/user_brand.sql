@@ -32,3 +32,7 @@ WITH RankedUsers AS (SELECT user_id,
 SELECT rank
 FROM RankedUsers
 WHERE user_id = $4;
+
+-- name: DeleteUserBrandByUserId :exec
+DELETE FROM user_brands
+WHERE user_id = $1;

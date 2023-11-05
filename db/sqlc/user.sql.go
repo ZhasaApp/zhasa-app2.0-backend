@@ -263,6 +263,60 @@ func (q *Queries) GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByB
 	return items, nil
 }
 
+const getUsersWithBranchRolesBrands = `-- name: GetUsersWithBranchRolesBrands :many
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       b.title                    AS branch_title,
+       STRING_AGG(bs.title, ', ') AS brands
+FROM users u
+         JOIN user_roles ur ON u.id = ur.user_id
+         JOIN roles r ON ur.role_id = r.id AND r.key = $1
+         JOIN branch_users bu ON u.id = bu.user_id
+         JOIN user_brands ub ON u.id = ub.user_id
+         JOIN brands bs ON ub.brand_id = bs.id
+         JOIN branches b ON bu.branch_id = b.id
+GROUP BY u.id, b.id
+ORDER BY u.id DESC
+`
+
+type GetUsersWithBranchRolesBrandsRow struct {
+	ID          int32  `json:"id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	BranchTitle string `json:"branch_title"`
+	Brands      []byte `json:"brands"`
+}
+
+func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, key string) ([]GetUsersWithBranchRolesBrandsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersWithBranchRolesBrands, key)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersWithBranchRolesBrandsRow
+	for rows.Next() {
+		var i GetUsersWithBranchRolesBrandsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.BranchTitle,
+			&i.Brands,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUsersWithoutRoles = `-- name: GetUsersWithoutRoles :many
 SELECT u.id,
        u.phone,
@@ -329,6 +383,29 @@ func (q *Queries) SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalPara
 		arg.Value,
 		arg.FromDate,
 		arg.ToDate,
+	)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET first_name = $1, last_name = $2, phone = $3
+WHERE id = $4
+`
+
+type UpdateUserParams struct {
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Phone     string `json:"phone"`
+	ID        int32  `json:"id"`
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.ExecContext(ctx, updateUser,
+		arg.FirstName,
+		arg.LastName,
+		arg.Phone,
+		arg.ID,
 	)
 	return err
 }

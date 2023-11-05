@@ -23,11 +23,13 @@ type Querier interface {
 	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (int32, error)
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
+	DeleteBranchUserByUserId(ctx context.Context, userID int32) error
 	DeleteComment(ctx context.Context, id int32) error
 	DeleteLike(ctx context.Context, arg DeleteLikeParams) error
 	DeletePost(ctx context.Context, id int32) error
 	DeleteSale(ctx context.Context, id int32) error
 	DeleteUserAvatar(ctx context.Context, userID int32) error
+	DeleteUserBrandByUserId(ctx context.Context, userID int32) error
 	EditSale(ctx context.Context, arg EditSaleParams) (Sale, error)
 	// Replace with the desired period (from_date and to_date)
 	GetAllBranches(ctx context.Context) ([]Branch, error)
@@ -70,11 +72,13 @@ type Querier interface {
 	GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByBranchBrandRoleParams) ([]GetUsersByBranchBrandRoleRow, error)
 	// SELECT distinct users for given brand ordered by ratio and limited by offset and limit and if there is no any user with ratio let ratio be 0
 	GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetUsersOrderedByRatioForGivenBrandParams) ([]GetUsersOrderedByRatioForGivenBrandRow, error)
+	GetUsersWithBranchRolesBrands(ctx context.Context, key string) ([]GetUsersWithBranchRolesBrandsRow, error)
 	GetUsersWithoutRoles(ctx context.Context, search string) ([]User, error)
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	ListPosts(ctx context.Context) ([]Post, error)
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
+	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error
 }
 

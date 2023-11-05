@@ -89,3 +89,24 @@ FROM users u
 WHERE ur.user_id IS NULL AND (u.last_name || ' ' || u.first_name) ILIKE @search::text || '%'
 ORDER BY u.created_at DESC
 LIMIT 10;
+
+-- name: GetUsersWithBranchRolesBrands :many
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       b.title                    AS branch_title,
+       STRING_AGG(bs.title, ', ') AS brands
+FROM users u
+         JOIN user_roles ur ON u.id = ur.user_id
+         JOIN roles r ON ur.role_id = r.id AND r.key = $1
+         JOIN branch_users bu ON u.id = bu.user_id
+         JOIN user_brands ub ON u.id = ub.user_id
+         JOIN brands bs ON ub.brand_id = bs.id
+         JOIN branches b ON bu.branch_id = b.id
+GROUP BY u.id, b.id
+ORDER BY u.id DESC;
+
+-- name: UpdateUser :exec
+UPDATE users
+SET first_name = $1, last_name = $2, phone = $3
+WHERE id = $4;
