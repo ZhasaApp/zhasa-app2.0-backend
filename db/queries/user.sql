@@ -103,8 +103,8 @@ FROM users u
          JOIN user_brands ub ON u.id = ub.user_id
          JOIN brands bs ON ub.brand_id = bs.id
          JOIN branches b ON bu.branch_id = b.id
-GROUP BY u.id, b.id
-ORDER BY u.id DESC;
+GROUP BY u.id, u.first_name, u.last_name, b.title
+ORDER BY u.first_name, u.last_name, u.id DESC;
 
 -- name: UpdateUser :exec
 UPDATE users
