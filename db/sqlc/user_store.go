@@ -11,7 +11,7 @@ type UserStore interface {
 	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)
 	GetUserById(ctx context.Context, id int32) (GetUserByIdRow, error)
 	GetUsersWithoutRoles(ctx context.Context, search string) ([]User, error)
-	GetUsersWithBranchRolesBrands(ctx context.Context, key string) ([]GetUsersWithBranchRolesBrandsRow, error)
+	GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUsersWithBranchRolesBrandsParams) ([]GetUsersWithBranchRolesBrandsRow, error)
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error
 	DeleteUserAvatar(ctx context.Context, userID int32) error
 	CreateUser(ctx context.Context, arg CreateUserParams) (int32, error)

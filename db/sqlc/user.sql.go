@@ -264,21 +264,38 @@ func (q *Queries) GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByB
 }
 
 const getUsersWithBranchRolesBrands = `-- name: GetUsersWithBranchRolesBrands :many
-SELECT u.id,
-       u.first_name,
-       u.last_name,
-       b.title                    AS branch_title,
-       STRING_AGG(bs.title, ', ') AS brands
-FROM users u
-         JOIN user_roles ur ON u.id = ur.user_id
-         JOIN roles r ON ur.role_id = r.id AND r.key = $1
-         JOIN branch_users bu ON u.id = bu.user_id
-         JOIN user_brands ub ON u.id = ub.user_id
-         JOIN brands bs ON ub.brand_id = bs.id
-         JOIN branches b ON bu.branch_id = b.id
-GROUP BY u.id, u.first_name, u.last_name, b.title
-ORDER BY u.first_name, u.last_name, u.id DESC
+WITH Counted AS (
+    SELECT u.id,
+           u.first_name,
+           u.last_name,
+           b.title                    AS branch_title,
+           STRING_AGG(bs.title, ', ') AS brands,
+           COUNT(*) OVER()            AS total_count
+    FROM users u
+             JOIN user_roles ur ON u.id = ur.user_id
+             JOIN roles r ON ur.role_id = r.id AND r.key = $1
+             JOIN branch_users bu ON u.id = bu.user_id
+             JOIN user_brands ub ON u.id = ub.user_id
+             JOIN brands bs ON ub.brand_id = bs.id
+             JOIN branches b ON bu.branch_id = b.id
+    GROUP BY u.id, u.first_name, u.last_name, b.title
+)
+SELECT id,
+       first_name,
+       last_name,
+       branch_title,
+       brands,
+       total_count
+FROM Counted
+ORDER BY first_name, last_name, id DESC
+LIMIT $2 OFFSET $3
 `
+
+type GetUsersWithBranchRolesBrandsParams struct {
+	Key    string `json:"key"`
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+}
 
 type GetUsersWithBranchRolesBrandsRow struct {
 	ID          int32  `json:"id"`
@@ -286,10 +303,11 @@ type GetUsersWithBranchRolesBrandsRow struct {
 	LastName    string `json:"last_name"`
 	BranchTitle string `json:"branch_title"`
 	Brands      []byte `json:"brands"`
+	TotalCount  int64  `json:"total_count"`
 }
 
-func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, key string) ([]GetUsersWithBranchRolesBrandsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersWithBranchRolesBrands, key)
+func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUsersWithBranchRolesBrandsParams) ([]GetUsersWithBranchRolesBrandsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersWithBranchRolesBrands, arg.Key, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
@@ -303,6 +321,7 @@ func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, key string)
 			&i.LastName,
 			&i.BranchTitle,
 			&i.Brands,
+			&i.TotalCount,
 		); err != nil {
 			return nil, err
 		}
@@ -327,7 +346,7 @@ FROM users u
     LEFT JOIN user_roles ur ON u.id = ur.user_id
 WHERE ur.user_id IS NULL AND (u.last_name || ' ' || u.first_name) ILIKE $1::text || '%'
 ORDER BY u.created_at DESC
-LIMIT 10
+LIMIT 25
 `
 
 func (q *Queries) GetUsersWithoutRoles(ctx context.Context, search string) ([]User, error) {

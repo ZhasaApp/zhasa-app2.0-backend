@@ -5,12 +5,73 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"zhasa2.0/base"
 	"zhasa2.0/brand"
 	"zhasa2.0/user/entities"
 )
 
+type GetAllUsersRequest struct {
+	Page     int32  `json:"page" form:"page"`
+	PageSize int32  `json:"size" form:"size"`
+	RoleKey  string `json:"role_key" form:"role_key"`
+}
+
+type GetAllUsersResponse struct {
+	Result  []entities.UserWithBrands `json:"result"`
+	HasNext bool                      `json:"has_next"`
+	Count   int32                     `json:"count"`
+}
+
+func (s *Server) GetAllUsers(ctx *gin.Context) {
+	var req GetAllUsersRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	users, total, err := s.getUsersByRoleFunc(req.RoleKey, base.Pagination{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	})
+	if err != nil {
+		ctx.JSON(http.StatusOK, errorResponse(err))
+		return
+	}
+
+	hasNext := total > req.PageSize*(req.Page+1)
+
+	ctx.JSON(http.StatusOK, GetAllUsersResponse{
+		Result:  users,
+		HasNext: hasNext,
+		Count:   total,
+	})
+}
+
+type GetUsersWithoutRolesRequest struct {
+	Search string `json:"search" form:"search" required:"false"`
+}
+
+func (s *Server) GetUsersWithoutRoles(ctx *gin.Context) {
+	var req GetUsersWithoutRolesRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	users, err := s.getUsersWithoutRolesFunc(req.Search)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, users)
+}
+
 func (s *Server) GetAllUsersForm(ctx *gin.Context) {
-	users, err := s.getUsersByRoleFunc("sales_manager")
+	users, _, err := s.getUsersByRoleFunc("sales_manager", base.Pagination{
+		Page:     0,
+		PageSize: 500,
+	})
 	if err != nil {
 		ctx.String(http.StatusOK, err.Error())
 		return

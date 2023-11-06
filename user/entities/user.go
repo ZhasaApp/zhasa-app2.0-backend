@@ -76,9 +76,9 @@ type BranchInfo struct {
 }
 
 type UserWithBrands struct {
-	Id          int32
-	FirstName   string
-	LastName    string
-	BranchTitle string
-	Brands      string
+	Id          int32  `json:"id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	BranchTitle string `json:"branch_title"`
+	Brands      string `json:"brands"`
 }
