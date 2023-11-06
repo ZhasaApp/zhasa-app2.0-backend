@@ -410,6 +410,22 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	return err
 }
 
+const updateUserBranch = `-- name: UpdateUserBranch :exec
+UPDATE branch_users
+SET branch_id = $1
+WHERE user_id = $2
+`
+
+type UpdateUserBranchParams struct {
+	BranchID int32 `json:"branch_id"`
+	UserID   int32 `json:"user_id"`
+}
+
+func (q *Queries) UpdateUserBranch(ctx context.Context, arg UpdateUserBranchParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserBranch, arg.BranchID, arg.UserID)
+	return err
+}
+
 const uploadUserAvatar = `-- name: UploadUserAvatar :exec
 INSERT INTO users_avatars(user_id, avatar_url)
 VALUES ($1, $2) ON CONFLICT (user_id)

@@ -6,11 +6,11 @@ import (
 	generated "zhasa2.0/db/sqlc"
 )
 
-type UpdateUserBranchBrandsFunc func(userId, branchId int32, brands []int32) error
+type UpdateUserBrandsFunc func(userId int32, brands []int32) error
 
-func NewUpdateUserBranchBrandsFunc(ctx context.Context, store generated.UserStore) UpdateUserBranchBrandsFunc {
-	return func(userId, branchId int32, brands []int32) error {
-		err := store.UpdateUserBranchBrandsTX(ctx, userId, branchId, brands)
+func NewUpdateUserBrandsFunc(ctx context.Context, store generated.UserStore) UpdateUserBrandsFunc {
+	return func(userId int32, brands []int32) error {
+		err := store.UpdateUserBrandsTX(ctx, userId, brands)
 		if err != nil {
 			fmt.Println(err)
 		}

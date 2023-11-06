@@ -166,7 +166,15 @@ func (s *Server) PerformEditUserFromForm(ctx *gin.Context) {
 		brandsIds[i] = int32(num)
 	}
 
-	err = s.updateUserBranchBrandsFunc(int32(userId), int32(branchId), brandsIds)
+	err = s.updateUserBranchFunc(int32(userId), int32(branchId))
+	if err != nil {
+		ctx.HTML(http.StatusOK, "edit-user.html", gin.H{
+			"errors": []string{err.Error()},
+		})
+		return
+	}
+
+	err = s.updateUserBrands(int32(userId), brandsIds)
 	if err != nil {
 		ctx.HTML(http.StatusOK, "edit-user.html", gin.H{
 			"errors": []string{err.Error()},

@@ -21,8 +21,9 @@ type UserStore interface {
 	AddRoleToUser(ctx context.Context, arg AddRoleToUserParams) error
 	AddUserToBranch(ctx context.Context, arg AddUserToBranchParams) error
 	CreateManagerTX(ctx context.Context, userId, branchId int32, brands []int32) error
-	UpdateUserBranchBrandsTX(ctx context.Context, userId, branchId int32, brands []int32) error
+	UpdateUserBrandsTX(ctx context.Context, userId int32, brands []int32) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
+	UpdateUserBranch(ctx context.Context, params UpdateUserBranchParams) error
 }
 
 func (db *DBStore) CreateManagerTX(ctx context.Context, userId, branchId int32, brands []int32) error {
@@ -55,23 +56,9 @@ func (db *DBStore) CreateManagerTX(ctx context.Context, userId, branchId int32, 
 	})
 }
 
-func (db *DBStore) UpdateUserBranchBrandsTX(ctx context.Context, userId, branchId int32, brands []int32) error {
+func (db *DBStore) UpdateUserBrandsTX(ctx context.Context, userId int32, brands []int32) error {
 	return db.execTx(ctx, func(queries *Queries) error {
-		err := queries.DeleteBranchUserByUserId(ctx, userId)
-		if err != nil {
-			return err
-		}
-
-		params := AddUserToBranchParams{
-			UserID:   userId,
-			BranchID: branchId,
-		}
-		err = queries.AddUserToBranch(ctx, params)
-		if err != nil {
-			return err
-		}
-
-		err = queries.DeleteUserBrandByUserId(ctx, userId)
+		err := queries.DeleteUserBrandByUserId(ctx, userId)
 		if err != nil {
 			return err
 		}
