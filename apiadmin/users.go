@@ -51,6 +51,10 @@ type GetUsersWithoutRolesRequest struct {
 	Search string `json:"search" form:"search" required:"false"`
 }
 
+type GetUsersWithoutRolesResponse struct {
+	Result []entities.BaseUser `json:"result"`
+}
+
 func (s *Server) GetUsersWithoutRoles(ctx *gin.Context) {
 	var req GetUsersWithoutRolesRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -64,7 +68,9 @@ func (s *Server) GetUsersWithoutRoles(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, users)
+	ctx.JSON(http.StatusOK, GetUsersWithoutRolesResponse{
+		Result: users,
+	})
 }
 
 func (s *Server) GetAllUsersForm(ctx *gin.Context) {

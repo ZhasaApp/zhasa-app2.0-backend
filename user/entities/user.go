@@ -82,3 +82,9 @@ type UserWithBrands struct {
 	BranchTitle string `json:"branch_title"`
 	Brands      string `json:"brands"`
 }
+
+type BaseUser struct {
+	Id        int32
+	FirstName string
+	LastName  string
+}

@@ -338,33 +338,31 @@ func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUser
 
 const getUsersWithoutRoles = `-- name: GetUsersWithoutRoles :many
 SELECT u.id,
-       u.phone,
        u.first_name,
-       u.last_name,
-       u.created_at
+       u.last_name
 FROM users u
     LEFT JOIN user_roles ur ON u.id = ur.user_id
-WHERE ur.user_id IS NULL AND (u.last_name || ' ' || u.first_name) ILIKE $1::text || '%'
+WHERE ur.user_id IS NULL AND (u.last_name || ' ' || u.first_name) ILIKE '%' || $1::text || '%'
 ORDER BY u.created_at DESC
 LIMIT 25
 `
 
-func (q *Queries) GetUsersWithoutRoles(ctx context.Context, search string) ([]User, error) {
+type GetUsersWithoutRolesRow struct {
+	ID        int32  `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+}
+
+func (q *Queries) GetUsersWithoutRoles(ctx context.Context, search string) ([]GetUsersWithoutRolesRow, error) {
 	rows, err := q.db.QueryContext(ctx, getUsersWithoutRoles, search)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []User
+	var items []GetUsersWithoutRolesRow
 	for rows.Next() {
-		var i User
-		if err := rows.Scan(
-			&i.ID,
-			&i.Phone,
-			&i.FirstName,
-			&i.LastName,
-			&i.CreatedAt,
-		); err != nil {
+		var i GetUsersWithoutRolesRow
+		if err := rows.Scan(&i.ID, &i.FirstName, &i.LastName); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
