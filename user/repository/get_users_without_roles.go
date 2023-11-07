@@ -8,12 +8,12 @@ import (
 	"zhasa2.0/user/entities"
 )
 
-type GetUsersWithoutRolesFunc func(search string) ([]entities.User, error)
+type GetUsersWithoutRolesFunc func(search string) ([]entities.BaseUser, error)
 
 func NewGetUsersWithoutRolesFunc(ctx context.Context, store generated.UserStore) GetUsersWithoutRolesFunc {
-	return func(search string) ([]entities.User, error) {
+	return func(search string) ([]entities.BaseUser, error) {
 		rows, err := store.GetUsersWithoutRoles(ctx, search)
-		users := make([]entities.User, 0)
+		users := make([]entities.BaseUser, 0)
 		if err == sql.ErrNoRows {
 			return users, nil
 		}
@@ -22,11 +22,10 @@ func NewGetUsersWithoutRolesFunc(ctx context.Context, store generated.UserStore)
 			return nil, err
 		}
 		for _, row := range rows {
-			users = append(users, entities.User{
+			users = append(users, entities.BaseUser{
 				Id:        row.ID,
 				FirstName: row.FirstName,
 				LastName:  row.LastName,
-				Phone:     entities.Phone(row.Phone),
 			})
 		}
 		return users, nil

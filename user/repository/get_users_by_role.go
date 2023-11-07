@@ -3,23 +3,30 @@ package repository
 import (
 	"context"
 	"database/sql"
+	"zhasa2.0/base"
 	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/user/entities"
 )
 
-type GetUsersByRoleFunc func(key string) ([]entities.UserWithBrands, error)
+type GetUsersByRoleFunc func(key string, pagination base.Pagination) ([]entities.UserWithBrands, int32, error)
 
 func NewGetUsersByRoleFunc(ctx context.Context, store generated.UserStore) GetUsersByRoleFunc {
-	return func(key string) ([]entities.UserWithBrands, error) {
-		rows, err := store.GetUsersWithBranchRolesBrands(ctx, key)
+	return func(key string, pagination base.Pagination) ([]entities.UserWithBrands, int32, error) {
+		params := generated.GetUsersWithBranchRolesBrandsParams{
+			Key:    key,
+			Limit:  pagination.PageSize,
+			Offset: pagination.GetOffset(),
+		}
+		rows, err := store.GetUsersWithBranchRolesBrands(ctx, params)
 		users := make([]entities.UserWithBrands, 0)
 		if err == sql.ErrNoRows {
-			return users, nil
+			return users, 0, nil
 		}
 		if err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 
+		var total int32
 		for _, row := range rows {
 			users = append(users, entities.UserWithBrands{
 				Id:          row.ID,
@@ -28,7 +35,8 @@ func NewGetUsersByRoleFunc(ctx context.Context, store generated.UserStore) GetUs
 				BranchTitle: row.BranchTitle,
 				Brands:      string(row.Brands),
 			})
+			total = int32(row.TotalCount)
 		}
-		return users, nil
+		return users, total, nil
 	}
 }

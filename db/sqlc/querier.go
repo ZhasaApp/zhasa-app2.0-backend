@@ -72,8 +72,8 @@ type Querier interface {
 	GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByBranchBrandRoleParams) ([]GetUsersByBranchBrandRoleRow, error)
 	// SELECT distinct users for given brand ordered by ratio and limited by offset and limit and if there is no any user with ratio let ratio be 0
 	GetUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetUsersOrderedByRatioForGivenBrandParams) ([]GetUsersOrderedByRatioForGivenBrandRow, error)
-	GetUsersWithBranchRolesBrands(ctx context.Context, key string) ([]GetUsersWithBranchRolesBrandsRow, error)
-	GetUsersWithoutRoles(ctx context.Context, search string) ([]User, error)
+	GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUsersWithBranchRolesBrandsParams) ([]GetUsersWithBranchRolesBrandsRow, error)
+	GetUsersWithoutRoles(ctx context.Context, search string) ([]GetUsersWithoutRolesRow, error)
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	ListPosts(ctx context.Context) ([]Post, error)
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
