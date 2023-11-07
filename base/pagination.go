@@ -11,3 +11,7 @@ func (p Pagination) GetOffset() int32 {
 	}
 	return p.PageSize * (p.Page)
 }
+
+func (p Pagination) HasNext(total int32) bool {
+	return total > p.PageSize*(p.Page+1)
+}

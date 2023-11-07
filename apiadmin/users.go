@@ -29,16 +29,17 @@ func (s *Server) GetAllUsers(ctx *gin.Context) {
 		return
 	}
 
-	users, total, err := s.getUsersByRoleFunc(req.RoleKey, base.Pagination{
+	pagination := base.Pagination{
 		Page:     req.Page,
 		PageSize: req.PageSize,
-	})
+	}
+	users, total, err := s.getUsersByRoleFunc(req.RoleKey, pagination)
 	if err != nil {
 		ctx.JSON(http.StatusOK, errorResponse(err))
 		return
 	}
 
-	hasNext := total > req.PageSize*(req.Page+1)
+	hasNext := pagination.HasNext(total)
 
 	ctx.JSON(http.StatusOK, GetAllUsersResponse{
 		Result:  users,
