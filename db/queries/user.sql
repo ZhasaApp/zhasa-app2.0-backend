@@ -104,6 +104,7 @@ WITH Counted AS (
              JOIN user_brands ub ON u.id = ub.user_id
              JOIN brands bs ON ub.brand_id = bs.id
              JOIN branches b ON bu.branch_id = b.id
+    WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
     GROUP BY u.id, u.first_name, u.last_name, b.title
 )
 SELECT id,
@@ -114,7 +115,6 @@ SELECT id,
        brands,
        total_count
 FROM Counted
-WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
 ORDER BY first_name, last_name, id DESC
 LIMIT $2 OFFSET $3;
 
@@ -143,6 +143,7 @@ WITH Counted AS (
              JOIN user_brands ub ON u.id = ub.user_id
              JOIN brands bs ON ub.brand_id = bs.id
              JOIN branches b ON bu.branch_id = b.id
+    WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
     GROUP BY u.id, u.first_name, u.last_name, b.title
 )
 SELECT id,
@@ -153,6 +154,5 @@ SELECT id,
        brands,
        total_count
 FROM Counted
-WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
 ORDER BY first_name, last_name, id DESC
 LIMIT $1 OFFSET $2;
