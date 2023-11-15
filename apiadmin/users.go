@@ -10,20 +10,21 @@ import (
 	"zhasa2.0/user/entities"
 )
 
-type GetAllUsersRequest struct {
+type GetAllUsersByRoleRequest struct {
 	Page     int32  `json:"page" form:"page"`
 	PageSize int32  `json:"size" form:"size"`
 	RoleKey  string `json:"role_key" form:"role_key"`
+	Search   string `json:"search" form:"search"`
 }
 
-type GetAllUsersResponse struct {
+type GetAllUsersByRoleResponse struct {
 	Result  []entities.UserWithBrands `json:"result"`
 	HasNext bool                      `json:"has_next"`
 	Count   int32                     `json:"count"`
 }
 
-func (s *Server) GetAllUsers(ctx *gin.Context) {
-	var req GetAllUsersRequest
+func (s *Server) GetAllUsersByRole(ctx *gin.Context) {
+	var req GetAllUsersByRoleRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -33,7 +34,7 @@ func (s *Server) GetAllUsers(ctx *gin.Context) {
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	}
-	users, total, err := s.getUsersByRoleFunc(req.RoleKey, pagination)
+	users, total, err := s.getUsersByRoleFunc(req.Search, req.RoleKey, pagination)
 	if err != nil {
 		ctx.JSON(http.StatusOK, errorResponse(err))
 		return
@@ -41,7 +42,45 @@ func (s *Server) GetAllUsers(ctx *gin.Context) {
 
 	hasNext := pagination.HasNext(total)
 
-	ctx.JSON(http.StatusOK, GetAllUsersResponse{
+	ctx.JSON(http.StatusOK, GetAllUsersByRoleResponse{
+		Result:  users,
+		HasNext: hasNext,
+		Count:   total,
+	})
+}
+
+type GetAllUsersRequest struct {
+	Page     int32  `json:"page" form:"page"`
+	PageSize int32  `json:"size" form:"size"`
+	Search   string `json:"search" form:"search"`
+}
+
+type GetAllUsersResponse struct {
+	Result  []entities.UserWithBrands `json:"result"`
+	HasNext bool                      `json:"has_next"`
+	Count   int32                     `json:"count"`
+}
+
+func (s *Server) GetAllUsers(ctx *gin.Context) {
+	var req GetAllUsersByRoleRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	pagination := base.Pagination{
+		Page:     req.Page,
+		PageSize: req.PageSize,
+	}
+	users, total, err := s.getUsersWithBranchBrands(req.Search, pagination)
+	if err != nil {
+		ctx.JSON(http.StatusOK, errorResponse(err))
+		return
+	}
+
+	hasNext := pagination.HasNext(total)
+
+	ctx.JSON(http.StatusOK, GetAllUsersByRoleResponse{
 		Result:  users,
 		HasNext: hasNext,
 		Count:   total,
@@ -75,7 +114,7 @@ func (s *Server) GetUsersWithoutRoles(ctx *gin.Context) {
 }
 
 func (s *Server) GetAllUsersForm(ctx *gin.Context) {
-	users, _, err := s.getUsersByRoleFunc("sales_manager", base.Pagination{
+	users, _, err := s.getUsersByRoleFunc("", "sales_manager", base.Pagination{
 		Page:     0,
 		PageSize: 500,
 	})

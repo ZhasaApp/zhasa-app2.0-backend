@@ -93,6 +93,7 @@ WITH Counted AS (
     SELECT u.id,
            u.first_name,
            u.last_name,
+           u.phone,
            b.title                    AS branch_title,
            STRING_AGG(bs.title, ', ') AS brands,
            COUNT(*) OVER()            AS total_count
@@ -108,10 +109,12 @@ WITH Counted AS (
 SELECT id,
        first_name,
        last_name,
+       phone,
        branch_title,
        brands,
        total_count
 FROM Counted
+WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
 ORDER BY first_name, last_name, id DESC
 LIMIT $2 OFFSET $3;
 
@@ -124,3 +127,32 @@ WHERE id = $4;
 UPDATE branch_users
 SET branch_id = $1
 WHERE user_id = $2;
+
+
+-- name: GetUsersWithBranchBrands :many
+WITH Counted AS (
+    SELECT u.id,
+           u.first_name,
+           u.last_name,
+           u.phone,
+           b.title                    AS branch_title,
+           STRING_AGG(bs.title, ', ') AS brands,
+           COUNT(*) OVER()            AS total_count
+    FROM users u
+             JOIN branch_users bu ON u.id = bu.user_id
+             JOIN user_brands ub ON u.id = ub.user_id
+             JOIN brands bs ON ub.brand_id = bs.id
+             JOIN branches b ON bu.branch_id = b.id
+    GROUP BY u.id, u.first_name, u.last_name, b.title
+)
+SELECT id,
+       first_name,
+       last_name,
+       phone,
+       branch_title,
+       brands,
+       total_count
+FROM Counted
+WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
+ORDER BY first_name, last_name, id DESC
+LIMIT $1 OFFSET $2;

@@ -13,6 +13,7 @@ type Server struct {
 	createUserFunc           repository.CreateUserFunc
 	makeUserAsManagerFunc    repository.MakeUserAsManagerFunc
 	getUsersByRoleFunc       repository.GetUsersByRoleFunc
+	getUsersWithBranchBrands repository.GetUsersWithBranchBrands
 	getUserByIdFunc          repository.GetUserByIdFunc
 	getUserBranchFunc        repository.GetUserBranchFunc
 	updateUserBrands         repository.UpdateUserBrandsFunc
@@ -30,6 +31,7 @@ func NewServer(
 	makeManagerAsUserFunc repository.MakeUserAsManagerFunc,
 	getUsersWithoutRolesFunc repository.GetUsersWithoutRolesFunc,
 	getUsersByRoleFunc repository.GetUsersByRoleFunc,
+	getUsersWithBranchBrands repository.GetUsersWithBranchBrands,
 	getUserByIdFunc repository.GetUserByIdFunc,
 	getUserBranchFunc repository.GetUserBranchFunc,
 	updateUserBrands repository.UpdateUserBrandsFunc,
@@ -45,6 +47,7 @@ func NewServer(
 		makeUserAsManagerFunc:    makeManagerAsUserFunc,
 		getUsersWithoutRolesFunc: getUsersWithoutRolesFunc,
 		getUsersByRoleFunc:       getUsersByRoleFunc,
+		getUsersWithBranchBrands: getUsersWithBranchBrands,
 		getUserByIdFunc:          getUserByIdFunc,
 		getUserBranchFunc:        getUserBranchFunc,
 		updateUserBrands:         updateUserBrands,

@@ -127,7 +127,8 @@ func NewServer(ctx context.Context) *Server {
 	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
 		adminRoute.POST("/user", server.CreateUser)
-		adminRoute.GET("/users", server.GetAllUsers)
+		adminRoute.GET("/users", server.GetAllUsersByRole)
+		adminRoute.GET("/users/all", server.GetAllUsers)
 		adminRoute.GET("/users/no-roles", server.GetUsersWithoutRoles)
 		adminRoute.POST("/manager", server.CreateManager)
 		adminRoute.GET("/sale-type/list", server.getSaleTypes)
@@ -266,6 +267,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	makeUserAsManagerFunc := NewMakeUserAsManagerFunc(ctx, store)
 	getUsersWithoutRolesFunc := NewGetUsersWithoutRolesFunc(ctx, store)
 	getUsersByRoleFunc := NewGetUsersByRoleFunc(ctx, store)
+	getUsersWithBranchBrands := NewGetUsersWithBranchBrands(ctx, store)
 	getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
 	updateUserBrandsFunc := NewUpdateUserBrandsFunc(ctx, store)
 	updateUserFunc := NewUpdateUserFunc(ctx, store)
@@ -280,6 +282,7 @@ func initDependencies(server *Server, ctx context.Context) {
 		makeUserAsManagerFunc,
 		getUsersWithoutRolesFunc,
 		getUsersByRoleFunc,
+		getUsersWithBranchBrands,
 		getUserByIdFunc,
 		getUserBranchFunc,
 		updateUserBrandsFunc,

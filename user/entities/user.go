@@ -79,6 +79,7 @@ type UserWithBrands struct {
 	Id          int32  `json:"id"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
+	Phone       string `json:"phone"`
 	BranchTitle string `json:"branch_title"`
 	Brands      string `json:"brands"`
 }
