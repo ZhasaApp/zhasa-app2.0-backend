@@ -8,17 +8,16 @@ import (
 	"zhasa2.0/user/entities"
 )
 
-type GetUsersByRoleFunc func(search, key string, pagination base.Pagination) ([]entities.UserWithBrands, int32, error)
+type GetUsersWithBranchBrands func(search string, pagination base.Pagination) ([]entities.UserWithBrands, int32, error)
 
-func NewGetUsersByRoleFunc(ctx context.Context, store generated.UserStore) GetUsersByRoleFunc {
-	return func(search, key string, pagination base.Pagination) ([]entities.UserWithBrands, int32, error) {
-		params := generated.GetUsersWithBranchRolesBrandsParams{
+func NewGetUsersWithBranchBrands(ctx context.Context, store generated.UserStore) GetUsersWithBranchBrands {
+	return func(search string, pagination base.Pagination) ([]entities.UserWithBrands, int32, error) {
+		params := generated.GetUsersWithBranchBrandsParams{
 			Search: search,
-			Key:    key,
 			Limit:  pagination.PageSize,
 			Offset: pagination.GetOffset(),
 		}
-		rows, err := store.GetUsersWithBranchRolesBrands(ctx, params)
+		rows, err := store.GetUsersWithBranchBrands(ctx, params)
 		users := make([]entities.UserWithBrands, 0)
 		if err == sql.ErrNoRows {
 			return users, 0, nil

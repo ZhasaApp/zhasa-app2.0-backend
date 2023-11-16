@@ -263,11 +263,88 @@ func (q *Queries) GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByB
 	return items, nil
 }
 
+const getUsersWithBranchBrands = `-- name: GetUsersWithBranchBrands :many
+WITH Counted AS (
+    SELECT u.id,
+           u.first_name,
+           u.last_name,
+           u.phone,
+           b.title                    AS branch_title,
+           STRING_AGG(bs.title, ', ') AS brands,
+           COUNT(*) OVER()            AS total_count
+    FROM users u
+             JOIN branch_users bu ON u.id = bu.user_id
+             JOIN user_brands ub ON u.id = ub.user_id
+             JOIN brands bs ON ub.brand_id = bs.id
+             JOIN branches b ON bu.branch_id = b.id
+    WHERE (last_name || ' ' || first_name) ILIKE '%' || $3::text || '%'
+    GROUP BY u.id, u.first_name, u.last_name, b.title
+)
+SELECT id,
+       first_name,
+       last_name,
+       phone,
+       branch_title,
+       brands,
+       total_count
+FROM Counted
+ORDER BY first_name, last_name, id DESC
+LIMIT $1 OFFSET $2
+`
+
+type GetUsersWithBranchBrandsParams struct {
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+	Search string `json:"search"`
+}
+
+type GetUsersWithBranchBrandsRow struct {
+	ID          int32  `json:"id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	Phone       string `json:"phone"`
+	BranchTitle string `json:"branch_title"`
+	Brands      []byte `json:"brands"`
+	TotalCount  int64  `json:"total_count"`
+}
+
+func (q *Queries) GetUsersWithBranchBrands(ctx context.Context, arg GetUsersWithBranchBrandsParams) ([]GetUsersWithBranchBrandsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getUsersWithBranchBrands, arg.Limit, arg.Offset, arg.Search)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetUsersWithBranchBrandsRow
+	for rows.Next() {
+		var i GetUsersWithBranchBrandsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Phone,
+			&i.BranchTitle,
+			&i.Brands,
+			&i.TotalCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUsersWithBranchRolesBrands = `-- name: GetUsersWithBranchRolesBrands :many
 WITH Counted AS (
     SELECT u.id,
            u.first_name,
            u.last_name,
+           u.phone,
            b.title                    AS branch_title,
            STRING_AGG(bs.title, ', ') AS brands,
            COUNT(*) OVER()            AS total_count
@@ -278,11 +355,13 @@ WITH Counted AS (
              JOIN user_brands ub ON u.id = ub.user_id
              JOIN brands bs ON ub.brand_id = bs.id
              JOIN branches b ON bu.branch_id = b.id
+    WHERE (last_name || ' ' || first_name) ILIKE '%' || $4::text || '%'
     GROUP BY u.id, u.first_name, u.last_name, b.title
 )
 SELECT id,
        first_name,
        last_name,
+       phone,
        branch_title,
        brands,
        total_count
@@ -295,19 +374,26 @@ type GetUsersWithBranchRolesBrandsParams struct {
 	Key    string `json:"key"`
 	Limit  int32  `json:"limit"`
 	Offset int32  `json:"offset"`
+	Search string `json:"search"`
 }
 
 type GetUsersWithBranchRolesBrandsRow struct {
 	ID          int32  `json:"id"`
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
+	Phone       string `json:"phone"`
 	BranchTitle string `json:"branch_title"`
 	Brands      []byte `json:"brands"`
 	TotalCount  int64  `json:"total_count"`
 }
 
 func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUsersWithBranchRolesBrandsParams) ([]GetUsersWithBranchRolesBrandsRow, error) {
-	rows, err := q.db.QueryContext(ctx, getUsersWithBranchRolesBrands, arg.Key, arg.Limit, arg.Offset)
+	rows, err := q.db.QueryContext(ctx, getUsersWithBranchRolesBrands,
+		arg.Key,
+		arg.Limit,
+		arg.Offset,
+		arg.Search,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -319,6 +405,7 @@ func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUser
 			&i.ID,
 			&i.FirstName,
 			&i.LastName,
+			&i.Phone,
 			&i.BranchTitle,
 			&i.Brands,
 			&i.TotalCount,
