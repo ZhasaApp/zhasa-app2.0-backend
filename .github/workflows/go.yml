@@ -40,4 +40,4 @@ jobs:
       env:
         SSH_PASS: ${{ secrets.SSH_PASSWORD }}
       run: |
-        sshpass -p $SSH_PASS ssh root@185.182.219.90 'cd /root/test && ./restart.sh'
+        sshpass -p $SSH_PASS ssh root@185.182.219.90 '/root/test/restart.sh'
