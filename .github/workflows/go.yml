@@ -40,4 +40,4 @@ jobs:
       env:
         SSH_PASS: ${{ secrets.SSH_PASSWORD }}
       run: |
-        sshpass -p $SSH_PASS ssh -t root@185.182.219.90 'ls'
+        sshpass -p $SSH_PASS ssh root@185.182.219.90 'ls'
