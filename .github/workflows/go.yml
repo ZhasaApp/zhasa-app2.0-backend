@@ -37,7 +37,16 @@ jobs:
         sshpass -p $SSH_PASS scp -o StrictHostKeyChecking=no main root@185.182.219.90:/root/test
 
     - name: Restart Application on Server
-      env:
-        SSH_PASS: ${{ secrets.SSH_PASSWORD }}
-      run: |
-        sshpass -p $SSH_PASS ssh -o StrictHostKeyChecking=no root@185.182.219.90 'ls'
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: 185.182.219.90
+        username: root
+        password: daX4vNWD
+        # port: ${{ secrets.PORT }}
+        script: ls
+        
+    # - name: Restart Application on Server
+    #   env:
+    #     SSH_PASS: ${{ secrets.SSH_PASSWORD }}
+    #   run: |
+    #     sshpass -p $SSH_PASS ssh root@185.182.219.90 'ls'
