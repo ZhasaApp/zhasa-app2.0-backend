@@ -23,6 +23,6 @@ jobs:
 
         with:
           host: ${{ secrets.DEV_SERVER_IP }}
-          username: US${{ secrets.DEV_SSH_USER }}ER
+          username: ${{ secrets.DEV_SSH_USER }}ER
           password: ${{ secrets.DEV_SSH_PASSWORD }}
           script: cd /root/test && ./dev.restart.sh
