@@ -1,0 +1,47 @@
+name: Prod Workflow
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.18'
+
+      - name: Build binary
+        run: |
+          CGO_ENABLED=0 GOOS=linux go build -o main .
+
+      - name: Install SSH Pass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
+      - name: Transfer Binary to Server
+        env:
+          SSH_PASS: ${{ secrets.PROD_SSH_PASSWORD }}
+          SSH_USER: ${{ secrets.PROD_SSH_USER }}
+          SSH_HOST: ${{ secrets.PROD_SERVER_IP }}
+          SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
+        run: |
+          sshpass -p $SSH_PASS scp -P $SSH_PORT -o StrictHostKeyChecking=no main $SSH_USER@$SSH_HOST:/home/admsrv/backend
+
+#      - name: Restart Application on Server
+#        uses: appleboy/ssh-action@v1.0.0
+#
+#        with:
+#          host: ${{ secrets.PROD_SERVER_IP }}
+#          port: ${{ secrets.PROD_SSH_PORT }}
+#          username: ${{ secrets.PROD_SSH_USER }}
+#          password: ${{ secrets.PROD_SSH_PASSWORD }}
+#          script: cd /home/admsrv/backend && ./prod.restart.sh
