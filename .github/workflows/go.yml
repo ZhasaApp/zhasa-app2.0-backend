@@ -23,6 +23,6 @@ jobs:
 
         with:
           host: ${{ secrets.DEV_SERVER_IP }}
-          username: ${{ secrets.DEV_SSH_USER }}ER
+          username: ${{ secrets.DEV_SSH_USER }}
           password: ${{ secrets.DEV_SSH_PASSWORD }}
           script: cd /root/zhasa-app2.0-backend && ./dev.restart.sh
