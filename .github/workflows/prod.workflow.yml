@@ -34,7 +34,7 @@ jobs:
           HOST: ${{ secrets.PROD_SERVER_IP }}
           PORT: ${{ secrets.PROD_SSH_PORT }}
         run: |
-          sshpass -p $PASS scp -P $PORT -o StrictHostKeyChecking=no main $USER@$HOST:/home/admsrv/backend
+          sshpass -p $PASS scp -P $PORT -o StrictHostKeyChecking=no templates/ main $USER@$HOST:/home/admsrv/backend
 
       - name: Restart Application on Server
         uses: appleboy/ssh-action@v1.0.0
