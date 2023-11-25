@@ -29,19 +29,19 @@ jobs:
 
       - name: Transfer Binary to Server
         env:
-          SSH_PASS: ${{ secrets.PROD_SSH_PASSWORD }}
-          SSH_USER: ${{ secrets.PROD_SSH_USER }}
-          SSH_HOST: ${{ secrets.PROD_SERVER_IP }}
-          SSH_PORT: ${{ secrets.PROD_SSH_PORT }}
+          PASS: ${{ secrets.PROD_SSH_PASSWORD }}
+          USER: ${{ secrets.PROD_SSH_USER }}
+          HOST: ${{ secrets.PROD_SERVER_IP }}
+          PORT: ${{ secrets.PROD_SSH_PORT }}
         run: |
-          sshpass -p $SSH_PASS scp -P $SSH_PORT -o StrictHostKeyChecking=no main $SSH_USER@$SSH_HOST:/home/admsrv/backend
+          sshpass -p $PASS scp -P $PORT -o StrictHostKeyChecking=no main $USER@$HOST:/home/admsrv/backend
 
-#      - name: Restart Application on Server
-#        uses: appleboy/ssh-action@v1.0.0
-#
-#        with:
-#          host: ${{ secrets.PROD_SERVER_IP }}
-#          port: ${{ secrets.PROD_SSH_PORT }}
-#          username: ${{ secrets.PROD_SSH_USER }}
-#          password: ${{ secrets.PROD_SSH_PASSWORD }}
-#          script: cd /home/admsrv/backend && ./prod.restart.sh
+      - name: Restart Application on Server
+        uses: appleboy/ssh-action@v1.0.0
+
+        with:
+          host: ${{ secrets.PROD_SERVER_IP }}
+          port: ${{ secrets.PROD_SSH_PORT }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          password: ${{ secrets.PROD_SSH_PASSWORD }}
+          script: cd /home/admsrv/backend && ./prod.restart.sh
