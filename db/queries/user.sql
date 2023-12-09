@@ -96,7 +96,11 @@ WITH Counted AS (
            u.phone,
            b.title                    AS branch_title,
            STRING_AGG(bs.title, ', ') AS brands,
-           COUNT(*) OVER()            AS total_count
+           COUNT(*) OVER()            AS total_count,
+           CASE
+               WHEN du.user_id IS NULL THEN true
+               ELSE false
+           END                        AS is_active
     FROM users u
              JOIN user_roles ur ON u.id = ur.user_id
              JOIN roles r ON ur.role_id = r.id AND r.key = $1
@@ -104,8 +108,9 @@ WITH Counted AS (
              JOIN user_brands ub ON u.id = ub.user_id
              JOIN brands bs ON ub.brand_id = bs.id
              JOIN branches b ON bu.branch_id = b.id
+             LEFT JOIN disabled_users du ON u.id = du.user_id
     WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
-    GROUP BY u.id, u.first_name, u.last_name, b.title
+    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id
 )
 SELECT id,
        first_name,
@@ -113,7 +118,8 @@ SELECT id,
        phone,
        branch_title,
        brands,
-       total_count
+       total_count,
+       is_active
 FROM Counted
 ORDER BY first_name, last_name, id DESC
 LIMIT $2 OFFSET $3;
@@ -156,3 +162,7 @@ SELECT id,
 FROM Counted
 ORDER BY first_name, last_name, id DESC
 LIMIT $1 OFFSET $2;
+
+-- name: AddDisabledUser :exec
+INSERT INTO disabled_users (user_id)
+VALUES ($1) ON CONFLICT DO NOTHING;
