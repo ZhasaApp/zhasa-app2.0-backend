@@ -303,3 +303,27 @@ func (s *Server) PerformEditUserFromForm(ctx *gin.Context) {
 		"userId": userId,
 	})
 }
+
+func (s *Server) DisableUserForm(ctx *gin.Context) {
+	userIdParam := ctx.Param("id")
+	userId, err := strconv.ParseInt(userIdParam, 10, 32)
+	if err != nil {
+		ctx.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	_, err = s.getUserByIdFunc(int32(userId))
+	if err != nil {
+		ctx.String(http.StatusBadRequest, "Invalid user id: %d", userId)
+		return
+	}
+
+	err = s.addDisabledUserFunc(int32(userId))
+	if err != nil {
+		ctx.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ctx.Redirect(http.StatusSeeOther,
+		"/users/all")
+}

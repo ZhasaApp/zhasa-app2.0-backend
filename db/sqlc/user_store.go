@@ -25,6 +25,7 @@ type UserStore interface {
 	UpdateUserBrandsTX(ctx context.Context, userId int32, brands []int32) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpdateUserBranch(ctx context.Context, params UpdateUserBranchParams) error
+	AddDisabledUser(ctx context.Context, userID int32) error
 }
 
 func (db *DBStore) CreateManagerTX(ctx context.Context, userId, branchId int32, brands []int32) error {

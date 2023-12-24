@@ -25,6 +25,16 @@ func (q *Queries) AddBrandToUser(ctx context.Context, arg AddBrandToUserParams) 
 	return err
 }
 
+const addDisabledUser = `-- name: AddDisabledUser :exec
+INSERT INTO disabled_users (user_id)
+VALUES ($1) ON CONFLICT DO NOTHING
+`
+
+func (q *Queries) AddDisabledUser(ctx context.Context, userID int32) error {
+	_, err := q.db.ExecContext(ctx, addDisabledUser, userID)
+	return err
+}
+
 const addRoleToUser = `-- name: AddRoleToUser :exec
 INSERT INTO user_roles (user_id, role_id)
 VALUES ($1, $2) ON CONFLICT DO NOTHING
@@ -347,7 +357,11 @@ WITH Counted AS (
            u.phone,
            b.title                    AS branch_title,
            STRING_AGG(bs.title, ', ') AS brands,
-           COUNT(*) OVER()            AS total_count
+           COUNT(*) OVER()            AS total_count,
+           CASE
+               WHEN du.user_id IS NULL THEN true
+               ELSE false
+           END                        AS is_active
     FROM users u
              JOIN user_roles ur ON u.id = ur.user_id
              JOIN roles r ON ur.role_id = r.id AND r.key = $1
@@ -355,8 +369,9 @@ WITH Counted AS (
              JOIN user_brands ub ON u.id = ub.user_id
              JOIN brands bs ON ub.brand_id = bs.id
              JOIN branches b ON bu.branch_id = b.id
+             LEFT JOIN disabled_users du ON u.id = du.user_id
     WHERE (last_name || ' ' || first_name) ILIKE '%' || $4::text || '%'
-    GROUP BY u.id, u.first_name, u.last_name, b.title
+    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id
 )
 SELECT id,
        first_name,
@@ -364,7 +379,8 @@ SELECT id,
        phone,
        branch_title,
        brands,
-       total_count
+       total_count,
+       is_active
 FROM Counted
 ORDER BY first_name, last_name, id DESC
 LIMIT $2 OFFSET $3
@@ -385,6 +401,7 @@ type GetUsersWithBranchRolesBrandsRow struct {
 	BranchTitle string `json:"branch_title"`
 	Brands      []byte `json:"brands"`
 	TotalCount  int64  `json:"total_count"`
+	IsActive    bool   `json:"is_active"`
 }
 
 func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUsersWithBranchRolesBrandsParams) ([]GetUsersWithBranchRolesBrandsRow, error) {
@@ -409,6 +426,7 @@ func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUser
 			&i.BranchTitle,
 			&i.Brands,
 			&i.TotalCount,
+			&i.IsActive,
 		); err != nil {
 			return nil, err
 		}
