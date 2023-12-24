@@ -36,6 +36,7 @@ func NewGetUsersByRoleFunc(ctx context.Context, store generated.UserStore) GetUs
 				Phone:       row.Phone,
 				BranchTitle: row.BranchTitle,
 				Brands:      string(row.Brands),
+				IsActive:    row.IsActive,
 			})
 			total = int32(row.TotalCount)
 		}

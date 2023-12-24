@@ -115,6 +115,7 @@ func NewServer(ctx context.Context) *Server {
 	router.GET("/users/all", server.GetAllUsersForm)
 	router.GET("/users/edit/:id", server.EditUserForm)
 	router.POST("/users/edit/:id", server.PerformEditUserFromForm)
+	router.GET("/users/disable/:id", server.DisableUserForm)
 
 	authRoute := router.Group("auth/")
 	{
@@ -275,6 +276,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	getUserBranchFunc := NewGetUserBranchFunc(ctx, store)
 	getAllBranches := NewGetAllBranchesFunc(ctx, store)
 	getUserBrandsFunc := NewGetUserBrandsFunc(ctx, store)
+	addDisabledUserFunc := NewAddDisabledUserFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		getUserByPhoneFunc,
@@ -290,6 +292,7 @@ func initDependencies(server *Server, ctx context.Context) {
 		updateUserBranchFunc,
 		getAllBranches,
 		allBrands,
+		addDisabledUserFunc,
 		getUserBrandsFunc,
 	)
 }

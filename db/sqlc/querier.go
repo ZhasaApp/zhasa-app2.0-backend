@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	AddBrandToUser(ctx context.Context, arg AddBrandToUserParams) error
+	AddDisabledUser(ctx context.Context, userID int32) error
 	AddLike(ctx context.Context, arg AddLikeParams) (Like, error)
 	AddRoleToUser(ctx context.Context, arg AddRoleToUserParams) error
 	// add sale into sales by given sale_type_id, amount, date, user_id and on conflict replace
