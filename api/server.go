@@ -184,6 +184,7 @@ func NewServer(ctx context.Context) *Server {
 
 	router.POST("owner/brand-goal", verifyToken(server.tokenService), server.SetOwnerDashboardGoal)
 	router.GET("owner/brand-goal", verifyToken(server.tokenService), server.GetOwnerDashboardBySaleTypes)
+	router.GET("owner/brand-goal-branches", verifyToken(server.tokenService), server.GetOwnerDashboardByBranches)
 
 	server.router = router
 	return server
