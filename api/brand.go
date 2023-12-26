@@ -37,21 +37,21 @@ func (server *Server) SetOwnerDashboardGoal(ctx *gin.Context) {
 }
 
 type GetOwnerDashboardBySaleTypesRequest struct {
-	Month   int32 `json:"month"`
-	Year    int32 `json:"year"`
-	BrandId int32 `json:"brand_id"`
+	Month   int32 `form:"month" json:"month"`
+	Year    int32 `form:"year" json:"year"`
+	BrandId int32 `form:"brand_id" json:"brand_id"`
 }
 
-type SaleType struct {
+type SaleTypeResp struct {
 	Title     string `json:"title"`
 	Color     string `json:"color"`
 	ValueType string `json:"value_type"`
 }
 
 type OwnerDashboardBySaleTypesItem struct {
-	SaleType SaleType `json:"sale_type"`
-	Achieved int64    `json:"achieved"`
-	Goal     int64    `json:"goal"`
+	SaleType SaleTypeResp `json:"sale_type"`
+	Achieved int64        `json:"achieved"`
+	Goal     int64        `json:"goal"`
 }
 
 func (server *Server) GetOwnerDashboardBySaleTypes(ctx *gin.Context) {
@@ -77,17 +77,19 @@ func (server *Server) GetOwnerDashboardBySaleTypes(ctx *gin.Context) {
 
 	for _, saleType := range *saleTypes {
 		achieved, _ := server.getBrandSaleSumFunc(request.BrandId, saleType.Id, period)
-		goal, _ := server.getBrandGoalFunc(request.BrandId, saleType.Id, period)
+		goal, _ := server.getBrandOverallGoalFunc(request.BrandId, saleType.Id, period)
 
-		result = append(result, OwnerDashboardBySaleTypesItem{
-			SaleType: SaleType{
-				Title:     saleType.Title,
-				Color:     saleType.Color,
-				ValueType: saleType.ValueType,
-			},
-			Achieved: achieved,
-			Goal:     goal,
-		})
+		if goal != 0 {
+			result = append(result, OwnerDashboardBySaleTypesItem{
+				SaleType: SaleTypeResp{
+					Title:     saleType.Title,
+					Color:     saleType.Color,
+					ValueType: saleType.ValueType,
+				},
+				Achieved: achieved,
+				Goal:     goal,
+			})
+		}
 	}
 
 	ctx.JSON(http.StatusOK, result)

@@ -64,6 +64,8 @@ type Server struct {
 	saleEditFunc                                  SaleEditFunc
 	ratedBranchesFunc                             RatedBranchesFunc
 	setBrandSaleTypeGoal                          SetBrandSaleTypeGoalFunc
+	getBrandSaleSumFunc                           GetBrandSaleSumFunc
+	getBrandOverallGoalFunc                       GetBrandOverallGoalFunc
 
 	// user functions
 	createUserFunc     CreateUserFunc
@@ -261,6 +263,8 @@ func initDependencies(server *Server, ctx context.Context) {
 
 	server.ratedBranchesFunc = NewRatedBranchesFunc(ctx, store, server.getBranchBrandSaleSumFunc, server.getBranchBrandGoalFunc)
 	server.setBrandSaleTypeGoal = NewSetBrandSaleTypeGoalFunc(ctx, store)
+	server.getBrandSaleSumFunc = NewGetBrandSaleSumFunc(ctx, store)
+	server.getBrandOverallGoalFunc = NewGetBrandOverallGoalFunc(ctx, store)
 
 	// user functions
 	server.createUserFunc = NewCreateUserFunc(ctx, store)

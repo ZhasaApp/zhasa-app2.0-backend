@@ -270,6 +270,65 @@ func (q *Queries) GetBranchesByBrandId(ctx context.Context, brandID int32) ([]Ge
 	return items, nil
 }
 
+const getBrandOverallGoalByGivenDateRange = `-- name: GetBrandOverallGoalByGivenDateRange :one
+
+SELECT COALESCE(bg.value, 0) AS goal_amount
+FROM brand_overall_sale_type_goals bg
+WHERE bg.brand_id = $1
+  AND bg.from_date = $2
+  AND bg.to_date = $3
+  AND bg.sale_type_id = $4
+`
+
+type GetBrandOverallGoalByGivenDateRangeParams struct {
+	BrandID    int32     `json:"brand_id"`
+	FromDate   time.Time `json:"from_date"`
+	ToDate     time.Time `json:"to_date"`
+	SaleTypeID int32     `json:"sale_type_id"`
+}
+
+// Replace with the desired period (from_date and to_date)
+func (q *Queries) GetBrandOverallGoalByGivenDateRange(ctx context.Context, arg GetBrandOverallGoalByGivenDateRangeParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getBrandOverallGoalByGivenDateRange,
+		arg.BrandID,
+		arg.FromDate,
+		arg.ToDate,
+		arg.SaleTypeID,
+	)
+	var goal_amount int64
+	err := row.Scan(&goal_amount)
+	return goal_amount, err
+}
+
+const getBrandSaleSumByGivenDateRange = `-- name: GetBrandSaleSumByGivenDateRange :one
+SELECT COALESCE(SUM(s.amount), 0) ::bigint AS total_sales
+FROM sales s
+         JOIN sales_brands sb ON s.id = sb.sale_id
+         JOIN user_brands ub ON ub.user_id = s.user_id AND ub.brand_id = sb.brand_id
+WHERE sb.brand_id = $1    -- Replace with the desired brand_id
+  AND s.sale_type_id = $2 -- Replace with the desired sale_type_id
+  AND s.sale_date BETWEEN $3 AND $4
+`
+
+type GetBrandSaleSumByGivenDateRangeParams struct {
+	BrandID    int32     `json:"brand_id"`
+	SaleTypeID int32     `json:"sale_type_id"`
+	SaleDate   time.Time `json:"sale_date"`
+	SaleDate_2 time.Time `json:"sale_date_2"`
+}
+
+func (q *Queries) GetBrandSaleSumByGivenDateRange(ctx context.Context, arg GetBrandSaleSumByGivenDateRangeParams) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getBrandSaleSumByGivenDateRange,
+		arg.BrandID,
+		arg.SaleTypeID,
+		arg.SaleDate,
+		arg.SaleDate_2,
+	)
+	var total_sales int64
+	err := row.Scan(&total_sales)
+	return total_sales, err
+}
+
 const setBranchBrandGoal = `-- name: SetBranchBrandGoal :exec
 INSERT INTO branch_brand_sale_type_goals (branch_id, brand_id, sale_type_id, value, from_date, to_date)
 VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (branch_id, brand_id, sale_type_id, from_date, to_date) DO

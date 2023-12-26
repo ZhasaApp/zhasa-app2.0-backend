@@ -10,4 +10,5 @@ type BranchStore interface {
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
 	GetAllBranches(ctx context.Context) ([]Branch, error)
 	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
+	GetBrandOverallGoalByGivenDateRange(ctx context.Context, arg GetBrandOverallGoalByGivenDateRangeParams) (int64, error)
 }
