@@ -60,3 +60,9 @@ WHERE bu.branch_id = $1   -- Replace with the desired branch_id
 -- name: GetAllBranches :many
 SELECT *
 FROM branches;
+
+-- name: SetBrandSaleTypeGoal :exec
+INSERT INTO brand_overall_sale_type_goals (brand_id, sale_type_id, value, from_date, to_date)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (brand_id, sale_type_id, from_date, to_date) DO
+UPDATE
+    SET value = $3;

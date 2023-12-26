@@ -79,6 +79,7 @@ type Querier interface {
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	ListPosts(ctx context.Context) ([]Post, error)
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
+	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpdateUserBranch(ctx context.Context, arg UpdateUserBranchParams) error

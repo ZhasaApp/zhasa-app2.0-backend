@@ -44,3 +44,24 @@ func (server *Server) GetBranchBrandYearStatistic(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, response)
 }
+
+//type GetOwnerSalesStatisticsRequest struct {
+//	SaleTypeId int32 `form:"sale_type_id" json:"sale_type_id"`
+//	Year       int32 `form:"year" json:"year"`
+//	BrandId    int32 `form:"brand_id" json:"brand_id"`
+//}
+//
+//func (server *Server) GetOwnerSalesStatistics(ctx *gin.Context) {
+//	var requestBody GetOwnerSalesStatisticsRequest
+//	if err := ctx.ShouldBindQuery(&requestBody); err != nil {
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//
+//	stats, err := server.getBrandMonthlyYearStatisticFunc(requestBody.Year, requestBody.BrandId)
+//	if err != nil {
+//		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+//		return
+//	}
+//
+//}

@@ -94,6 +94,15 @@ type Brand struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type BrandOverallSaleTypeGoal struct {
+	ID         int32     `json:"id"`
+	BrandID    int32     `json:"brand_id"`
+	SaleTypeID int32     `json:"sale_type_id"`
+	Value      int64     `json:"value"`
+	FromDate   time.Time `json:"from_date"`
+	ToDate     time.Time `json:"to_date"`
+}
+
 type Comment struct {
 	ID        int32     `json:"id"`
 	Body      string    `json:"body"`
