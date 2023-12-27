@@ -109,3 +109,35 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 	})
 
 }
+
+type GetBranchesRequest struct {
+	BrandId int32 `json:"brand_id" form:"brand_id"`
+}
+
+type BranchesResp struct {
+	Result []BranchResp `json:"result"`
+}
+
+func (server *Server) GetBranchesByBrand(ctx *gin.Context) {
+	var request GetBranchesRequest
+	if err := ctx.ShouldBindQuery(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	branches, err := server.getBranchesByBrandFunc(request.BrandId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	result := make([]BranchResp, 0)
+	for _, branch := range branches {
+		result = append(result, BranchResp{
+			ID:    branch.BranchId,
+			Title: branch.Title,
+		})
+	}
+
+	ctx.JSON(http.StatusOK, result)
+}
