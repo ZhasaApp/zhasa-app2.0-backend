@@ -8,3 +8,7 @@ func Contains[T comparable](slice []T, element T) bool {
 	}
 	return false
 }
+
+type ArrayResponse[T any] struct {
+	Result []T `json:"result"`
+}
