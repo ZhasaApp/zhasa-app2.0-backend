@@ -60,3 +60,27 @@ WHERE bu.branch_id = $1   -- Replace with the desired branch_id
 -- name: GetAllBranches :many
 SELECT *
 FROM branches;
+
+-- name: SetBrandSaleTypeGoal :exec
+INSERT INTO brand_overall_sale_type_goals (brand_id, sale_type_id, value, from_date, to_date)
+VALUES ($1, $2, $3, $4, $5) ON CONFLICT (brand_id, sale_type_id, from_date, to_date) DO
+UPDATE
+    SET value = $3;
+
+-- name: GetBrandSaleSumByGivenDateRange :one
+SELECT COALESCE(SUM(s.amount), 0) ::bigint AS total_sales
+FROM sales s
+         JOIN sales_brands sb ON s.id = sb.sale_id
+         JOIN user_brands ub ON ub.user_id = s.user_id AND ub.brand_id = sb.brand_id
+WHERE sb.brand_id = $1    -- Replace with the desired brand_id
+  AND s.sale_type_id = $2 -- Replace with the desired sale_type_id
+  AND s.sale_date BETWEEN $3 AND $4;
+-- Replace with the desired period (from_date and to_date)
+
+-- name: GetBrandOverallGoalByGivenDateRange :one
+SELECT COALESCE(bg.value, 0) AS goal_amount
+FROM brand_overall_sale_type_goals bg
+WHERE bg.brand_id = $1
+  AND bg.from_date = $2
+  AND bg.to_date = $3
+  AND bg.sale_type_id = $4;

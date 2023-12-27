@@ -13,6 +13,7 @@ import (
 	. "zhasa2.0/branch/repository"
 	. "zhasa2.0/branch_director/repo"
 	. "zhasa2.0/brand"
+	. "zhasa2.0/brand/repository"
 	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/news/repository"
@@ -62,6 +63,9 @@ type Server struct {
 	saleAddFunc                                   SaleAddFunc
 	saleEditFunc                                  SaleEditFunc
 	ratedBranchesFunc                             RatedBranchesFunc
+	setBrandSaleTypeGoal                          SetBrandSaleTypeGoalFunc
+	getBrandSaleSumFunc                           GetBrandSaleSumFunc
+	getBrandOverallGoalFunc                       GetBrandOverallGoalFunc
 
 	// user functions
 	createUserFunc     CreateUserFunc
@@ -178,6 +182,10 @@ func NewServer(ctx context.Context) *Server {
 	router.GET("branch/brands", verifyToken(server.tokenService), server.GetBranchBrands)
 	router.GET("brands", verifyToken(server.tokenService), server.GetAllBrands)
 
+	router.POST("owner/brand-goal", verifyToken(server.tokenService), server.SetOwnerDashboardGoal)
+	router.GET("owner/brand-goal", verifyToken(server.tokenService), server.GetOwnerDashboardBySaleTypes)
+	router.GET("owner/brand-goal-branches", verifyToken(server.tokenService), server.GetOwnerDashboardByBranches)
+
 	server.router = router
 	return server
 }
@@ -255,6 +263,9 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.saleEditFunc = NewSaleEditFunc(ctx, store)
 
 	server.ratedBranchesFunc = NewRatedBranchesFunc(ctx, store, server.getBranchBrandSaleSumFunc, server.getBranchBrandGoalFunc)
+	server.setBrandSaleTypeGoal = NewSetBrandSaleTypeGoalFunc(ctx, store)
+	server.getBrandSaleSumFunc = NewGetBrandSaleSumFunc(ctx, store)
+	server.getBrandOverallGoalFunc = NewGetBrandOverallGoalFunc(ctx, store)
 
 	// user functions
 	server.createUserFunc = NewCreateUserFunc(ctx, store)
