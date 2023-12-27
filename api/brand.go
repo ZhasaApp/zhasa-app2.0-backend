@@ -97,7 +97,7 @@ func (server *Server) GetOwnerDashboardBySaleTypes(ctx *gin.Context) {
 }
 
 type GetOwnerDashboardByBranchesRequest struct {
-	BranchIDs []int32 `form:"branch_id" json:"branch_id"`
+	BranchIDs []int32 `form:"branch_ids" json:"branch_ids"`
 	Month     int32   `form:"month" json:"month"`
 	Year      int32   `form:"year" json:"year"`
 	BrandId   int32   `form:"brand_id" json:"brand_id"`
