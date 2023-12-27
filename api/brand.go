@@ -93,7 +93,9 @@ func (server *Server) GetOwnerDashboardBySaleTypes(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, result)
+	ctx.JSON(http.StatusOK, base.ArrayResponse[OwnerDashboardBySaleTypesItem]{
+		Result: result,
+	})
 }
 
 type GetOwnerDashboardByBranchesRequest struct {
@@ -175,5 +177,7 @@ func (server *Server) GetOwnerDashboardByBranches(ctx *gin.Context) {
 		})
 	}
 
-	ctx.JSON(http.StatusOK, result)
+	ctx.JSON(http.StatusOK, base.ArrayResponse[OwnerDashboardByBranchesItem]{
+		Result: result,
+	})
 }
