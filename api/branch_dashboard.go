@@ -139,5 +139,7 @@ func (server *Server) GetBranchesByBrand(ctx *gin.Context) {
 		})
 	}
 
-	ctx.JSON(http.StatusOK, result)
+	ctx.JSON(http.StatusOK, BranchesResp{
+		Result: result,
+	})
 }
