@@ -58,7 +58,7 @@ type SalesStatisticsItem struct {
 	ValueType       string          `json:"value_type"`
 	Achieved        int64           `json:"achieved"`
 	Goal            int64           `json:"goal"`
-	GoalAchievement SuccessRateResp `json:"goal_achieved"`
+	GoalAchievement SuccessRateResp `json:"goal_achievement"`
 }
 
 func (server *Server) GetBranchSalesStatistics(ctx *gin.Context) {
