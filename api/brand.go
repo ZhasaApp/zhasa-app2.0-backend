@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"zhasa2.0/base"
@@ -80,17 +81,15 @@ func (server *Server) GetOwnerDashboardBySaleTypes(ctx *gin.Context) {
 		achieved, _ := server.getBrandSaleSumFunc(request.BrandId, saleType.Id, period)
 		goal, _ := server.getBrandOverallGoalFunc(request.BrandId, saleType.Id, period)
 
-		if goal != 0 {
-			result = append(result, OwnerDashboardBySaleTypesItem{
-				SaleType: SaleTypeResp{
-					Title:     saleType.Title,
-					Color:     saleType.Color,
-					ValueType: saleType.ValueType,
-				},
-				Achieved: achieved,
-				Goal:     goal,
-			})
-		}
+		result = append(result, OwnerDashboardBySaleTypesItem{
+			SaleType: SaleTypeResp{
+				Title:     saleType.Title,
+				Color:     saleType.Color,
+				ValueType: saleType.ValueType,
+			},
+			Achieved: achieved,
+			Goal:     goal,
+		})
 	}
 
 	ctx.JSON(http.StatusOK, base.ArrayResponse[OwnerDashboardBySaleTypesItem]{
@@ -106,13 +105,32 @@ type GetOwnerDashboardByBranchesRequest struct {
 }
 
 type BranchResp struct {
-	ID    int32  `json:"id"`
-	Title string `json:"title"`
+	ID          int32  `json:"id"`
+	Title       string `json:"title"`
+	HeadOfSales string `json:"head_of_sales"`
+}
+
+type SuccessRateResp struct {
+	Percent float32 `json:"percent"`
+	Type    string  `json:"type"`
+}
+
+func BuildSuccessRateResp(percent float32) SuccessRateResp {
+	rateType := "good"
+	if percent < 25 {
+		rateType = "bad"
+	} else if percent < 72.5 {
+		rateType = "normal"
+	}
+	return SuccessRateResp{
+		Percent: percent,
+		Type:    rateType,
+	}
 }
 
 type OwnerDashboardByBranchesItem struct {
 	Branch      BranchResp                      `json:"branch"`
-	SuccessRate float32                         `json:"success_rate"`
+	SuccessRate SuccessRateResp                 `json:"success_rate"`
 	Items       []OwnerDashboardBySaleTypesItem `json:"items"`
 }
 
@@ -153,26 +171,35 @@ func (server *Server) GetOwnerDashboardByBranches(ctx *gin.Context) {
 
 			goal, _ := server.getBranchBrandGoalFunc(branch.BranchId, request.BrandId, saleType.Id, period)
 
-			if goal != 0 {
-				branchRatioRows = append(branchRatioRows, rating.RatioRow{
-					Achieved: salesSum,
-					Goal:     goal,
-					Gravity:  saleType.Gravity,
-				})
-				items = append(items, OwnerDashboardBySaleTypesItem{
-					SaleType: SaleTypeResp{
-						Title:     saleType.Title,
-						Color:     saleType.Color,
-						ValueType: saleType.ValueType,
-					},
-					Achieved: salesSum,
-					Goal:     goal,
-				})
-			}
+			branchRatioRows = append(branchRatioRows, rating.RatioRow{
+				Achieved: salesSum,
+				Goal:     goal,
+				Gravity:  saleType.Gravity,
+			})
+			items = append(items, OwnerDashboardBySaleTypesItem{
+				SaleType: SaleTypeResp{
+					Title:     saleType.Title,
+					Color:     saleType.Color,
+					ValueType: saleType.ValueType,
+				},
+				Achieved: salesSum,
+				Goal:     goal,
+			})
 		}
+
+		director, _ := server.getUserByBranchBrandRoleFunc(branch.BranchId, request.BrandId, 3)
+		headOfSales := ""
+		if director != nil && len(director) > 0 {
+			headOfSales = fmt.Sprintf("%s %s", director[0].FirstName, director[0].LastName)
+		}
+
 		result = append(result, OwnerDashboardByBranchesItem{
-			Branch:      BranchResp{ID: branch.BranchId, Title: branch.Title},
-			SuccessRate: rating.CalculateRatio(branchRatioRows) * 100,
+			Branch: BranchResp{
+				ID:          branch.BranchId,
+				Title:       branch.Title,
+				HeadOfSales: headOfSales,
+			},
+			SuccessRate: BuildSuccessRateResp(rating.CalculateRatio(branchRatioRows) * 100),
 			Items:       items,
 		})
 	}
