@@ -240,3 +240,42 @@ func (server *Server) GetOwnerGoal(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, GetOwnerGoalResponse{Value: goal})
 }
+
+type GetOwnerSalesStatisticsRequest struct {
+	SaleTypeID int32 `form:"sale_type_id" json:"sale_type_id"`
+	Year       int32 `form:"year" json:"year"`
+	BrandID    int32 `form:"brand_id" json:"brand_id"`
+}
+
+func (server *Server) GetOwnerYearStatistic(ctx *gin.Context) {
+	var request GetOwnerSalesStatisticsRequest
+	if err := ctx.Bind(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	stats, err := server.getBrandMonthlyYearStatisticFunc(request.Year, request.BrandID, request.SaleTypeID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	result := make([]SalesStatisticsItem, 0)
+	for _, stat := range stats {
+		rate := .0
+		if stat.Goal != 0 {
+			rate = float64(stat.Amount) / float64(stat.Goal) * 100.0
+		}
+		result = append(result, SalesStatisticsItem{
+			Month:           stat.Month,
+			ValueType:       stat.SaleType.ValueType,
+			Achieved:        stat.Amount,
+			Goal:            stat.Goal,
+			GoalAchievement: BuildSuccessRateResp(rate),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, base.ArrayResponse[SalesStatisticsItem]{
+		Result: result,
+	})
+}

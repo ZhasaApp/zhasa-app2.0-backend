@@ -66,6 +66,7 @@ type Server struct {
 	setBrandSaleTypeGoal                          SetBrandSaleTypeGoalFunc
 	getBrandSaleSumFunc                           GetBrandSaleSumFunc
 	getBrandOverallGoalFunc                       GetBrandOverallGoalFunc
+	getBrandMonthlyYearStatisticFunc              GetBrandMonthlyYearStatisticFunc
 
 	// user functions
 	createUserFunc     CreateUserFunc
@@ -189,6 +190,7 @@ func NewServer(ctx context.Context) *Server {
 	router.GET("owner/brand-goal", verifyToken(server.tokenService), server.GetOwnerDashboardBySaleTypes)
 	router.GET("owner/brand-goal-branches", verifyToken(server.tokenService), server.GetOwnerDashboardByBranches)
 	router.GET("owner/goal", verifyToken(server.tokenService), server.GetOwnerGoal)
+	router.GET("owner/year-statistic", verifyToken(server.tokenService), server.GetOwnerYearStatistic)
 
 	server.router = router
 	return server
@@ -270,6 +272,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.setBrandSaleTypeGoal = NewSetBrandSaleTypeGoalFunc(ctx, store)
 	server.getBrandSaleSumFunc = NewGetBrandSaleSumFunc(ctx, store)
 	server.getBrandOverallGoalFunc = NewGetBrandOverallGoalFunc(ctx, store)
+	server.getBrandMonthlyYearStatisticFunc = NewGetBrandMonthlyYearStatisticFunc(server.saleTypeRepo, server.getBrandOverallGoalFunc, server.getBrandSaleSumFunc)
 
 	// user functions
 	server.createUserFunc = NewCreateUserFunc(ctx, store)
