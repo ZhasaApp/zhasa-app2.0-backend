@@ -217,7 +217,7 @@ type GetOwnerGoalRequest struct {
 }
 
 type GetOwnerGoalResponse struct {
-	Value int64 `json:"value"`
+	Value *int64 `json:"value"`
 }
 
 func (server *Server) GetOwnerGoal(ctx *gin.Context) {
@@ -238,7 +238,11 @@ func (server *Server) GetOwnerGoal(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, GetOwnerGoalResponse{Value: goal})
+	if goal == 0 {
+		ctx.JSON(http.StatusOK, GetOwnerGoalResponse{Value: nil})
+		return
+	}
+	ctx.JSON(http.StatusOK, GetOwnerGoalResponse{Value: &goal})
 }
 
 type GetOwnerSalesStatisticsRequest struct {
