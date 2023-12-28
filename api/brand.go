@@ -181,3 +181,35 @@ func (server *Server) GetOwnerDashboardByBranches(ctx *gin.Context) {
 		Result: result,
 	})
 }
+
+type GetOwnerGoalRequest struct {
+	Month      int32 `form:"month" json:"month"`
+	Year       int32 `form:"year" json:"year"`
+	BrandId    int32 `form:"brand_id" json:"brand_id"`
+	SaleTypeId int32 `form:"sale_type_id" json:"sale_type_id"`
+}
+
+type GetOwnerGoalResponse struct {
+	Value int64 `json:"value"`
+}
+
+func (server *Server) GetOwnerGoal(ctx *gin.Context) {
+	var request GetOwnerGoalRequest
+	if err := ctx.Bind(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	period := statistic.MonthPeriod{
+		MonthNumber: request.Month,
+		Year:        request.Year,
+	}
+
+	goal, err := server.getBrandOverallGoalFunc(request.BrandId, request.SaleTypeId, period)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, GetOwnerGoalResponse{Value: goal})
+}
