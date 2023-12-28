@@ -111,11 +111,11 @@ type BranchResp struct {
 }
 
 type SuccessRateResp struct {
-	Percent float32 `json:"percent"`
+	Percent float64 `json:"percent"`
 	Type    string  `json:"type"`
 }
 
-func BuildSuccessRateResp(percent float32) SuccessRateResp {
+func BuildSuccessRateResp(percent float64) SuccessRateResp {
 	rateType := "good"
 	if percent < 25 {
 		rateType = "bad"
@@ -199,7 +199,7 @@ func (server *Server) GetOwnerDashboardByBranches(ctx *gin.Context) {
 				Title:       branch.Title,
 				HeadOfSales: headOfSales,
 			},
-			SuccessRate: BuildSuccessRateResp(rating.CalculateRatio(branchRatioRows) * 100),
+			SuccessRate: BuildSuccessRateResp(float64(rating.CalculateRatio(branchRatioRows) * 100)),
 			Items:       items,
 		})
 	}
