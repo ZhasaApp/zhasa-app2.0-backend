@@ -13,6 +13,7 @@ import (
 	. "zhasa2.0/branch/repository"
 	. "zhasa2.0/branch_director/repo"
 	. "zhasa2.0/brand"
+	. "zhasa2.0/brand/repository"
 	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/news/repository"
@@ -62,6 +63,10 @@ type Server struct {
 	saleAddFunc                                   SaleAddFunc
 	saleEditFunc                                  SaleEditFunc
 	ratedBranchesFunc                             RatedBranchesFunc
+	setBrandSaleTypeGoal                          SetBrandSaleTypeGoalFunc
+	getBrandSaleSumFunc                           GetBrandSaleSumFunc
+	getBrandOverallGoalFunc                       GetBrandOverallGoalFunc
+	getBrandMonthlyYearStatisticFunc              GetBrandMonthlyYearStatisticFunc
 
 	// user functions
 	createUserFunc     CreateUserFunc
@@ -139,11 +144,14 @@ func NewServer(ctx context.Context) *Server {
 
 	smRoute := router.Group("sales-manager/")
 	smRoute.GET("/year-statistic", server.GetUserBrandYearStatistic).Use(verifyToken(server.tokenService))
+	smRoute.GET("/year-statistic-v2", server.GetUserSalesStatistics).Use(verifyToken(server.tokenService))
 	smRoute.GET("/sale/list", server.GetSales).Use(verifyToken(server.tokenService))
 
+	router.GET("branches", server.GetBranchesByBrand).Use(verifyToken(server.tokenService))
 	branchRoute := router.Group("branch/").Use(verifyToken(server.tokenService))
 	{
 		branchRoute.GET("/year-statistic", server.GetBranchBrandYearStatistic)
+		branchRoute.GET("/year-statistic-v2", server.GetBranchSalesStatistics)
 		branchRoute.GET("/sales-managers", server.GetBranchSalesManagerList)
 	}
 
@@ -177,6 +185,12 @@ func NewServer(ctx context.Context) *Server {
 	router.GET("user/brands", verifyToken(server.tokenService), server.GetUserBrands)
 	router.GET("branch/brands", verifyToken(server.tokenService), server.GetBranchBrands)
 	router.GET("brands", verifyToken(server.tokenService), server.GetAllBrands)
+
+	router.POST("owner/brand-goal", verifyToken(server.tokenService), server.SetOwnerDashboardGoal)
+	router.GET("owner/brand-goal", verifyToken(server.tokenService), server.GetOwnerDashboardBySaleTypes)
+	router.GET("owner/brand-goal-branches", verifyToken(server.tokenService), server.GetOwnerDashboardByBranches)
+	router.GET("owner/goal", verifyToken(server.tokenService), server.GetOwnerGoal)
+	router.GET("owner/year-statistic", verifyToken(server.tokenService), server.GetOwnerYearStatistic)
 
 	server.router = router
 	return server
@@ -255,6 +269,10 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.saleEditFunc = NewSaleEditFunc(ctx, store)
 
 	server.ratedBranchesFunc = NewRatedBranchesFunc(ctx, store, server.getBranchBrandSaleSumFunc, server.getBranchBrandGoalFunc)
+	server.setBrandSaleTypeGoal = NewSetBrandSaleTypeGoalFunc(ctx, store)
+	server.getBrandSaleSumFunc = NewGetBrandSaleSumFunc(ctx, store)
+	server.getBrandOverallGoalFunc = NewGetBrandOverallGoalFunc(ctx, store)
+	server.getBrandMonthlyYearStatisticFunc = NewGetBrandMonthlyYearStatisticFunc(server.saleTypeRepo, server.getBrandOverallGoalFunc, server.getBrandSaleSumFunc)
 
 	// user functions
 	server.createUserFunc = NewCreateUserFunc(ctx, store)

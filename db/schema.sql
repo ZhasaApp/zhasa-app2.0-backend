@@ -143,6 +143,16 @@ CREATE TABLE branch_brand_sale_type_goals
     UNIQUE (branch_id, brand_id, sale_type_id, from_date, to_date)
 );
 
+CREATE TABLE brand_overall_sale_type_goals
+(
+    id           SERIAL PRIMARY KEY,
+    brand_id     INTEGER REFERENCES brands (id)     NOT NULL,
+    sale_type_id INTEGER REFERENCES sale_types (id) NOT NULL,
+    value        BIGINT                             NOT NULL,
+    from_date    TIMESTAMP                          NOT NULL,
+    to_date      TIMESTAMP                          NOT NULL,
+    UNIQUE (brand_id, sale_type_id, from_date, to_date)
+);
 
 CREATE TABLE posts
 (
