@@ -122,6 +122,8 @@ func NewServer(ctx context.Context) *Server {
 	router.POST("/users/edit/:id", server.PerformEditUserFromForm)
 	router.GET("/users/disable/:id", server.DisableUserForm)
 
+	router.GET("/policy", server.PrivacyPolicy)
+
 	authRoute := router.Group("auth/")
 	{
 		authRoute.POST("/request-code", server.requestAuthCode)
