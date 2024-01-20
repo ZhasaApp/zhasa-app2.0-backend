@@ -135,14 +135,15 @@ func NewServer(ctx context.Context) *Server {
 
 	router.GET("user/get-user-profile", server.getUserProfile)
 
-	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
+	adminRoute := router.Group("admin/")
 	{
 		adminRoute.GET("/users", server.GetAllUsers)
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
 		adminRoute.POST("/user", server.CreateUser)
 		adminRoute.DELETE("/users", server.DeleteUsers)
-		adminRoute.PUT("/user", server.UpdateUser)
+		adminRoute.PUT("/update-user", server.UpdateUser)
+		adminRoute.PUT("/change-users-role", server.ChangeUsersRole)
 
 		//adminRoute.GET("/users", server.GetAllUsersByRole)
 		//adminRoute.GET("/users/all", server.GetAllUsers)
