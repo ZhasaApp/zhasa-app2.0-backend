@@ -85,6 +85,16 @@ type UserWithBrands struct {
 	IsActive    bool   `json:"is_active"`
 }
 
+type UserWithBranchBrands struct {
+	Id          int32    `json:"id"`
+	FirstName   string   `json:"first_name"`
+	LastName    string   `json:"last_name"`
+	Phone       string   `json:"phone"`
+	BranchTitle string   `json:"branch_title"`
+	Brands      []string `json:"brands"`
+	IsActive    bool     `json:"is_active"`
+}
+
 type BaseUser struct {
 	Id        int32
 	FirstName string

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"zhasa2.0/base"
 	"zhasa2.0/brand"
+	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/user/entities"
 )
 
@@ -50,19 +51,24 @@ func (s *Server) GetAllUsersByRole(ctx *gin.Context) {
 }
 
 type GetAllUsersRequest struct {
-	Page     int32  `json:"page" form:"page"`
-	PageSize int32  `json:"size" form:"size"`
-	Search   string `json:"search" form:"search"`
+	Page      int32    `json:"page" form:"page"`
+	PageSize  int32    `json:"size" form:"size"`
+	Roles     []string `json:"role_keys" form:"role_keys"`
+	Brands    []int32  `json:"brand_ids" form:"brand_ids"`
+	Branches  []int32  `json:"branch_ids" form:"branch_ids"`
+	Search    string   `json:"search" form:"search"`
+	SortType  string   `json:"sort_type" form:"sort_type"`
+	SortField string   `json:"sort_field" form:"sort_field"`
 }
 
 type GetAllUsersResponse struct {
-	Result  []entities.UserWithBrands `json:"result"`
-	HasNext bool                      `json:"has_next"`
-	Count   int32                     `json:"count"`
+	Result  []entities.UserWithBranchBrands `json:"result"`
+	HasNext bool                            `json:"has_next"`
+	Count   int32                           `json:"count"`
 }
 
 func (s *Server) GetAllUsers(ctx *gin.Context) {
-	var req GetAllUsersByRoleRequest
+	var req GetAllUsersRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -72,7 +78,17 @@ func (s *Server) GetAllUsers(ctx *gin.Context) {
 		Page:     req.Page,
 		PageSize: req.PageSize,
 	}
-	users, total, err := s.getUsersWithBranchBrands(req.Search, pagination)
+	params := generated.GetFilteredUsersWithBranchRolesBrandsParams{
+		Search:    req.Search,
+		Limit:     pagination.PageSize,
+		Offset:    pagination.GetOffset(),
+		RoleKeys:  req.Roles,
+		BrandIds:  req.Brands,
+		BranchIds: req.Branches,
+		SortField: req.SortField,
+		SortType:  req.SortType,
+	}
+	users, total, err := s.getFilteredUsersWithBranchBrands(params)
 	if err != nil {
 		ctx.JSON(http.StatusOK, errorResponse(err))
 		return
@@ -80,7 +96,7 @@ func (s *Server) GetAllUsers(ctx *gin.Context) {
 
 	hasNext := pagination.HasNext(total)
 
-	ctx.JSON(http.StatusOK, GetAllUsersByRoleResponse{
+	ctx.JSON(http.StatusOK, GetAllUsersResponse{
 		Result:  users,
 		HasNext: hasNext,
 		Count:   total,

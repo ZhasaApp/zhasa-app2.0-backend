@@ -8,6 +8,8 @@ package generated
 import (
 	"context"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 const addBrandToUser = `-- name: AddBrandToUser :exec
@@ -47,6 +49,36 @@ type AddRoleToUserParams struct {
 
 func (q *Queries) AddRoleToUser(ctx context.Context, arg AddRoleToUserParams) error {
 	_, err := q.db.ExecContext(ctx, addRoleToUser, arg.UserID, arg.RoleID)
+	return err
+}
+
+const addUserBranch = `-- name: AddUserBranch :exec
+INSERT INTO branch_users (user_id, branch_id)
+VALUES ($1, $2) ON CONFLICT DO NOTHING
+`
+
+type AddUserBranchParams struct {
+	UserID   int32 `json:"user_id"`
+	BranchID int32 `json:"branch_id"`
+}
+
+func (q *Queries) AddUserBranch(ctx context.Context, arg AddUserBranchParams) error {
+	_, err := q.db.ExecContext(ctx, addUserBranch, arg.UserID, arg.BranchID)
+	return err
+}
+
+const addUserRole = `-- name: AddUserRole :exec
+INSERT INTO user_roles (user_id, role_id)
+VALUES ($1, (SELECT id FROM roles WHERE key = $2::text)) ON CONFLICT DO NOTHING
+`
+
+type AddUserRoleParams struct {
+	UserID  int32  `json:"user_id"`
+	RoleKey string `json:"role_key"`
+}
+
+func (q *Queries) AddUserRole(ctx context.Context, arg AddUserRoleParams) error {
+	_, err := q.db.ExecContext(ctx, addUserRole, arg.UserID, arg.RoleKey)
 	return err
 }
 
@@ -130,6 +162,116 @@ func (q *Queries) GetAuthCodeById(ctx context.Context, id int32) (UsersCode, err
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const getFilteredUsersWithBranchRolesBrands = `-- name: GetFilteredUsersWithBranchRolesBrands :many
+WITH Counted AS (
+    SELECT u.id,
+           u.first_name,
+           u.last_name,
+           u.phone,
+           b.title                    AS branch_title,
+           STRING_AGG(bs.title, ', ') AS brands,
+           COUNT(*) OVER()            AS total_count,
+           CASE
+               WHEN du.user_id IS NULL THEN true
+               ELSE false
+               END                        AS is_active
+    FROM users u
+             JOIN user_roles ur ON u.id = ur.user_id
+             JOIN roles r ON ur.role_id = r.id
+             JOIN branch_users bu ON u.id = bu.user_id
+             JOIN user_brands ub ON u.id = ub.user_id
+             JOIN brands bs ON ub.brand_id = bs.id
+             JOIN branches b ON bu.branch_id = b.id
+             LEFT JOIN disabled_users du ON u.id = du.user_id
+    WHERE (last_name || ' ' || first_name) ILIKE '%' || $5::text || '%'
+      AND ($6::text[] IS NULL OR r.key = ANY($6))
+      AND ($7::int[] IS NULL OR bs.id = ANY($7))
+      AND ($8::int[] IS NULL OR b.id = ANY($8))
+    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id
+)
+SELECT id,
+       first_name,
+       last_name,
+       phone,
+       branch_title,
+       brands,
+       total_count,
+       is_active
+FROM Counted
+ORDER BY
+    CASE WHEN $3::text = 'fio' AND $4::text = 'asc' THEN first_name END ASC,
+    CASE WHEN $3 = 'fio' AND $4 = 'asc' THEN last_name END ASC,
+    CASE WHEN $3 = 'fio' AND $4 = 'desc' THEN first_name END DESC,
+    CASE WHEN $3 = 'fio' AND $4 = 'desc' THEN last_name END DESC,
+    CASE WHEN $3 = 'branch' AND $4 = 'asc' THEN branch_title END ASC,
+    CASE WHEN $3 = 'branch' AND $4 = 'desc' THEN branch_title END DESC,
+    first_name, last_name, id DESC
+LIMIT $1 OFFSET $2
+`
+
+type GetFilteredUsersWithBranchRolesBrandsParams struct {
+	Limit     int32    `json:"limit"`
+	Offset    int32    `json:"offset"`
+	SortField string   `json:"sort_field"`
+	SortType  string   `json:"sort_type"`
+	Search    string   `json:"search"`
+	RoleKeys  []string `json:"role_keys"`
+	BrandIds  []int32  `json:"brand_ids"`
+	BranchIds []int32  `json:"branch_ids"`
+}
+
+type GetFilteredUsersWithBranchRolesBrandsRow struct {
+	ID          int32  `json:"id"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	Phone       string `json:"phone"`
+	BranchTitle string `json:"branch_title"`
+	Brands      []byte `json:"brands"`
+	TotalCount  int64  `json:"total_count"`
+	IsActive    bool   `json:"is_active"`
+}
+
+func (q *Queries) GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg GetFilteredUsersWithBranchRolesBrandsParams) ([]GetFilteredUsersWithBranchRolesBrandsRow, error) {
+	rows, err := q.db.QueryContext(ctx, getFilteredUsersWithBranchRolesBrands,
+		arg.Limit,
+		arg.Offset,
+		arg.SortField,
+		arg.SortType,
+		arg.Search,
+		pq.Array(arg.RoleKeys),
+		pq.Array(arg.BrandIds),
+		pq.Array(arg.BranchIds),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetFilteredUsersWithBranchRolesBrandsRow
+	for rows.Next() {
+		var i GetFilteredUsersWithBranchRolesBrandsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Phone,
+			&i.BranchTitle,
+			&i.Brands,
+			&i.TotalCount,
+			&i.IsActive,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getUserBranch = `-- name: GetUserBranch :one
