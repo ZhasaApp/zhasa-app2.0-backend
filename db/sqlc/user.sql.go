@@ -190,6 +190,7 @@ WITH Counted AS (
       AND ($6::text[] IS NULL OR r.key = ANY($6))
       AND ($7::int[] IS NULL OR bs.id = ANY($7))
       AND ($8::int[] IS NULL OR b.id = ANY($8))
+      AND (du.user_id IS NULL)
     GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
 )
 SELECT id,
