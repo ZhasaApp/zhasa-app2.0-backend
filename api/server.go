@@ -144,6 +144,7 @@ func NewServer(ctx context.Context) *Server {
 		adminRoute.DELETE("/users", server.DeleteUsers)
 		adminRoute.PUT("/update-user", server.UpdateUser)
 		adminRoute.PUT("/change-users-role", server.ChangeUsersRole)
+		adminRoute.PUT("/change-users-brands", server.ChangeUsersBrands)
 
 		//adminRoute.GET("/users", server.GetAllUsersByRole)
 		//adminRoute.GET("/users/all", server.GetAllUsers)
