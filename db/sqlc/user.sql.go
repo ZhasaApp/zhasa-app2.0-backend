@@ -170,6 +170,7 @@ WITH Counted AS (
            u.first_name,
            u.last_name,
            u.phone,
+           r.key                      AS role,
            b.title                    AS branch_title,
            STRING_AGG(bs.title, ', ') AS brands,
            COUNT(*) OVER()            AS total_count,
@@ -189,12 +190,13 @@ WITH Counted AS (
       AND ($6::text[] IS NULL OR r.key = ANY($6))
       AND ($7::int[] IS NULL OR bs.id = ANY($7))
       AND ($8::int[] IS NULL OR b.id = ANY($8))
-    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id
+    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
 )
 SELECT id,
        first_name,
        last_name,
        phone,
+       role,
        branch_title,
        brands,
        total_count,
@@ -227,6 +229,7 @@ type GetFilteredUsersWithBranchRolesBrandsRow struct {
 	FirstName   string `json:"first_name"`
 	LastName    string `json:"last_name"`
 	Phone       string `json:"phone"`
+	Role        string `json:"role"`
 	BranchTitle string `json:"branch_title"`
 	Brands      []byte `json:"brands"`
 	TotalCount  int64  `json:"total_count"`
@@ -256,6 +259,7 @@ func (q *Queries) GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg
 			&i.FirstName,
 			&i.LastName,
 			&i.Phone,
+			&i.Role,
 			&i.BranchTitle,
 			&i.Brands,
 			&i.TotalCount,

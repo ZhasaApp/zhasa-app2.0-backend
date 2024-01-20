@@ -173,6 +173,7 @@ WITH Counted AS (
            u.first_name,
            u.last_name,
            u.phone,
+           r.key                      AS role,
            b.title                    AS branch_title,
            STRING_AGG(bs.title, ', ') AS brands,
            COUNT(*) OVER()            AS total_count,
@@ -192,12 +193,13 @@ WITH Counted AS (
       AND (@role_keys::text[] IS NULL OR r.key = ANY(@role_keys))
       AND (@brand_ids::int[] IS NULL OR bs.id = ANY(@brand_ids))
       AND (@branch_ids::int[] IS NULL OR b.id = ANY(@branch_ids))
-    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id
+    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
 )
 SELECT id,
        first_name,
        last_name,
        phone,
+       role,
        branch_title,
        brands,
        total_count,
