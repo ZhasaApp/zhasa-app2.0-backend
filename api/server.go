@@ -102,7 +102,10 @@ func NewServer(ctx context.Context) *Server {
 	initDependencies(server, ctx)
 
 	router := gin.Default()
-	router.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
+	corsConfig.AllowAllOrigins = true
+	router.Use(cors.New(corsConfig))
 	router.LoadHTMLGlob("templates/*")
 
 	router.POST("/image/avatar/upload", verifyToken(server.tokenService), server.HandleAvatarUpload)
