@@ -141,6 +141,11 @@ func NewServer(ctx context.Context) *Server {
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
 		adminRoute.POST("/user", server.CreateUser)
+		adminRoute.DELETE("/users", server.DeleteUsers)
+		adminRoute.PUT("/update-user", server.UpdateUser)
+		adminRoute.PUT("/change-users-role", server.ChangeUsersRole)
+		adminRoute.PUT("/change-users-brands", server.ChangeUsersBrands)
+		adminRoute.PUT("/change-users-branch", server.ChangeUsersBranch)
 
 		//adminRoute.GET("/users", server.GetAllUsersByRole)
 		//adminRoute.GET("/users/all", server.GetAllUsers)
@@ -305,6 +310,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	addDisabledUserFunc := NewAddDisabledUserFunc(ctx, store)
 	addUserRoleFunc := NewAddUserRoleFunc(ctx, store)
 	addUserBranchFunc := NewAddUserBranchFunc(ctx, store)
+	updateUserRole := NewUpdateUserRoleFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		getUserByPhoneFunc,
@@ -325,6 +331,7 @@ func initDependencies(server *Server, ctx context.Context) {
 		getFilteredUsersWithBranchBrands,
 		addUserRoleFunc,
 		addUserBranchFunc,
+		updateUserRole,
 	)
 }
 

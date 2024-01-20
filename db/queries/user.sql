@@ -193,6 +193,7 @@ WITH Counted AS (
       AND (@role_keys::text[] IS NULL OR r.key = ANY(@role_keys))
       AND (@brand_ids::int[] IS NULL OR bs.id = ANY(@brand_ids))
       AND (@branch_ids::int[] IS NULL OR b.id = ANY(@branch_ids))
+      AND (du.user_id IS NULL)
     GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
 )
 SELECT id,
@@ -222,3 +223,8 @@ VALUES ($1, (SELECT id FROM roles WHERE key = @role_key::text)) ON CONFLICT DO N
 -- name: AddUserBranch :exec
 INSERT INTO branch_users (user_id, branch_id)
 VALUES ($1, $2) ON CONFLICT DO NOTHING;
+
+-- name: UpdateUserRole :exec
+UPDATE user_roles
+SET role_id = (SELECT id FROM roles WHERE key = @role_key::text)
+WHERE user_id = $1;

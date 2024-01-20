@@ -29,6 +29,7 @@ type UserStore interface {
 	GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg GetFilteredUsersWithBranchRolesBrandsParams) ([]GetFilteredUsersWithBranchRolesBrandsRow, error)
 	AddUserRole(ctx context.Context, arg AddUserRoleParams) error
 	AddUserBranch(ctx context.Context, arg AddUserBranchParams) error
+	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error
 }
 
 func (db *DBStore) CreateManagerTX(ctx context.Context, userId, branchId int32, brands []int32) error {

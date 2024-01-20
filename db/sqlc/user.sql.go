@@ -190,6 +190,7 @@ WITH Counted AS (
       AND ($6::text[] IS NULL OR r.key = ANY($6))
       AND ($7::int[] IS NULL OR bs.id = ANY($7))
       AND ($8::int[] IS NULL OR b.id = ANY($8))
+      AND (du.user_id IS NULL)
     GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
 )
 SELECT id,
@@ -691,6 +692,22 @@ type UpdateUserBranchParams struct {
 
 func (q *Queries) UpdateUserBranch(ctx context.Context, arg UpdateUserBranchParams) error {
 	_, err := q.db.ExecContext(ctx, updateUserBranch, arg.BranchID, arg.UserID)
+	return err
+}
+
+const updateUserRole = `-- name: UpdateUserRole :exec
+UPDATE user_roles
+SET role_id = (SELECT id FROM roles WHERE key = $2::text)
+WHERE user_id = $1
+`
+
+type UpdateUserRoleParams struct {
+	UserID  int32  `json:"user_id"`
+	RoleKey string `json:"role_key"`
+}
+
+func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserRole, arg.UserID, arg.RoleKey)
 	return err
 }
 
