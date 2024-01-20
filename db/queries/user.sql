@@ -223,3 +223,8 @@ VALUES ($1, (SELECT id FROM roles WHERE key = @role_key::text)) ON CONFLICT DO N
 -- name: AddUserBranch :exec
 INSERT INTO branch_users (user_id, branch_id)
 VALUES ($1, $2) ON CONFLICT DO NOTHING;
+
+-- name: UpdateUserRole :exec
+UPDATE user_roles
+SET role_id = (SELECT id FROM roles WHERE key = @role_key::text)
+WHERE user_id = $1;

@@ -19,6 +19,7 @@ type Server struct {
 	updateUserBrands         repository.UpdateUserBrandsFunc
 	updateUserFunc           repository.UpdateUserFunc
 	updateUserBranchFunc     repository.UpdateUserBranchFunc
+	updateUserRole           repository.UpdateUserRoleFunc
 
 	addDisabledUserFunc repository.AddDisabledUserFunc
 
@@ -49,6 +50,7 @@ func NewServer(
 	getFilteredUsersWithBranchBrands repository.GetFilteredUsersWithBranchBrands,
 	addUserRole repository.AddUserRoleFunc,
 	addUserBranch repository.AddUserBranchFunc,
+	updateUserRole repository.UpdateUserRoleFunc,
 ) *Server {
 	return &Server{
 		getUserByPhoneFunc:               getUserByPhoneFunc,
@@ -69,6 +71,7 @@ func NewServer(
 		getFilteredUsersWithBranchBrands: getFilteredUsersWithBranchBrands,
 		addUserRole:                      addUserRole,
 		addUserBranch:                    addUserBranch,
+		updateUserRole:                   updateUserRole,
 	}
 }
 

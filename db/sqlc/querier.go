@@ -89,6 +89,7 @@ type Querier interface {
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpdateUserBranch(ctx context.Context, arg UpdateUserBranchParams) error
+	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error
 }
 

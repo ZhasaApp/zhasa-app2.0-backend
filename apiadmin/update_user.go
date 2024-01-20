@@ -1,0 +1,67 @@
+package apiadmin
+
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"zhasa2.0/user/entities"
+)
+
+type UpdateUserRequest struct {
+	UserID    int32   `json:"user_id"`
+	Phone     string  `json:"phone"`
+	FirstName string  `json:"first_name"`
+	LastName  string  `json:"last_name"`
+	RoleKey   string  `json:"role"`
+	Brands    []int32 `json:"brand_ids"`
+	BranchID  int32   `json:"branch_id"`
+}
+
+func (s *Server) UpdateUser(ctx *gin.Context) {
+	var request UpdateUserRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	firstName, err := entities.NewName(request.FirstName)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	lastName, err := entities.NewName(request.LastName)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	validatedPhone, err := entities.NewPhone(request.Phone)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	if err = s.updateUserFunc(request.UserID, *firstName, *lastName, *validatedPhone); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = s.updateUserBrands(request.UserID, request.Brands); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = s.updateUserBranchFunc(request.UserID, request.BranchID); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = s.updateUserRole(request.UserID, request.RoleKey); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "user updated successfully",
+	})
+}

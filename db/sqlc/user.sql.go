@@ -695,6 +695,22 @@ func (q *Queries) UpdateUserBranch(ctx context.Context, arg UpdateUserBranchPara
 	return err
 }
 
+const updateUserRole = `-- name: UpdateUserRole :exec
+UPDATE user_roles
+SET role_id = (SELECT id FROM roles WHERE key = $2::text)
+WHERE user_id = $1
+`
+
+type UpdateUserRoleParams struct {
+	UserID  int32  `json:"user_id"`
+	RoleKey string `json:"role_key"`
+}
+
+func (q *Queries) UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserRole, arg.UserID, arg.RoleKey)
+	return err
+}
+
 const uploadUserAvatar = `-- name: UploadUserAvatar :exec
 INSERT INTO users_avatars(user_id, avatar_url)
 VALUES ($1, $2) ON CONFLICT (user_id)
