@@ -82,9 +82,15 @@ func (server *Server) HandleNewsUpload(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"url": "http://185.182.219.90/images/news/" + filename,
-	})
+	if server.environment == "prod" {
+		c.JSON(http.StatusOK, gin.H{
+			"url": "https://doschamp.doscar.kz/images/news/" + filename,
+		})
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"url": "http://185.182.219.90/images/news/" + filename,
+		})
+	}
 }
 
 func (server *Server) HandleManagersUpload(c *gin.Context) {

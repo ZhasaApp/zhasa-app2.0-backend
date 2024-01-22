@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	server := api.NewServer(context.Background())
+	server := api.NewServer(context.Background(), os.Getenv("ENVIRONMENT"))
 
 	serverAddress := os.Getenv("SERVER_ADDRESS")
 	fmt.Println(serverAddress)
