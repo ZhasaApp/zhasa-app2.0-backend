@@ -19,12 +19,16 @@ type Server struct {
 	updateUserBrands         repository.UpdateUserBrandsFunc
 	updateUserFunc           repository.UpdateUserFunc
 	updateUserBranchFunc     repository.UpdateUserBranchFunc
+	updateUserRole           repository.UpdateUserRoleFunc
 
 	addDisabledUserFunc repository.AddDisabledUserFunc
 
-	getAllBranchesFunc repository2.GetAllBranches
-	getAllBrandsFunc   brand.GetAllBrandsFunc
-	getUserBrandsFunc  brand.GetUserBrandsFunc
+	getAllBranchesFunc               repository2.GetAllBranches
+	getAllBrandsFunc                 brand.GetAllBrandsFunc
+	getUserBrandsFunc                brand.GetUserBrandsFunc
+	getFilteredUsersWithBranchBrands repository.GetFilteredUsersWithBranchBrands
+	addUserRole                      repository.AddUserRoleFunc
+	addUserBranch                    repository.AddUserBranchFunc
 }
 
 func NewServer(
@@ -43,23 +47,31 @@ func NewServer(
 	brandsFunc brand.GetAllBrandsFunc,
 	addDisabledUserFunc repository.AddDisabledUserFunc,
 	getUserBrandsFunc brand.GetUserBrandsFunc,
+	getFilteredUsersWithBranchBrands repository.GetFilteredUsersWithBranchBrands,
+	addUserRole repository.AddUserRoleFunc,
+	addUserBranch repository.AddUserBranchFunc,
+	updateUserRole repository.UpdateUserRoleFunc,
 ) *Server {
 	return &Server{
-		getUserByPhoneFunc:       getUserByPhoneFunc,
-		createUserFunc:           createUserFunc,
-		makeUserAsManagerFunc:    makeManagerAsUserFunc,
-		getUsersWithoutRolesFunc: getUsersWithoutRolesFunc,
-		getUsersByRoleFunc:       getUsersByRoleFunc,
-		getUsersWithBranchBrands: getUsersWithBranchBrands,
-		getUserByIdFunc:          getUserByIdFunc,
-		getUserBranchFunc:        getUserBranchFunc,
-		updateUserBrands:         updateUserBrands,
-		updateUserFunc:           updateUserFunc,
-		updateUserBranchFunc:     updateUserBranchFunc,
-		addDisabledUserFunc:      addDisabledUserFunc,
-		getAllBranchesFunc:       branchesFunc,
-		getAllBrandsFunc:         brandsFunc,
-		getUserBrandsFunc:        getUserBrandsFunc,
+		getUserByPhoneFunc:               getUserByPhoneFunc,
+		createUserFunc:                   createUserFunc,
+		makeUserAsManagerFunc:            makeManagerAsUserFunc,
+		getUsersWithoutRolesFunc:         getUsersWithoutRolesFunc,
+		getUsersByRoleFunc:               getUsersByRoleFunc,
+		getUsersWithBranchBrands:         getUsersWithBranchBrands,
+		getUserByIdFunc:                  getUserByIdFunc,
+		getUserBranchFunc:                getUserBranchFunc,
+		updateUserBrands:                 updateUserBrands,
+		updateUserFunc:                   updateUserFunc,
+		updateUserBranchFunc:             updateUserBranchFunc,
+		addDisabledUserFunc:              addDisabledUserFunc,
+		getAllBranchesFunc:               branchesFunc,
+		getAllBrandsFunc:                 brandsFunc,
+		getUserBrandsFunc:                getUserBrandsFunc,
+		getFilteredUsersWithBranchBrands: getFilteredUsersWithBranchBrands,
+		addUserRole:                      addUserRole,
+		addUserBranch:                    addUserBranch,
+		updateUserRole:                   updateUserRole,
 	}
 }
 

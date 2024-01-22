@@ -16,6 +16,8 @@ type Querier interface {
 	// add sale into sales by given sale_type_id, amount, date, user_id and on conflict replace
 	AddSaleOrReplace(ctx context.Context, arg AddSaleOrReplaceParams) (Sale, error)
 	AddSaleToBrand(ctx context.Context, arg AddSaleToBrandParams) (SalesBrand, error)
+	AddUserBranch(ctx context.Context, arg AddUserBranchParams) error
+	AddUserRole(ctx context.Context, arg AddUserRoleParams) error
 	AddUserToBranch(ctx context.Context, arg AddUserToBranchParams) error
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
@@ -51,6 +53,7 @@ type Querier interface {
 	GetBrands(ctx context.Context, arg GetBrandsParams) ([]GetBrandsRow, error)
 	GetCommentById(ctx context.Context, id int32) (Comment, error)
 	GetCommentsAndAuthorsByPostId(ctx context.Context, arg GetCommentsAndAuthorsByPostIdParams) ([]GetCommentsAndAuthorsByPostIdRow, error)
+	GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg GetFilteredUsersWithBranchRolesBrandsParams) ([]GetFilteredUsersWithBranchRolesBrandsRow, error)
 	GetPostById(ctx context.Context, id int32) (Post, error)
 	GetPostLikedUsers(ctx context.Context, arg GetPostLikedUsersParams) ([]GetPostLikedUsersRow, error)
 	GetPostLikesCount(ctx context.Context, postID int32) (int64, error)
@@ -86,6 +89,7 @@ type Querier interface {
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpdateUserBranch(ctx context.Context, arg UpdateUserBranchParams) error
+	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error
 }
 

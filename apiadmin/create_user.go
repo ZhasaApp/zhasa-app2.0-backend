@@ -10,9 +10,12 @@ import (
 )
 
 type CreateUserRequest struct {
-	Phone     string `json:"phone"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	Phone     string  `json:"phone"`
+	FirstName string  `json:"first_name"`
+	LastName  string  `json:"last_name"`
+	RoleKey   string  `json:"role"`
+	Brands    []int32 `json:"brand_ids"`
+	BranchID  int32   `json:"branch_id"`
 }
 
 func (s *Server) CreateUser(ctx *gin.Context) {
@@ -48,6 +51,21 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 
 	id, err := s.createUserFunc(*firstName, *lastName, *validatedPhone)
 	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = s.updateUserBrands(id, request.Brands); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = s.addUserBranch(id, request.BranchID); err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if err = s.addUserRole(id, request.RoleKey); err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}

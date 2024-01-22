@@ -102,7 +102,10 @@ func NewServer(ctx context.Context) *Server {
 	initDependencies(server, ctx)
 
 	router := gin.Default()
-	router.Use(cors.Default())
+	corsConfig := cors.DefaultConfig()
+	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
+	corsConfig.AllowAllOrigins = true
+	router.Use(cors.New(corsConfig))
 	router.LoadHTMLGlob("templates/*")
 
 	router.POST("/image/avatar/upload", verifyToken(server.tokenService), server.HandleAvatarUpload)
@@ -134,14 +137,21 @@ func NewServer(ctx context.Context) *Server {
 
 	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
-		adminRoute.POST("/user", server.CreateUser)
-		adminRoute.GET("/users", server.GetAllUsersByRole)
-		adminRoute.GET("/users/all", server.GetAllUsers)
-		adminRoute.GET("/users/no-roles", server.GetUsersWithoutRoles)
-		adminRoute.POST("/manager", server.CreateManager)
-		adminRoute.GET("/sale-type/list", server.getSaleTypes)
+		adminRoute.GET("/users", server.GetAllUsers)
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
+		adminRoute.POST("/user", server.CreateUser)
+		adminRoute.DELETE("/users", server.DeleteUsers)
+		adminRoute.PUT("/update-user", server.UpdateUser)
+		adminRoute.PUT("/change-users-role", server.ChangeUsersRole)
+		adminRoute.PUT("/change-users-brands", server.ChangeUsersBrands)
+		adminRoute.PUT("/change-users-branch", server.ChangeUsersBranch)
+
+		//adminRoute.GET("/users", server.GetAllUsersByRole)
+		//adminRoute.GET("/users/all", server.GetAllUsers)
+		//adminRoute.GET("/users/no-roles", server.GetUsersWithoutRoles)
+		//adminRoute.POST("/manager", server.CreateManager)
+		adminRoute.GET("/sale-type/list", server.getSaleTypes)
 	}
 
 	smRoute := router.Group("sales-manager/")
@@ -289,6 +299,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	getUsersWithoutRolesFunc := NewGetUsersWithoutRolesFunc(ctx, store)
 	getUsersByRoleFunc := NewGetUsersByRoleFunc(ctx, store)
 	getUsersWithBranchBrands := NewGetUsersWithBranchBrands(ctx, store)
+	getFilteredUsersWithBranchBrands := NewGetFilteredUsersWithBranchBrands(ctx, store)
 	getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
 	updateUserBrandsFunc := NewUpdateUserBrandsFunc(ctx, store)
 	updateUserFunc := NewUpdateUserFunc(ctx, store)
@@ -297,6 +308,9 @@ func initDependencies(server *Server, ctx context.Context) {
 	getAllBranches := NewGetAllBranchesFunc(ctx, store)
 	getUserBrandsFunc := NewGetUserBrandsFunc(ctx, store)
 	addDisabledUserFunc := NewAddDisabledUserFunc(ctx, store)
+	addUserRoleFunc := NewAddUserRoleFunc(ctx, store)
+	addUserBranchFunc := NewAddUserBranchFunc(ctx, store)
+	updateUserRole := NewUpdateUserRoleFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		getUserByPhoneFunc,
@@ -314,6 +328,10 @@ func initDependencies(server *Server, ctx context.Context) {
 		allBrands,
 		addDisabledUserFunc,
 		getUserBrandsFunc,
+		getFilteredUsersWithBranchBrands,
+		addUserRoleFunc,
+		addUserBranchFunc,
+		updateUserRole,
 	)
 }
 
