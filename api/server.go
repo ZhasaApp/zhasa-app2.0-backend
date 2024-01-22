@@ -151,7 +151,7 @@ func NewServer(ctx context.Context) *Server {
 		//adminRoute.GET("/users/all", server.GetAllUsers)
 		//adminRoute.GET("/users/no-roles", server.GetUsersWithoutRoles)
 		//adminRoute.POST("/manager", server.CreateManager)
-		//adminRoute.GET("/sale-type/list", server.getSaleTypes)
+		adminRoute.GET("/sale-type/list", server.getSaleTypes)
 	}
 
 	smRoute := router.Group("sales-manager/")
