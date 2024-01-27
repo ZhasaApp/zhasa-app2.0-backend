@@ -24,7 +24,7 @@ func NewGetFilteredUsersWithBranchBrands(ctx context.Context, store generated.Us
 				FirstName:   row.FirstName,
 				LastName:    row.LastName,
 				Phone:       row.Phone,
-				BranchTitle: row.BranchTitle,
+				BranchTitle: row.BranchTitle.String,
 				Brands:      strings.Split(string(row.Brands), ", "),
 				Role:        row.Role,
 			})

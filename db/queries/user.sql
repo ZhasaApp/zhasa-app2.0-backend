@@ -184,10 +184,10 @@ WITH Counted AS (
     FROM users u
              JOIN user_roles ur ON u.id = ur.user_id
              JOIN roles r ON ur.role_id = r.id
-             JOIN branch_users bu ON u.id = bu.user_id
-             JOIN user_brands ub ON u.id = ub.user_id
-             JOIN brands bs ON ub.brand_id = bs.id
-             JOIN branches b ON bu.branch_id = b.id
+             LEFT JOIN branch_users bu ON u.id = bu.user_id
+             LEFT JOIN user_brands ub ON u.id = ub.user_id
+             LEFT JOIN brands bs ON ub.brand_id = bs.id
+             LEFT JOIN branches b ON bu.branch_id = b.id
              LEFT JOIN disabled_users du ON u.id = du.user_id
     WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
       AND (@role_keys::text[] IS NULL OR r.key = ANY(@role_keys))
