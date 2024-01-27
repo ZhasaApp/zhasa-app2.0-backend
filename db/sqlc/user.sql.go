@@ -7,6 +7,7 @@ package generated
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/lib/pq"
@@ -181,10 +182,10 @@ WITH Counted AS (
     FROM users u
              JOIN user_roles ur ON u.id = ur.user_id
              JOIN roles r ON ur.role_id = r.id
-             JOIN branch_users bu ON u.id = bu.user_id
-             JOIN user_brands ub ON u.id = ub.user_id
-             JOIN brands bs ON ub.brand_id = bs.id
-             JOIN branches b ON bu.branch_id = b.id
+             LEFT JOIN branch_users bu ON u.id = bu.user_id
+             LEFT JOIN user_brands ub ON u.id = ub.user_id
+             LEFT JOIN brands bs ON ub.brand_id = bs.id
+             LEFT JOIN branches b ON bu.branch_id = b.id
              LEFT JOIN disabled_users du ON u.id = du.user_id
     WHERE (last_name || ' ' || first_name) ILIKE '%' || $5::text || '%'
       AND ($6::text[] IS NULL OR r.key = ANY($6))
@@ -226,15 +227,15 @@ type GetFilteredUsersWithBranchRolesBrandsParams struct {
 }
 
 type GetFilteredUsersWithBranchRolesBrandsRow struct {
-	ID          int32  `json:"id"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Phone       string `json:"phone"`
-	Role        string `json:"role"`
-	BranchTitle string `json:"branch_title"`
-	Brands      []byte `json:"brands"`
-	TotalCount  int64  `json:"total_count"`
-	IsActive    bool   `json:"is_active"`
+	ID          int32          `json:"id"`
+	FirstName   string         `json:"first_name"`
+	LastName    string         `json:"last_name"`
+	Phone       string         `json:"phone"`
+	Role        string         `json:"role"`
+	BranchTitle sql.NullString `json:"branch_title"`
+	Brands      []byte         `json:"brands"`
+	TotalCount  int64          `json:"total_count"`
+	IsActive    bool           `json:"is_active"`
 }
 
 func (q *Queries) GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg GetFilteredUsersWithBranchRolesBrandsParams) ([]GetFilteredUsersWithBranchRolesBrandsRow, error) {
