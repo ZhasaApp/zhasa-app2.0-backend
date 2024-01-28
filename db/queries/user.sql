@@ -228,3 +228,8 @@ VALUES ($1, $2) ON CONFLICT DO NOTHING;
 UPDATE user_roles
 SET role_id = (SELECT id FROM roles WHERE key = @role_key::text)
 WHERE user_id = $1;
+
+-- name: DeleteUserBranchByUserId :exec
+DELETE
+FROM branch_users
+WHERE user_id = $1;

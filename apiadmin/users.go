@@ -298,7 +298,8 @@ func (s *Server) PerformEditUserFromForm(ctx *gin.Context) {
 	}
 
 	if branch.ID != int32(branchId) {
-		err = s.updateUserBranchFunc(int32(userId), int32(branchId))
+		brId := int32(branchId)
+		err = s.updateUserBranchFunc(int32(userId), &brId)
 		if err != nil {
 			ctx.HTML(http.StatusOK, "edit-user.html", gin.H{
 				"errors": []string{err.Error()},

@@ -147,6 +147,17 @@ func (q *Queries) DeleteUserAvatar(ctx context.Context, userID int32) error {
 	return err
 }
 
+const deleteUserBranchByUserId = `-- name: DeleteUserBranchByUserId :exec
+DELETE
+FROM branch_users
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserBranchByUserId(ctx context.Context, userID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteUserBranchByUserId, userID)
+	return err
+}
+
 const getAuthCodeById = `-- name: GetAuthCodeById :one
 SELECT id, user_id, code, created_at
 FROM users_codes
