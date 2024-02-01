@@ -27,7 +27,8 @@ import (
 )
 
 type Server struct {
-	router *gin.Engine
+	router      *gin.Engine
+	environment string
 	apiadmin.Server
 	tokenService                                  service.TokenService
 	authService                                   service.AuthorizationService
@@ -97,8 +98,10 @@ func (server *Server) InitSuperUser() error {
 	return nil
 }
 
-func NewServer(ctx context.Context) *Server {
-	server := &Server{}
+func NewServer(ctx context.Context, environment string) *Server {
+	server := &Server{
+		environment: environment,
+	}
 	initDependencies(server, ctx)
 
 	router := gin.Default()
