@@ -82,7 +82,6 @@ type UserWithBrands struct {
 	Phone       string `json:"phone"`
 	BranchTitle string `json:"branch_title"`
 	Brands      string `json:"brands"`
-	IsActive    bool   `json:"is_active"`
 }
 
 type UserWithBranchBrands struct {
@@ -92,7 +91,6 @@ type UserWithBranchBrands struct {
 	Phone       string   `json:"phone"`
 	BranchTitle string   `json:"branch_title"`
 	Brands      []string `json:"brands"`
-	IsActive    bool     `json:"is_active"`
 	Role        string   `json:"role"`
 }
 

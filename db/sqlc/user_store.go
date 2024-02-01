@@ -30,6 +30,8 @@ type UserStore interface {
 	AddUserRole(ctx context.Context, arg AddUserRoleParams) error
 	AddUserBranch(ctx context.Context, arg AddUserBranchParams) error
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error
+	UpdateUserBranchTX(ctx context.Context, userId int32, branch int32) error
+	DeleteUserBranchByUserId(ctx context.Context, userID int32) error
 }
 
 func (db *DBStore) CreateManagerTX(ctx context.Context, userId, branchId int32, brands []int32) error {
@@ -77,6 +79,24 @@ func (db *DBStore) UpdateUserBrandsTX(ctx context.Context, userId int32, brands 
 			if err != nil {
 				return err
 			}
+		}
+		return nil
+	})
+}
+
+func (db *DBStore) UpdateUserBranchTX(ctx context.Context, userId int32, branch int32) error {
+	return db.execTx(ctx, func(queries *Queries) error {
+		err := queries.DeleteUserBranchByUserId(ctx, userId)
+		if err != nil {
+			return err
+		}
+
+		err = queries.AddUserToBranch(ctx, AddUserToBranchParams{
+			UserID:   userId,
+			BranchID: branch,
+		})
+		if err != nil {
+			return err
 		}
 		return nil
 	})

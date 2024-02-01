@@ -7,6 +7,7 @@ package generated
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/lib/pq"
@@ -69,7 +70,8 @@ func (q *Queries) AddUserBranch(ctx context.Context, arg AddUserBranchParams) er
 
 const addUserRole = `-- name: AddUserRole :exec
 INSERT INTO user_roles (user_id, role_id)
-VALUES ($1, (SELECT id FROM roles WHERE key = $2::text)) ON CONFLICT DO NOTHING
+VALUES ($1, (SELECT id FROM roles WHERE key = $2::text) )
+ON CONFLICT DO NOTHING
 `
 
 type AddUserRoleParams struct {
@@ -146,6 +148,17 @@ func (q *Queries) DeleteUserAvatar(ctx context.Context, userID int32) error {
 	return err
 }
 
+const deleteUserBranchByUserId = `-- name: DeleteUserBranchByUserId :exec
+DELETE
+FROM branch_users
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteUserBranchByUserId(ctx context.Context, userID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteUserBranchByUserId, userID)
+	return err
+}
+
 const getAuthCodeById = `-- name: GetAuthCodeById :one
 SELECT id, user_id, code, created_at
 FROM users_codes
@@ -173,18 +186,14 @@ WITH Counted AS (
            r.key                      AS role,
            b.title                    AS branch_title,
            STRING_AGG(bs.title, ', ') AS brands,
-           COUNT(*) OVER()            AS total_count,
-           CASE
-               WHEN du.user_id IS NULL THEN true
-               ELSE false
-               END                        AS is_active
+           COUNT(*) OVER()            AS total_count
     FROM users u
              JOIN user_roles ur ON u.id = ur.user_id
              JOIN roles r ON ur.role_id = r.id
-             JOIN branch_users bu ON u.id = bu.user_id
-             JOIN user_brands ub ON u.id = ub.user_id
-             JOIN brands bs ON ub.brand_id = bs.id
-             JOIN branches b ON bu.branch_id = b.id
+             LEFT JOIN branch_users bu ON u.id = bu.user_id
+             LEFT JOIN user_brands ub ON u.id = ub.user_id
+             LEFT JOIN brands bs ON ub.brand_id = bs.id
+             LEFT JOIN branches b ON bu.branch_id = b.id
              LEFT JOIN disabled_users du ON u.id = du.user_id
     WHERE (last_name || ' ' || first_name) ILIKE '%' || $5::text || '%'
       AND ($6::text[] IS NULL OR r.key = ANY($6))
@@ -200,16 +209,19 @@ SELECT id,
        role,
        branch_title,
        brands,
-       total_count,
-       is_active
+       total_count
 FROM Counted
-ORDER BY
-    CASE WHEN $3::text = 'fio' AND $4::text = 'asc' THEN first_name END ASC,
-    CASE WHEN $3 = 'fio' AND $4 = 'asc' THEN last_name END ASC,
-    CASE WHEN $3 = 'fio' AND $4 = 'desc' THEN first_name END DESC,
-    CASE WHEN $3 = 'fio' AND $4 = 'desc' THEN last_name END DESC,
-    CASE WHEN $3 = 'branch' AND $4 = 'asc' THEN branch_title END ASC,
-    CASE WHEN $3 = 'branch' AND $4 = 'desc' THEN branch_title END DESC,
+ORDER BY CASE WHEN $3::text = 'fio' AND $4::text = 'asc' THEN first_name END ASC,
+    CASE WHEN $3 = 'fio' AND $4 = 'asc' THEN last_name
+END ASC,
+    CASE WHEN $3 = 'fio' AND $4 = 'desc' THEN first_name
+END DESC,
+    CASE WHEN $3 = 'fio' AND $4 = 'desc' THEN last_name
+END DESC,
+    CASE WHEN $3 = 'branch' AND $4 = 'asc' THEN branch_title
+END ASC,
+    CASE WHEN $3 = 'branch' AND $4 = 'desc' THEN branch_title
+END DESC,
     first_name, last_name, id DESC
 LIMIT $1 OFFSET $2
 `
@@ -226,15 +238,14 @@ type GetFilteredUsersWithBranchRolesBrandsParams struct {
 }
 
 type GetFilteredUsersWithBranchRolesBrandsRow struct {
-	ID          int32  `json:"id"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Phone       string `json:"phone"`
-	Role        string `json:"role"`
-	BranchTitle string `json:"branch_title"`
-	Brands      []byte `json:"brands"`
-	TotalCount  int64  `json:"total_count"`
-	IsActive    bool   `json:"is_active"`
+	ID          int32          `json:"id"`
+	FirstName   string         `json:"first_name"`
+	LastName    string         `json:"last_name"`
+	Phone       string         `json:"phone"`
+	Role        string         `json:"role"`
+	BranchTitle sql.NullString `json:"branch_title"`
+	Brands      []byte         `json:"brands"`
+	TotalCount  int64          `json:"total_count"`
 }
 
 func (q *Queries) GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg GetFilteredUsersWithBranchRolesBrandsParams) ([]GetFilteredUsersWithBranchRolesBrandsRow, error) {
@@ -264,7 +275,6 @@ func (q *Queries) GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg
 			&i.BranchTitle,
 			&i.Brands,
 			&i.TotalCount,
-			&i.IsActive,
 		); err != nil {
 			return nil, err
 		}
@@ -377,6 +387,8 @@ FROM user_avatar_view u
          JOIN user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
          JOIN branch_users bu ON u.id = bu.user_id AND bu.branch_id = $2
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3
+         LEFT JOIN disabled_users du ON u.id = du.user_id
+WHERE du.user_id IS NULL
 `
 
 type GetUsersByBranchBrandRoleParams struct {
@@ -421,22 +433,21 @@ func (q *Queries) GetUsersByBranchBrandRole(ctx context.Context, arg GetUsersByB
 }
 
 const getUsersWithBranchBrands = `-- name: GetUsersWithBranchBrands :many
-WITH Counted AS (
-    SELECT u.id,
-           u.first_name,
-           u.last_name,
-           u.phone,
-           b.title                    AS branch_title,
-           STRING_AGG(bs.title, ', ') AS brands,
-           COUNT(*) OVER()            AS total_count
-    FROM users u
-             JOIN branch_users bu ON u.id = bu.user_id
-             JOIN user_brands ub ON u.id = ub.user_id
-             JOIN brands bs ON ub.brand_id = bs.id
-             JOIN branches b ON bu.branch_id = b.id
-    WHERE (last_name || ' ' || first_name) ILIKE '%' || $3::text || '%'
-    GROUP BY u.id, u.first_name, u.last_name, b.title
-)
+WITH Counted AS (SELECT u.id,
+                        u.first_name,
+                        u.last_name,
+                        u.phone,
+                        b.title                    AS branch_title,
+                        STRING_AGG(bs.title, ', ') AS brands,
+                        COUNT(*)                      OVER()            AS total_count
+                 FROM users u
+                          JOIN branch_users bu ON u.id = bu.user_id
+                          JOIN user_brands ub ON u.id = ub.user_id
+                          JOIN brands bs ON ub.brand_id = bs.id
+                          JOIN branches b ON bu.branch_id = b.id
+                 WHERE (last_name || ' ' || first_name) ILIKE '%' || $3::text || '%'
+GROUP BY u.id, u.first_name, u.last_name, b.title
+    )
 SELECT id,
        first_name,
        last_name,
@@ -445,8 +456,8 @@ SELECT id,
        brands,
        total_count
 FROM Counted
-ORDER BY first_name, last_name, id DESC
-LIMIT $1 OFFSET $2
+ORDER BY first_name, last_name, id DESC LIMIT $1
+OFFSET $2
 `
 
 type GetUsersWithBranchBrandsParams struct {
@@ -497,40 +508,34 @@ func (q *Queries) GetUsersWithBranchBrands(ctx context.Context, arg GetUsersWith
 }
 
 const getUsersWithBranchRolesBrands = `-- name: GetUsersWithBranchRolesBrands :many
-WITH Counted AS (
-    SELECT u.id,
-           u.first_name,
-           u.last_name,
-           u.phone,
-           b.title                    AS branch_title,
-           STRING_AGG(bs.title, ', ') AS brands,
-           COUNT(*) OVER()            AS total_count,
-           CASE
-               WHEN du.user_id IS NULL THEN true
-               ELSE false
-           END                        AS is_active
-    FROM users u
-             JOIN user_roles ur ON u.id = ur.user_id
-             JOIN roles r ON ur.role_id = r.id AND r.key = $1
-             JOIN branch_users bu ON u.id = bu.user_id
-             JOIN user_brands ub ON u.id = ub.user_id
-             JOIN brands bs ON ub.brand_id = bs.id
-             JOIN branches b ON bu.branch_id = b.id
-             LEFT JOIN disabled_users du ON u.id = du.user_id
-    WHERE (last_name || ' ' || first_name) ILIKE '%' || $4::text || '%'
-    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id
-)
+WITH Counted AS (SELECT u.id,
+                        u.first_name,
+                        u.last_name,
+                        u.phone,
+                        b.title                    AS branch_title,
+                        STRING_AGG(bs.title, ', ') AS brands,
+                        COUNT(*)                      OVER()            AS total_count
+                 FROM users u
+                          JOIN user_roles ur ON u.id = ur.user_id
+                          JOIN roles r ON ur.role_id = r.id AND r.key = $1
+                          JOIN branch_users bu ON u.id = bu.user_id
+                          JOIN user_brands ub ON u.id = ub.user_id
+                          JOIN brands bs ON ub.brand_id = bs.id
+                          JOIN branches b ON bu.branch_id = b.id
+                          LEFT JOIN disabled_users du ON u.id = du.user_id
+                 WHERE (last_name || ' ' || first_name) ILIKE '%' || $4::text || '%'
+GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id
+    )
 SELECT id,
        first_name,
        last_name,
        phone,
        branch_title,
        brands,
-       total_count,
-       is_active
+       total_count
 FROM Counted
-ORDER BY first_name, last_name, id DESC
-LIMIT $2 OFFSET $3
+ORDER BY first_name, last_name, id DESC LIMIT $2
+OFFSET $3
 `
 
 type GetUsersWithBranchRolesBrandsParams struct {
@@ -548,7 +553,6 @@ type GetUsersWithBranchRolesBrandsRow struct {
 	BranchTitle string `json:"branch_title"`
 	Brands      []byte `json:"brands"`
 	TotalCount  int64  `json:"total_count"`
-	IsActive    bool   `json:"is_active"`
 }
 
 func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUsersWithBranchRolesBrandsParams) ([]GetUsersWithBranchRolesBrandsRow, error) {
@@ -573,7 +577,6 @@ func (q *Queries) GetUsersWithBranchRolesBrands(ctx context.Context, arg GetUser
 			&i.BranchTitle,
 			&i.Brands,
 			&i.TotalCount,
-			&i.IsActive,
 		); err != nil {
 			return nil, err
 		}
@@ -593,10 +596,11 @@ SELECT u.id,
        u.first_name,
        u.last_name
 FROM users u
-    LEFT JOIN user_roles ur ON u.id = ur.user_id
-WHERE ur.user_id IS NULL AND (u.last_name || ' ' || u.first_name) ILIKE '%' || $1::text || '%'
+         LEFT JOIN user_roles ur ON u.id = ur.user_id
+WHERE ur.user_id IS NULL
+  AND (u.last_name || ' ' || u.first_name) ILIKE '%' || $1::text || '%'
 ORDER BY u.created_at DESC
-LIMIT 25
+    LIMIT 25
 `
 
 type GetUsersWithoutRolesRow struct {
@@ -658,7 +662,9 @@ func (q *Queries) SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalPara
 
 const updateUser = `-- name: UpdateUser :exec
 UPDATE users
-SET first_name = $1, last_name = $2, phone = $3
+SET first_name = $1,
+    last_name  = $2,
+    phone      = $3
 WHERE id = $4
 `
 

@@ -28,7 +28,9 @@ FROM user_avatar_view u
          JOIN
      user_brand_ratio r ON u.id = r.user_id AND r.from_date = $2 AND r.to_date = $3
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $7
+         LEFT JOIN disabled_users du ON u.id = du.user_id
 WHERE (r.brand_id = $1 OR r.brand_id IS NULL)
+  AND du.user_id IS NULL
   AND b.id = $6
 ORDER BY r.ratio DESC
 OFFSET $4 LIMIT $5
@@ -112,7 +114,9 @@ FROM user_avatar_view u
          JOIN
      user_brand_ratio r ON u.id = r.user_id AND r.from_date = $2 AND r.to_date = $3
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $6
+         LEFT JOIN disabled_users du ON u.id = du.user_id
 WHERE (r.brand_id = $1 OR r.brand_id IS NULL)
+  AND du.user_id IS NULL
 ORDER BY r.ratio DESC
 OFFSET $4 LIMIT $5
 `
