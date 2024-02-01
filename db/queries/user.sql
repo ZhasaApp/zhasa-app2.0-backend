@@ -98,11 +98,7 @@ WITH Counted AS (SELECT u.id,
                         u.phone,
                         b.title                    AS branch_title,
                         STRING_AGG(bs.title, ', ') AS brands,
-                        COUNT(*)                      OVER()            AS total_count, CASE
-                                                                                            WHEN du.user_id IS NULL
-                                                                                                THEN true
-                                                                                            ELSE false
-            END AS is_active
+                        COUNT(*)                      OVER()            AS total_count
                  FROM users u
                           JOIN user_roles ur ON u.id = ur.user_id
                           JOIN roles r ON ur.role_id = r.id AND r.key = $1
@@ -120,8 +116,7 @@ SELECT id,
        phone,
        branch_title,
        brands,
-       total_count,
-       is_active
+       total_count
 FROM Counted
 ORDER BY first_name, last_name, id DESC LIMIT $2
 OFFSET $3;
@@ -171,33 +166,30 @@ INSERT INTO disabled_users (user_id)
 VALUES ($1) ON CONFLICT DO NOTHING;
 
 -- name: GetFilteredUsersWithBranchRolesBrands :many
-WITH Counted AS (SELECT u.id,
-                        u.first_name,
-                        u.last_name,
-                        u.phone,
-                        r.key                      AS role,
-                        b.title                    AS branch_title,
-                        STRING_AGG(bs.title, ', ') AS brands,
-                        COUNT(*)                      OVER()            AS total_count, CASE
-                                                                                            WHEN du.user_id IS NULL
-                                                                                                THEN true
-                                                                                            ELSE false
-            END AS is_active
-                 FROM users u
-                          JOIN user_roles ur ON u.id = ur.user_id
-                          JOIN roles r ON ur.role_id = r.id
-                          JOIN branch_users bu ON u.id = bu.user_id
-                          JOIN user_brands ub ON u.id = ub.user_id
-                          JOIN brands bs ON ub.brand_id = bs.id
-                          JOIN branches b ON bu.branch_id = b.id
-                          LEFT JOIN disabled_users du ON u.id = du.user_id
-                 WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
-    AND (@role_keys::text[] IS NULL OR r.key = ANY (@role_keys))
-    AND (@brand_ids:: int [] IS NULL OR bs.id = ANY (@brand_ids))
-    AND (@branch_ids:: int [] IS NULL OR b.id = ANY (@branch_ids))
-    AND (du.user_id IS NULL)
-GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
-    )
+WITH Counted AS (
+    SELECT u.id,
+           u.first_name,
+           u.last_name,
+           u.phone,
+           r.key                      AS role,
+           b.title                    AS branch_title,
+           STRING_AGG(bs.title, ', ') AS brands,
+           COUNT(*) OVER()            AS total_count
+    FROM users u
+             JOIN user_roles ur ON u.id = ur.user_id
+             JOIN roles r ON ur.role_id = r.id
+             LEFT JOIN branch_users bu ON u.id = bu.user_id
+             LEFT JOIN user_brands ub ON u.id = ub.user_id
+             LEFT JOIN brands bs ON ub.brand_id = bs.id
+             LEFT JOIN branches b ON bu.branch_id = b.id
+             LEFT JOIN disabled_users du ON u.id = du.user_id
+    WHERE (last_name || ' ' || first_name) ILIKE '%' || @search::text || '%'
+      AND (@role_keys::text[] IS NULL OR r.key = ANY(@role_keys))
+      AND (@brand_ids::int[] IS NULL OR bs.id = ANY(@brand_ids))
+      AND (@branch_ids::int[] IS NULL OR b.id = ANY(@branch_ids))
+      AND (du.user_id IS NULL)
+    GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
+)
 SELECT id,
        first_name,
        last_name,
@@ -205,8 +197,7 @@ SELECT id,
        role,
        branch_title,
        brands,
-       total_count,
-       is_active
+       total_count
 FROM Counted
 ORDER BY CASE WHEN @sort_field::text = 'fio' AND @sort_type::text = 'asc' THEN first_name END ASC,
     CASE WHEN @sort_field = 'fio' AND @sort_type = 'asc' THEN last_name
@@ -234,4 +225,9 @@ VALUES ($1, $2) ON CONFLICT DO NOTHING;
 -- name: UpdateUserRole :exec
 UPDATE user_roles
 SET role_id = (SELECT id FROM roles WHERE key = @role_key::text)
+WHERE user_id = $1;
+
+-- name: DeleteUserBranchByUserId :exec
+DELETE
+FROM branch_users
 WHERE user_id = $1;

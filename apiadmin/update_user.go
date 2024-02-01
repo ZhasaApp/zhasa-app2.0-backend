@@ -13,7 +13,7 @@ type UpdateUserRequest struct {
 	LastName  string  `json:"last_name"`
 	RoleKey   string  `json:"role"`
 	Brands    []int32 `json:"brand_ids"`
-	BranchID  int32   `json:"branch_id"`
+	BranchID  *int32  `json:"branch_id"`
 }
 
 func (s *Server) UpdateUser(ctx *gin.Context) {
@@ -116,7 +116,7 @@ func (s *Server) ChangeUsersBrands(ctx *gin.Context) {
 
 type ChangeUsersBranchRequest struct {
 	UserIds  []int32 `json:"user_ids"`
-	BranchId int32   `json:"new_branch_id"`
+	BranchId *int32  `json:"new_branch_id"`
 }
 
 func (s *Server) ChangeUsersBranch(ctx *gin.Context) {

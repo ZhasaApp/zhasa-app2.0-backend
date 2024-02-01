@@ -15,7 +15,7 @@ type CreateUserRequest struct {
 	LastName  string  `json:"last_name"`
 	RoleKey   string  `json:"role"`
 	Brands    []int32 `json:"brand_ids"`
-	BranchID  int32   `json:"branch_id"`
+	BranchID  *int32  `json:"branch_id"`
 }
 
 func (s *Server) CreateUser(ctx *gin.Context) {
@@ -60,9 +60,11 @@ func (s *Server) CreateUser(ctx *gin.Context) {
 		return
 	}
 
-	if err = s.addUserBranch(id, request.BranchID); err != nil {
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
+	if request.BranchID != nil {
+		if err = s.addUserBranch(id, *request.BranchID); err != nil {
+			ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+			return
+		}
 	}
 
 	if err = s.addUserRole(id, request.RoleKey); err != nil {
