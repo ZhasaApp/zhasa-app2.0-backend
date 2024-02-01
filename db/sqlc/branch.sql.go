@@ -136,6 +136,8 @@ FROM user_avatar_view u
          JOIN branch_users bu ON u.id = bu.user_id AND bu.branch_id = $2
          JOIN branches b ON bu.branch_id = b.id
          JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3
+         LEFT JOIN disabled_users du ON u.id = du.user_id
+WHERE du.user_id IS NULL
 `
 
 type GetBranchBrandUserByRoleParams struct {
