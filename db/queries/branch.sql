@@ -43,7 +43,9 @@ FROM user_avatar_view u
          JOIN user_brands ub ON u.id = ub.user_id AND ub.brand_id = $1
          JOIN branch_users bu ON u.id = bu.user_id AND bu.branch_id = $2
          JOIN branches b ON bu.branch_id = b.id
-         JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3;
+         JOIN user_roles ur ON u.id = ur.user_id AND ur.role_id = $3
+         LEFT JOIN disabled_users du ON u.id = du.user_id
+WHERE du.user_id IS NULL;
 
 -- name: GetBranchBrandSaleSumByGivenDateRange :one
 SELECT COALESCE(SUM(s.amount), 0) ::bigint AS total_sales
