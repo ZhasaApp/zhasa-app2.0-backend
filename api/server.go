@@ -70,11 +70,12 @@ type Server struct {
 	getBrandMonthlyYearStatisticFunc              GetBrandMonthlyYearStatisticFunc
 
 	// user functions
-	createUserFunc     CreateUserFunc
-	getUserByPhoneFunc GetUserByPhoneFunc
-	getUserByIdFunc    GetUserByIdFunc
-	uploadAvatarFunc   UploadAvatarFunc
-	deleteAvatarFunc   DeleteAvatarFunc
+	createUserFunc                 CreateUserFunc
+	getUserByPhoneFunc             GetUserByPhoneFunc
+	getUserByPhoneWithPasswordFunc GetUserByPhoneWithPasswordFunc
+	getUserByIdFunc                GetUserByIdFunc
+	uploadAvatarFunc               UploadAvatarFunc
+	deleteAvatarFunc               DeleteAvatarFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -139,6 +140,8 @@ func NewServer(ctx context.Context, environment string) *Server {
 	}
 
 	router.GET("user/get-user-profile", server.getUserProfile)
+
+	router.POST("admin/login", server.AdminLogin)
 
 	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
@@ -233,12 +236,15 @@ func initDependencies(server *Server, ctx context.Context) {
 	ownerRepo := NewOwnerRepo(ctx, store)
 
 	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
+	getUserByPhoneWithPasswordFunc := NewGetUserByPhoneWithPasswordFunc(ctx, store)
 	getUserByIdFunc := NewGetUserByIdFunc(ctx, store)
 	addUserCodeFunc := NewAddUserCodeFunc(ctx, store)
 	getAuthCodeByIdFunc := NewGetAuthCodeByIdFunc(ctx, store)
+
 	authService := service.NewAuthorizationService(
 		ctx,
 		getUserByPhoneFunc,
+		getUserByPhoneWithPasswordFunc,
 		addUserCodeFunc,
 		getUserByIdFunc,
 		getAuthCodeByIdFunc,
@@ -294,6 +300,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	// user functions
 	server.createUserFunc = NewCreateUserFunc(ctx, store)
 	server.getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
+	server.getUserByPhoneWithPasswordFunc = NewGetUserByPhoneWithPasswordFunc(ctx, store)
 	server.getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
 	server.uploadAvatarFunc = NewUploadAvatarFunc(ctx, store)
 	server.deleteAvatarFunc = NewDeleteAvatarFunc(ctx, store)
@@ -318,6 +325,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	updateUserRole := NewUpdateUserRoleFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
+		authService,
+		tokenService,
 		getUserByPhoneFunc,
 		createUserFunc,
 		makeUserAsManagerFunc,

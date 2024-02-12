@@ -9,6 +9,7 @@ import (
 	"zhasa2.0/brand"
 	generated "zhasa2.0/db/sqlc"
 	"zhasa2.0/user/entities"
+	"zhasa2.0/user/service"
 )
 
 type GetAllUsersByRoleRequest struct {
@@ -343,4 +344,48 @@ func (s *Server) DisableUserForm(ctx *gin.Context) {
 
 	ctx.Redirect(http.StatusSeeOther,
 		"/users/all")
+}
+
+type AdminLoginRequest struct {
+	Phone    string `json:"phone" form:"phone" binding:"required"`
+	Password string `json:"password" form:"password" binding:"required"`
+}
+
+type AdminLoginResponse struct {
+	Token string `json:"token"`
+}
+
+func (s *Server) AdminLogin(ctx *gin.Context) {
+	var req AdminLoginRequest
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	phone, err := entities.NewPhone(req.Phone)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	user, err := s.authService.AdminLogin(*phone, req.Password)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	token, err := s.tokenService.GenerateToken(&service.UserTokenData{
+		Id:        user.Id,
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Phone:     user.Phone.String(),
+	})
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, AdminLoginResponse{
+		Token: string(token),
+	})
 }

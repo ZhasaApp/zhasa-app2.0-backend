@@ -5,6 +5,7 @@
 package generated
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -176,11 +177,12 @@ type SalesBrand struct {
 }
 
 type User struct {
-	ID        int32     `json:"id"`
-	Phone     string    `json:"phone"`
-	FirstName string    `json:"first_name"`
-	LastName  string    `json:"last_name"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        int32          `json:"id"`
+	Phone     string         `json:"phone"`
+	FirstName string         `json:"first_name"`
+	LastName  string         `json:"last_name"`
+	CreatedAt time.Time      `json:"created_at"`
+	Password  sql.NullString `json:"password"`
 }
 
 type UserAvatarView struct {

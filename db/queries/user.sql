@@ -14,6 +14,15 @@ SELECT u.id,
 FROM user_avatar_view u
 WHERE u.phone = $1;
 
+-- name: GetUserByPhoneWithPassword :one
+SELECT u.id,
+       u.phone,
+       u.first_name,
+       u.last_name,
+       u.password
+FROM users u
+WHERE u.phone = $1;
+
 -- name: GetUserById :one
 SELECT *
 FROM user_avatar_view u

@@ -5,9 +5,13 @@ import (
 	repository2 "zhasa2.0/branch/repository"
 	"zhasa2.0/brand"
 	"zhasa2.0/user/repository"
+	"zhasa2.0/user/service"
 )
 
 type Server struct {
+	authService  service.AuthorizationService
+	tokenService service.TokenService
+
 	getUserByPhoneFunc       repository.GetUserByPhoneFunc
 	getUsersWithoutRolesFunc repository.GetUsersWithoutRolesFunc
 	createUserFunc           repository.CreateUserFunc
@@ -32,6 +36,8 @@ type Server struct {
 }
 
 func NewServer(
+	authService service.AuthorizationService,
+	tokenService service.TokenService,
 	getUserByPhoneFunc repository.GetUserByPhoneFunc,
 	createUserFunc repository.CreateUserFunc,
 	makeManagerAsUserFunc repository.MakeUserAsManagerFunc,
@@ -53,6 +59,8 @@ func NewServer(
 	updateUserRole repository.UpdateUserRoleFunc,
 ) *Server {
 	return &Server{
+		authService:                      authService,
+		tokenService:                     tokenService,
 		getUserByPhoneFunc:               getUserByPhoneFunc,
 		createUserFunc:                   createUserFunc,
 		makeUserAsManagerFunc:            makeManagerAsUserFunc,
