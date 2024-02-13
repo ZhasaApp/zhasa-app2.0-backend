@@ -1,6 +1,9 @@
 package generated
 
-import "context"
+import (
+	"context"
+	"zhasa2.0/branch/entities"
+)
 
 type BranchStore interface {
 	GetBranchBrand(ctx context.Context, arg GetBranchBrandParams) (int32, error)
@@ -11,4 +14,29 @@ type BranchStore interface {
 	GetAllBranches(ctx context.Context) ([]Branch, error)
 	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
 	GetBrandOverallGoalByGivenDateRange(ctx context.Context, arg GetBrandOverallGoalByGivenDateRangeParams) (int64, error)
+	AddBranch(ctx context.Context, arg AddBranchParams) (int32, error)
+	AddBranchBrand(ctx context.Context, arg AddBranchBrandParams) error
+	AddBranchWithBrandsTX(ctx context.Context, branch entities.BranchWithBrands) error
+}
+
+func (db *DBStore) AddBranchWithBrandsTX(ctx context.Context, branch entities.BranchWithBrands) error {
+	return db.execTx(ctx, func(queries *Queries) error {
+		id, err := queries.AddBranch(ctx, AddBranchParams{
+			Title:       branch.Title,
+			Description: branch.Description,
+		})
+		if err != nil {
+			return err
+		}
+		for _, brandID := range branch.BrandIDs {
+			err = queries.AddBranchBrand(ctx, AddBranchBrandParams{
+				BranchID: id,
+				BrandID:  brandID,
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 }

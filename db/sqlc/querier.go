@@ -9,6 +9,8 @@ import (
 )
 
 type Querier interface {
+	AddBranch(ctx context.Context, arg AddBranchParams) (int32, error)
+	AddBranchBrand(ctx context.Context, arg AddBranchBrandParams) error
 	AddBrandToUser(ctx context.Context, arg AddBrandToUserParams) error
 	AddDisabledUser(ctx context.Context, userID int32) error
 	AddLike(ctx context.Context, arg AddLikeParams) (Like, error)

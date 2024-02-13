@@ -10,6 +10,39 @@ import (
 	"time"
 )
 
+const addBranch = `-- name: AddBranch :one
+INSERT INTO branches (title, description)
+VALUES ($1, $2)
+RETURNING id
+`
+
+type AddBranchParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) AddBranch(ctx context.Context, arg AddBranchParams) (int32, error) {
+	row := q.db.QueryRowContext(ctx, addBranch, arg.Title, arg.Description)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
+const addBranchBrand = `-- name: AddBranchBrand :exec
+INSERT INTO branch_brands (branch_id, brand_id)
+VALUES ($1, $2)
+`
+
+type AddBranchBrandParams struct {
+	BranchID int32 `json:"branch_id"`
+	BrandID  int32 `json:"brand_id"`
+}
+
+func (q *Queries) AddBranchBrand(ctx context.Context, arg AddBranchBrandParams) error {
+	_, err := q.db.ExecContext(ctx, addBranchBrand, arg.BranchID, arg.BrandID)
+	return err
+}
+
 const createBranch = `-- name: CreateBranch :exec
 INSERT INTO branches (title, description)
 VALUES ($1, $2)

@@ -154,11 +154,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 		adminRoute.PUT("/change-users-role", server.ChangeUsersRole)
 		adminRoute.PUT("/change-users-brands", server.ChangeUsersBrands)
 		adminRoute.PUT("/change-users-branch", server.ChangeUsersBranch)
-
-		//adminRoute.GET("/users", server.GetAllUsersByRole)
-		//adminRoute.GET("/users/all", server.GetAllUsers)
-		//adminRoute.GET("/users/no-roles", server.GetUsersWithoutRoles)
-		//adminRoute.POST("/manager", server.CreateManager)
+		adminRoute.POST("/branch", server.CreateBranchWithBrands)
 		adminRoute.GET("/sale-type/list", server.getSaleTypes)
 	}
 
@@ -323,6 +319,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	addUserRoleFunc := NewAddUserRoleFunc(ctx, store)
 	addUserBranchFunc := NewAddUserBranchFunc(ctx, store)
 	updateUserRole := NewUpdateUserRoleFunc(ctx, store)
+	createBranchWithBrands := NewCreateBranchWithBrandsFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		authService,
@@ -339,6 +336,7 @@ func initDependencies(server *Server, ctx context.Context) {
 		updateUserFunc,
 		updateUserBranchFunc,
 		getAllBranches,
+		createBranchWithBrands,
 		allBrands,
 		addDisabledUserFunc,
 		getUserBrandsFunc,
