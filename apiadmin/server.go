@@ -35,6 +35,8 @@ type Server struct {
 	getAllBrandsFunc                 brand.GetAllBrandsFunc
 	getUserBrandsFunc                brand.GetUserBrandsFunc
 	getFilteredUsersWithBranchBrands repository.GetFilteredUsersWithBranchBrands
+	createBrandFunc                  brand.CreateBrandFunc
+	updateBrandFunc                  brand.UpdateBrandFunc
 }
 
 func NewServer(
@@ -61,6 +63,8 @@ func NewServer(
 	addUserRole repository.AddUserRoleFunc,
 	addUserBranch repository.AddUserBranchFunc,
 	updateUserRole repository.UpdateUserRoleFunc,
+	createBrandFunc brand.CreateBrandFunc,
+	updateBrandFunc brand.UpdateBrandFunc,
 ) *Server {
 	return &Server{
 		authService:                      authService,
@@ -86,6 +90,8 @@ func NewServer(
 		updateUserRole:                   updateUserRole,
 		createBranchWithBrandsFunc:       createBranchWithBrandsFunc,
 		updateBranchWithBrandsFunc:       updateBranchWithBrandsFunc,
+		createBrandFunc:                  createBrandFunc,
+		updateBrandFunc:                  updateBrandFunc,
 	}
 }
 

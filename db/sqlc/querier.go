@@ -11,6 +11,7 @@ import (
 type Querier interface {
 	AddBranch(ctx context.Context, arg AddBranchParams) (int32, error)
 	AddBranchBrand(ctx context.Context, arg AddBranchBrandParams) error
+	AddBrand(ctx context.Context, arg AddBrandParams) error
 	AddBrandToUser(ctx context.Context, arg AddBrandToUserParams) error
 	AddDisabledUser(ctx context.Context, userID int32) error
 	AddLike(ctx context.Context, arg AddLikeParams) (Like, error)
@@ -93,6 +94,7 @@ type Querier interface {
 	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
 	UpdateBranch(ctx context.Context, arg UpdateBranchParams) error
+	UpdateBrand(ctx context.Context, arg UpdateBrandParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpdateUserBranch(ctx context.Context, arg UpdateUserBranchParams) error
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error

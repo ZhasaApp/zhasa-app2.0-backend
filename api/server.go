@@ -145,15 +145,20 @@ func NewServer(ctx context.Context, environment string) *Server {
 
 	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
-		adminRoute.GET("/users", server.GetAllUsers)
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
+		adminRoute.POST("/brand", server.CreateBrand)
+		adminRoute.PUT("/brand", server.UpdateBrand)
+
+		adminRoute.GET("/users", server.GetAllUsers)
 		adminRoute.POST("/user", server.CreateUser)
 		adminRoute.DELETE("/users", server.DeleteUsers)
 		adminRoute.PUT("/update-user", server.UpdateUser)
+
 		adminRoute.PUT("/change-users-role", server.ChangeUsersRole)
 		adminRoute.PUT("/change-users-brands", server.ChangeUsersBrands)
 		adminRoute.PUT("/change-users-branch", server.ChangeUsersBranch)
+
 		adminRoute.POST("/branch", server.CreateBranchWithBrands)
 		adminRoute.PUT("/branch", server.UpdateBranchWithBrands)
 		adminRoute.GET("/sale-type/list", server.getSaleTypes)
@@ -322,6 +327,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	updateUserRole := NewUpdateUserRoleFunc(ctx, store)
 	createBranchWithBrands := NewCreateBranchWithBrandsFunc(ctx, store)
 	updateBranchWithBrands := NewUpdateBranchWithBrandsFunc(ctx, store)
+	createBrandFunc := NewCreateBrandFunc(ctx, store)
+	updateBrandFunc := NewUpdateBrandFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		authService,
@@ -347,6 +354,8 @@ func initDependencies(server *Server, ctx context.Context) {
 		addUserRoleFunc,
 		addUserBranchFunc,
 		updateUserRole,
+		createBrandFunc,
+		updateBrandFunc,
 	)
 }
 
