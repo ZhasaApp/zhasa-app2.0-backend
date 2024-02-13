@@ -30,6 +30,7 @@ type Server struct {
 
 	getAllBranchesFunc         branchRepo.GetAllBranches
 	createBranchWithBrandsFunc branchRepo.CreateBranchWithBrandsFunc
+	updateBranchWithBrandsFunc branchRepo.UpdateBranchWithBrandsFunc
 
 	getAllBrandsFunc                 brand.GetAllBrandsFunc
 	getUserBrandsFunc                brand.GetUserBrandsFunc
@@ -52,6 +53,7 @@ func NewServer(
 	updateUserBranchFunc repository.UpdateUserBranchFunc,
 	branchesFunc branchRepo.GetAllBranches,
 	createBranchWithBrandsFunc branchRepo.CreateBranchWithBrandsFunc,
+	updateBranchWithBrandsFunc branchRepo.UpdateBranchWithBrandsFunc,
 	brandsFunc brand.GetAllBrandsFunc,
 	addDisabledUserFunc repository.AddDisabledUserFunc,
 	getUserBrandsFunc brand.GetUserBrandsFunc,
@@ -83,6 +85,7 @@ func NewServer(
 		addUserBranch:                    addUserBranch,
 		updateUserRole:                   updateUserRole,
 		createBranchWithBrandsFunc:       createBranchWithBrandsFunc,
+		updateBranchWithBrandsFunc:       updateBranchWithBrandsFunc,
 	}
 }
 

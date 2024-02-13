@@ -58,6 +58,17 @@ func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) erro
 	return err
 }
 
+const deleteBranchBrands = `-- name: DeleteBranchBrands :exec
+DELETE
+FROM branch_brands
+WHERE branch_id = $1
+`
+
+func (q *Queries) DeleteBranchBrands(ctx context.Context, branchID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteBranchBrands, branchID)
+	return err
+}
+
 const getAllBranches = `-- name: GetAllBranches :many
 
 SELECT id, title, description, created_at
@@ -415,5 +426,23 @@ func (q *Queries) SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleType
 		arg.FromDate,
 		arg.ToDate,
 	)
+	return err
+}
+
+const updateBranch = `-- name: UpdateBranch :exec
+UPDATE branches
+SET title = $1,
+    description = $2
+WHERE id = $3
+`
+
+type UpdateBranchParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	ID          int32  `json:"id"`
+}
+
+func (q *Queries) UpdateBranch(ctx context.Context, arg UpdateBranchParams) error {
+	_, err := q.db.ExecContext(ctx, updateBranch, arg.Title, arg.Description, arg.ID)
 	return err
 }

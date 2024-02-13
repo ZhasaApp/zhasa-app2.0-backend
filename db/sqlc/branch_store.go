@@ -17,6 +17,9 @@ type BranchStore interface {
 	AddBranch(ctx context.Context, arg AddBranchParams) (int32, error)
 	AddBranchBrand(ctx context.Context, arg AddBranchBrandParams) error
 	AddBranchWithBrandsTX(ctx context.Context, branch entities.BranchWithBrands) error
+	UpdateBranch(ctx context.Context, arg UpdateBranchParams) error
+	UpdateBranchWithBrandsTX(ctx context.Context, branch entities.BranchWithBrands) error
+	DeleteBranchBrands(ctx context.Context, branchID int32) error
 }
 
 func (db *DBStore) AddBranchWithBrandsTX(ctx context.Context, branch entities.BranchWithBrands) error {
@@ -31,6 +34,35 @@ func (db *DBStore) AddBranchWithBrandsTX(ctx context.Context, branch entities.Br
 		for _, brandID := range branch.BrandIDs {
 			err = queries.AddBranchBrand(ctx, AddBranchBrandParams{
 				BranchID: id,
+				BrandID:  brandID,
+			})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+}
+
+func (db *DBStore) UpdateBranchWithBrandsTX(ctx context.Context, branch entities.BranchWithBrands) error {
+	return db.execTx(ctx, func(queries *Queries) error {
+		err := queries.UpdateBranch(ctx, UpdateBranchParams{
+			ID:          branch.BranchId,
+			Title:       branch.Title,
+			Description: branch.Description,
+		})
+		if err != nil {
+			return err
+		}
+
+		err = queries.DeleteBranchBrands(ctx, branch.BranchId)
+		if err != nil {
+			return err
+		}
+
+		for _, brandID := range branch.BrandIDs {
+			err = queries.AddBranchBrand(ctx, AddBranchBrandParams{
+				BranchID: branch.BranchId,
 				BrandID:  brandID,
 			})
 			if err != nil {

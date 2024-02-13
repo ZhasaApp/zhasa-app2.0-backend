@@ -95,3 +95,14 @@ RETURNING id;
 -- name: AddBranchBrand :exec
 INSERT INTO branch_brands (branch_id, brand_id)
 VALUES ($1, $2);
+
+-- name: UpdateBranch :exec
+UPDATE branches
+SET title = $1,
+    description = $2
+WHERE id = $3;
+
+-- name: DeleteBranchBrands :exec
+DELETE
+FROM branch_brands
+WHERE branch_id = $1;
