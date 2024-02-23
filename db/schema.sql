@@ -4,7 +4,8 @@ CREATE TABLE users
     phone      VARCHAR(255) UNIQUE NOT NULL,
     first_name VARCHAR(255)        NOT NULL,
     last_name  VARCHAR(255)        NOT NULL,
-    created_at TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    password   VARCHAR(255)
 );
 
 CREATE TABLE disabled_users

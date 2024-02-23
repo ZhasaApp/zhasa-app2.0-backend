@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 	"zhasa2.0/user/entities"
 	. "zhasa2.0/user/repository"
@@ -12,6 +13,7 @@ import (
 type AuthorizationService interface {
 	RequestCode(phone entities.Phone) (entities.OtpId, error)
 	Login(otpId entities.OtpId, code entities.OtpCode) (*entities.User, error)
+	AdminLogin(phone entities.Phone, password string) (*entities.AuthUser, error)
 }
 
 type AuthResponse struct {
@@ -19,28 +21,31 @@ type AuthResponse struct {
 }
 
 type SafeAuthorizationService struct {
-	ctx                 context.Context
-	recoveryService     RecoveryService
-	getUserByPhoneFunc  GetUserByPhoneFunc
-	getUserByIdFunc     GetUserByIdFunc
-	addUserCodeFunc     AddUserCodeFunc
-	getAuthCodeByIdFunc GetAuthCodeByIdFunc
+	ctx                            context.Context
+	recoveryService                RecoveryService
+	getUserByPhoneFunc             GetUserByPhoneFunc
+	getUserByPhoneWithPasswordFunc GetUserByPhoneWithPasswordFunc
+	getUserByIdFunc                GetUserByIdFunc
+	addUserCodeFunc                AddUserCodeFunc
+	getAuthCodeByIdFunc            GetAuthCodeByIdFunc
 }
 
 func NewAuthorizationService(
 	ctx context.Context,
 	getUserByPhoneFunc GetUserByPhoneFunc,
+	getUserByPhoneWithPasswordFunc GetUserByPhoneWithPasswordFunc,
 	addUserCodeFunc AddUserCodeFunc,
 	getUserByIdFunc GetUserByIdFunc,
 	getAuthCodeByIdFunc GetAuthCodeByIdFunc,
 ) AuthorizationService {
 	return SafeAuthorizationService{
-		ctx:                 ctx,
-		recoveryService:     NewRecoveryService(),
-		getUserByPhoneFunc:  getUserByPhoneFunc,
-		addUserCodeFunc:     addUserCodeFunc,
-		getUserByIdFunc:     getUserByIdFunc,
-		getAuthCodeByIdFunc: getAuthCodeByIdFunc,
+		ctx:                            ctx,
+		recoveryService:                NewRecoveryService(),
+		getUserByPhoneFunc:             getUserByPhoneFunc,
+		getUserByPhoneWithPasswordFunc: getUserByPhoneWithPasswordFunc,
+		addUserCodeFunc:                addUserCodeFunc,
+		getUserByIdFunc:                getUserByIdFunc,
+		getAuthCodeByIdFunc:            getAuthCodeByIdFunc,
 	}
 }
 
@@ -88,4 +93,22 @@ func (service SafeAuthorizationService) VerifyRecoveryCode(otpId entities.OtpId,
 	}
 
 	return auth.UserId, nil
+}
+
+func (service SafeAuthorizationService) AdminLogin(phone entities.Phone, password string) (*entities.AuthUser, error) {
+	user, err := service.getUserByPhoneWithPasswordFunc(phone)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	if user.Password == "" {
+		return nil, errors.New("no password set for user")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return nil, errors.New("invalid password")
+	}
+
+	return user, nil
 }

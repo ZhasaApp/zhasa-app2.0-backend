@@ -21,6 +21,14 @@ type User struct {
 	UserRole  UserRole
 }
 
+type AuthUser struct {
+	Id        int32
+	Phone     Phone
+	FirstName string
+	LastName  string
+	Password  string
+}
+
 func (u User) AvatarPointer() *string {
 	if len(u.Avatar) == 0 {
 		return nil
