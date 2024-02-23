@@ -9,6 +9,9 @@ import (
 )
 
 type Querier interface {
+	AddBranch(ctx context.Context, arg AddBranchParams) (int32, error)
+	AddBranchBrand(ctx context.Context, arg AddBranchBrandParams) error
+	AddBrand(ctx context.Context, arg AddBrandParams) error
 	AddBrandToUser(ctx context.Context, arg AddBrandToUserParams) error
 	AddDisabledUser(ctx context.Context, userID int32) error
 	AddLike(ctx context.Context, arg AddLikeParams) (Like, error)
@@ -26,6 +29,7 @@ type Querier interface {
 	CreateSaleType(ctx context.Context, arg CreateSaleTypeParams) (int32, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (int32, error)
 	CreateUserCode(ctx context.Context, arg CreateUserCodeParams) (int32, error)
+	DeleteBranchBrands(ctx context.Context, branchID int32) error
 	DeleteBranchUserByUserId(ctx context.Context, userID int32) error
 	DeleteComment(ctx context.Context, id int32) error
 	DeleteLike(ctx context.Context, arg DeleteLikeParams) error
@@ -89,6 +93,8 @@ type Querier interface {
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
 	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
+	UpdateBranch(ctx context.Context, arg UpdateBranchParams) error
+	UpdateBrand(ctx context.Context, arg UpdateBrandParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpdateUserBranch(ctx context.Context, arg UpdateUserBranchParams) error
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error

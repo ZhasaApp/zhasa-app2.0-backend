@@ -86,3 +86,23 @@ WHERE bg.brand_id = $1
   AND bg.from_date = $2
   AND bg.to_date = $3
   AND bg.sale_type_id = $4;
+
+-- name: AddBranch :one
+INSERT INTO branches (title, description)
+VALUES ($1, $2)
+RETURNING id;
+
+-- name: AddBranchBrand :exec
+INSERT INTO branch_brands (branch_id, brand_id)
+VALUES ($1, $2);
+
+-- name: UpdateBranch :exec
+UPDATE branches
+SET title = $1,
+    description = $2
+WHERE id = $3;
+
+-- name: DeleteBranchBrands :exec
+DELETE
+FROM branch_brands
+WHERE branch_id = $1;

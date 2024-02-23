@@ -29,3 +29,8 @@ type BranchDescriptionInfo struct {
 	Title       string
 	Description string
 }
+
+type BranchWithBrands struct {
+	Branch
+	BrandIDs []int32
+}

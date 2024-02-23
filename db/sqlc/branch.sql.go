@@ -10,6 +10,39 @@ import (
 	"time"
 )
 
+const addBranch = `-- name: AddBranch :one
+INSERT INTO branches (title, description)
+VALUES ($1, $2)
+RETURNING id
+`
+
+type AddBranchParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) AddBranch(ctx context.Context, arg AddBranchParams) (int32, error) {
+	row := q.db.QueryRowContext(ctx, addBranch, arg.Title, arg.Description)
+	var id int32
+	err := row.Scan(&id)
+	return id, err
+}
+
+const addBranchBrand = `-- name: AddBranchBrand :exec
+INSERT INTO branch_brands (branch_id, brand_id)
+VALUES ($1, $2)
+`
+
+type AddBranchBrandParams struct {
+	BranchID int32 `json:"branch_id"`
+	BrandID  int32 `json:"brand_id"`
+}
+
+func (q *Queries) AddBranchBrand(ctx context.Context, arg AddBranchBrandParams) error {
+	_, err := q.db.ExecContext(ctx, addBranchBrand, arg.BranchID, arg.BrandID)
+	return err
+}
+
 const createBranch = `-- name: CreateBranch :exec
 INSERT INTO branches (title, description)
 VALUES ($1, $2)
@@ -22,6 +55,17 @@ type CreateBranchParams struct {
 
 func (q *Queries) CreateBranch(ctx context.Context, arg CreateBranchParams) error {
 	_, err := q.db.ExecContext(ctx, createBranch, arg.Title, arg.Description)
+	return err
+}
+
+const deleteBranchBrands = `-- name: DeleteBranchBrands :exec
+DELETE
+FROM branch_brands
+WHERE branch_id = $1
+`
+
+func (q *Queries) DeleteBranchBrands(ctx context.Context, branchID int32) error {
+	_, err := q.db.ExecContext(ctx, deleteBranchBrands, branchID)
 	return err
 }
 
@@ -382,5 +426,23 @@ func (q *Queries) SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleType
 		arg.FromDate,
 		arg.ToDate,
 	)
+	return err
+}
+
+const updateBranch = `-- name: UpdateBranch :exec
+UPDATE branches
+SET title = $1,
+    description = $2
+WHERE id = $3
+`
+
+type UpdateBranchParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	ID          int32  `json:"id"`
+}
+
+func (q *Queries) UpdateBranch(ctx context.Context, arg UpdateBranchParams) error {
+	_, err := q.db.ExecContext(ctx, updateBranch, arg.Title, arg.Description, arg.ID)
 	return err
 }

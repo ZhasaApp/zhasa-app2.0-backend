@@ -20,3 +20,12 @@ SELECT bb.id AS branch_brand
 FROM branch_brands bb
 WHERE bb.branch_id = $1
   AND bb.brand_id = $2;
+
+-- name: AddBrand :exec
+INSERT INTO brands (title, description)
+VALUES ($1, $2);
+
+-- name: UpdateBrand :exec
+UPDATE brands
+SET title = $1, description = $2
+WHERE id = $3;
