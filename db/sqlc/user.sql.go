@@ -378,6 +378,37 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (UserAvatarV
 	return i, err
 }
 
+const getUserByPhoneWithPassword = `-- name: GetUserByPhoneWithPassword :one
+SELECT u.id,
+       u.phone,
+       u.first_name,
+       u.last_name,
+       u.password
+FROM users u
+WHERE u.phone = $1
+`
+
+type GetUserByPhoneWithPasswordRow struct {
+	ID        int32          `json:"id"`
+	Phone     string         `json:"phone"`
+	FirstName string         `json:"first_name"`
+	LastName  string         `json:"last_name"`
+	Password  sql.NullString `json:"password"`
+}
+
+func (q *Queries) GetUserByPhoneWithPassword(ctx context.Context, phone string) (GetUserByPhoneWithPasswordRow, error) {
+	row := q.db.QueryRowContext(ctx, getUserByPhoneWithPassword, phone)
+	var i GetUserByPhoneWithPasswordRow
+	err := row.Scan(
+		&i.ID,
+		&i.Phone,
+		&i.FirstName,
+		&i.LastName,
+		&i.Password,
+	)
+	return i, err
+}
+
 const getUsersByBranchBrandRole = `-- name: GetUsersByBranchBrandRole :many
 SELECT u.id,
        u.first_name,

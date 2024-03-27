@@ -70,11 +70,12 @@ type Server struct {
 	getBrandMonthlyYearStatisticFunc              GetBrandMonthlyYearStatisticFunc
 
 	// user functions
-	createUserFunc     CreateUserFunc
-	getUserByPhoneFunc GetUserByPhoneFunc
-	getUserByIdFunc    GetUserByIdFunc
-	uploadAvatarFunc   UploadAvatarFunc
-	deleteAvatarFunc   DeleteAvatarFunc
+	createUserFunc                 CreateUserFunc
+	getUserByPhoneFunc             GetUserByPhoneFunc
+	getUserByPhoneWithPasswordFunc GetUserByPhoneWithPasswordFunc
+	getUserByIdFunc                GetUserByIdFunc
+	uploadAvatarFunc               UploadAvatarFunc
+	deleteAvatarFunc               DeleteAvatarFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -140,22 +141,26 @@ func NewServer(ctx context.Context, environment string) *Server {
 
 	router.GET("user/get-user-profile", server.getUserProfile)
 
+	router.POST("admin/login", server.AdminLogin)
+
 	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
-		adminRoute.GET("/users", server.GetAllUsers)
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
+		adminRoute.POST("/brand", server.CreateBrand)
+		adminRoute.PUT("/brand", server.UpdateBrand)
+
+		adminRoute.GET("/users", server.GetAllUsers)
 		adminRoute.POST("/user", server.CreateUser)
 		adminRoute.DELETE("/users", server.DeleteUsers)
 		adminRoute.PUT("/update-user", server.UpdateUser)
+
 		adminRoute.PUT("/change-users-role", server.ChangeUsersRole)
 		adminRoute.PUT("/change-users-brands", server.ChangeUsersBrands)
 		adminRoute.PUT("/change-users-branch", server.ChangeUsersBranch)
 
-		//adminRoute.GET("/users", server.GetAllUsersByRole)
-		//adminRoute.GET("/users/all", server.GetAllUsers)
-		//adminRoute.GET("/users/no-roles", server.GetUsersWithoutRoles)
-		//adminRoute.POST("/manager", server.CreateManager)
+		adminRoute.POST("/branch", server.CreateBranchWithBrands)
+		adminRoute.PUT("/branch", server.UpdateBranchWithBrands)
 		adminRoute.GET("/sale-type/list", server.getSaleTypes)
 	}
 
@@ -233,12 +238,15 @@ func initDependencies(server *Server, ctx context.Context) {
 	ownerRepo := NewOwnerRepo(ctx, store)
 
 	getUserByPhoneFunc := NewGetUserByPhoneFunc(ctx, store)
+	getUserByPhoneWithPasswordFunc := NewGetUserByPhoneWithPasswordFunc(ctx, store)
 	getUserByIdFunc := NewGetUserByIdFunc(ctx, store)
 	addUserCodeFunc := NewAddUserCodeFunc(ctx, store)
 	getAuthCodeByIdFunc := NewGetAuthCodeByIdFunc(ctx, store)
+
 	authService := service.NewAuthorizationService(
 		ctx,
 		getUserByPhoneFunc,
+		getUserByPhoneWithPasswordFunc,
 		addUserCodeFunc,
 		getUserByIdFunc,
 		getAuthCodeByIdFunc,
@@ -294,6 +302,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	// user functions
 	server.createUserFunc = NewCreateUserFunc(ctx, store)
 	server.getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
+	server.getUserByPhoneWithPasswordFunc = NewGetUserByPhoneWithPasswordFunc(ctx, store)
 	server.getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
 	server.uploadAvatarFunc = NewUploadAvatarFunc(ctx, store)
 	server.deleteAvatarFunc = NewDeleteAvatarFunc(ctx, store)
@@ -316,8 +325,14 @@ func initDependencies(server *Server, ctx context.Context) {
 	addUserRoleFunc := NewAddUserRoleFunc(ctx, store)
 	addUserBranchFunc := NewAddUserBranchFunc(ctx, store)
 	updateUserRole := NewUpdateUserRoleFunc(ctx, store)
+	createBranchWithBrands := NewCreateBranchWithBrandsFunc(ctx, store)
+	updateBranchWithBrands := NewUpdateBranchWithBrandsFunc(ctx, store)
+	createBrandFunc := NewCreateBrandFunc(ctx, store)
+	updateBrandFunc := NewUpdateBrandFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
+		authService,
+		tokenService,
 		getUserByPhoneFunc,
 		createUserFunc,
 		makeUserAsManagerFunc,
@@ -330,6 +345,8 @@ func initDependencies(server *Server, ctx context.Context) {
 		updateUserFunc,
 		updateUserBranchFunc,
 		getAllBranches,
+		createBranchWithBrands,
+		updateBranchWithBrands,
 		allBrands,
 		addDisabledUserFunc,
 		getUserBrandsFunc,
@@ -337,6 +354,8 @@ func initDependencies(server *Server, ctx context.Context) {
 		addUserRoleFunc,
 		addUserBranchFunc,
 		updateUserRole,
+		createBrandFunc,
+		updateBrandFunc,
 	)
 }
 

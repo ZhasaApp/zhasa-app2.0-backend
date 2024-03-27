@@ -9,6 +9,21 @@ import (
 	"context"
 )
 
+const addBrand = `-- name: AddBrand :exec
+INSERT INTO brands (title, description)
+VALUES ($1, $2)
+`
+
+type AddBrandParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) AddBrand(ctx context.Context, arg AddBrandParams) error {
+	_, err := q.db.ExecContext(ctx, addBrand, arg.Title, arg.Description)
+	return err
+}
+
 const getBranchBrand = `-- name: GetBranchBrand :one
 SELECT bb.id AS branch_brand
 FROM branch_brands bb
@@ -137,4 +152,21 @@ func (q *Queries) GetUserBrands(ctx context.Context, userID int32) ([]GetUserBra
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateBrand = `-- name: UpdateBrand :exec
+UPDATE brands
+SET title = $1, description = $2
+WHERE id = $3
+`
+
+type UpdateBrandParams struct {
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	ID          int32  `json:"id"`
+}
+
+func (q *Queries) UpdateBrand(ctx context.Context, arg UpdateBrandParams) error {
+	_, err := q.db.ExecContext(ctx, updateBrand, arg.Title, arg.Description, arg.ID)
+	return err
 }

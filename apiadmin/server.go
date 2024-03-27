@@ -2,12 +2,16 @@ package apiadmin
 
 import (
 	"github.com/gin-gonic/gin"
-	repository2 "zhasa2.0/branch/repository"
+	branchRepo "zhasa2.0/branch/repository"
 	"zhasa2.0/brand"
 	"zhasa2.0/user/repository"
+	"zhasa2.0/user/service"
 )
 
 type Server struct {
+	authService  service.AuthorizationService
+	tokenService service.TokenService
+
 	getUserByPhoneFunc       repository.GetUserByPhoneFunc
 	getUsersWithoutRolesFunc repository.GetUsersWithoutRolesFunc
 	createUserFunc           repository.CreateUserFunc
@@ -20,18 +24,24 @@ type Server struct {
 	updateUserFunc           repository.UpdateUserFunc
 	updateUserBranchFunc     repository.UpdateUserBranchFunc
 	updateUserRole           repository.UpdateUserRoleFunc
+	addUserRole              repository.AddUserRoleFunc
+	addUserBranch            repository.AddUserBranchFunc
+	addDisabledUserFunc      repository.AddDisabledUserFunc
 
-	addDisabledUserFunc repository.AddDisabledUserFunc
+	getAllBranchesFunc         branchRepo.GetAllBranches
+	createBranchWithBrandsFunc branchRepo.CreateBranchWithBrandsFunc
+	updateBranchWithBrandsFunc branchRepo.UpdateBranchWithBrandsFunc
 
-	getAllBranchesFunc               repository2.GetAllBranches
 	getAllBrandsFunc                 brand.GetAllBrandsFunc
 	getUserBrandsFunc                brand.GetUserBrandsFunc
 	getFilteredUsersWithBranchBrands repository.GetFilteredUsersWithBranchBrands
-	addUserRole                      repository.AddUserRoleFunc
-	addUserBranch                    repository.AddUserBranchFunc
+	createBrandFunc                  brand.CreateBrandFunc
+	updateBrandFunc                  brand.UpdateBrandFunc
 }
 
 func NewServer(
+	authService service.AuthorizationService,
+	tokenService service.TokenService,
 	getUserByPhoneFunc repository.GetUserByPhoneFunc,
 	createUserFunc repository.CreateUserFunc,
 	makeManagerAsUserFunc repository.MakeUserAsManagerFunc,
@@ -43,7 +53,9 @@ func NewServer(
 	updateUserBrands repository.UpdateUserBrandsFunc,
 	updateUserFunc repository.UpdateUserFunc,
 	updateUserBranchFunc repository.UpdateUserBranchFunc,
-	branchesFunc repository2.GetAllBranches,
+	branchesFunc branchRepo.GetAllBranches,
+	createBranchWithBrandsFunc branchRepo.CreateBranchWithBrandsFunc,
+	updateBranchWithBrandsFunc branchRepo.UpdateBranchWithBrandsFunc,
 	brandsFunc brand.GetAllBrandsFunc,
 	addDisabledUserFunc repository.AddDisabledUserFunc,
 	getUserBrandsFunc brand.GetUserBrandsFunc,
@@ -51,8 +63,12 @@ func NewServer(
 	addUserRole repository.AddUserRoleFunc,
 	addUserBranch repository.AddUserBranchFunc,
 	updateUserRole repository.UpdateUserRoleFunc,
+	createBrandFunc brand.CreateBrandFunc,
+	updateBrandFunc brand.UpdateBrandFunc,
 ) *Server {
 	return &Server{
+		authService:                      authService,
+		tokenService:                     tokenService,
 		getUserByPhoneFunc:               getUserByPhoneFunc,
 		createUserFunc:                   createUserFunc,
 		makeUserAsManagerFunc:            makeManagerAsUserFunc,
@@ -72,6 +88,10 @@ func NewServer(
 		addUserRole:                      addUserRole,
 		addUserBranch:                    addUserBranch,
 		updateUserRole:                   updateUserRole,
+		createBranchWithBrandsFunc:       createBranchWithBrandsFunc,
+		updateBranchWithBrandsFunc:       updateBranchWithBrandsFunc,
+		createBrandFunc:                  createBrandFunc,
+		updateBrandFunc:                  updateBrandFunc,
 	}
 }
 
