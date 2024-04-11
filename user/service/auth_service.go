@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
@@ -28,6 +29,7 @@ type SafeAuthorizationService struct {
 	getUserByIdFunc                GetUserByIdFunc
 	addUserCodeFunc                AddUserCodeFunc
 	getAuthCodeByIdFunc            GetAuthCodeByIdFunc
+	checkDisabledUserFunc          CheckDisabledUserFunc
 }
 
 func NewAuthorizationService(
@@ -37,6 +39,7 @@ func NewAuthorizationService(
 	addUserCodeFunc AddUserCodeFunc,
 	getUserByIdFunc GetUserByIdFunc,
 	getAuthCodeByIdFunc GetAuthCodeByIdFunc,
+	checkDisabledUserFunc CheckDisabledUserFunc,
 ) AuthorizationService {
 	return SafeAuthorizationService{
 		ctx:                            ctx,
@@ -46,6 +49,7 @@ func NewAuthorizationService(
 		addUserCodeFunc:                addUserCodeFunc,
 		getUserByIdFunc:                getUserByIdFunc,
 		getAuthCodeByIdFunc:            getAuthCodeByIdFunc,
+		checkDisabledUserFunc:          checkDisabledUserFunc,
 	}
 }
 
@@ -53,6 +57,15 @@ func (service SafeAuthorizationService) RequestCode(phone entities.Phone) (entit
 	user, err := service.getUserByPhoneFunc(phone)
 	if err != nil {
 		return 0, errors.New("user not found")
+	}
+
+	disabled, err := service.checkDisabledUserFunc(user.Id)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
+		return 0, err
+	}
+
+	if disabled {
+		return 0, errors.New("user is disabled")
 	}
 
 	otp, err := service.recoveryService.GenerateSendRecoveryCode(*user)

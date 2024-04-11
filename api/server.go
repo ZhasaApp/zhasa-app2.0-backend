@@ -76,6 +76,7 @@ type Server struct {
 	getUserByIdFunc                GetUserByIdFunc
 	uploadAvatarFunc               UploadAvatarFunc
 	deleteAvatarFunc               DeleteAvatarFunc
+	checkDisabledUserFunc          CheckDisabledUserFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -242,6 +243,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	getUserByIdFunc := NewGetUserByIdFunc(ctx, store)
 	addUserCodeFunc := NewAddUserCodeFunc(ctx, store)
 	getAuthCodeByIdFunc := NewGetAuthCodeByIdFunc(ctx, store)
+	checkDisabledUserFunc := NewCheckDisabledUserFunc(ctx, store)
 
 	authService := service.NewAuthorizationService(
 		ctx,
@@ -250,6 +252,7 @@ func initDependencies(server *Server, ctx context.Context) {
 		addUserCodeFunc,
 		getUserByIdFunc,
 		getAuthCodeByIdFunc,
+		checkDisabledUserFunc,
 	)
 
 	brandGoal := NewUserGoalFunc(ctx, store)

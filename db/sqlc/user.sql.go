@@ -177,6 +177,17 @@ func (q *Queries) GetAuthCodeById(ctx context.Context, id int32) (UsersCode, err
 	return i, err
 }
 
+const getDisabledUser = `-- name: GetDisabledUser :one
+SELECT user_id from disabled_users where user_id = $1
+`
+
+func (q *Queries) GetDisabledUser(ctx context.Context, userID int32) (int32, error) {
+	row := q.db.QueryRowContext(ctx, getDisabledUser, userID)
+	var user_id int32
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
 const getFilteredUsersWithBranchRolesBrands = `-- name: GetFilteredUsersWithBranchRolesBrands :many
 WITH Counted AS (
     SELECT u.id,

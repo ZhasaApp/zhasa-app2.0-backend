@@ -174,6 +174,9 @@ OFFSET $2;
 INSERT INTO disabled_users (user_id)
 VALUES ($1) ON CONFLICT DO NOTHING;
 
+-- name: GetDisabledUser :one
+SELECT user_id from disabled_users where user_id = $1;
+
 -- name: GetFilteredUsersWithBranchRolesBrands :many
 WITH Counted AS (
     SELECT u.id,

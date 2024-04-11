@@ -27,6 +27,7 @@ type UserStore interface {
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
 	UpdateUserBranch(ctx context.Context, params UpdateUserBranchParams) error
 	AddDisabledUser(ctx context.Context, userID int32) error
+	GetDisabledUser(ctx context.Context, userID int32) (int32, error)
 	GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg GetFilteredUsersWithBranchRolesBrandsParams) ([]GetFilteredUsersWithBranchRolesBrandsRow, error)
 	AddUserRole(ctx context.Context, arg AddUserRoleParams) error
 	AddUserBranch(ctx context.Context, arg AddUserBranchParams) error
