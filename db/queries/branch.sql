@@ -106,3 +106,10 @@ WHERE id = $3;
 DELETE
 FROM branch_brands
 WHERE branch_id = $1;
+
+-- name: GetBranchesSearch :many
+select id, title, description
+from branches
+where (title || description) ilike '%' || @search::text || '%'
+order by case when @sort_field::text = 'title' AND @sort_type::text = 'asc' then title end asc,
+         case when @sort_field::text = 'title' AND @sort_type::text = 'desc' then title end desc;

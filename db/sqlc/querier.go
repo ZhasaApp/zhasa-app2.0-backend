@@ -52,6 +52,7 @@ type Querier interface {
 	GetBranchUsersOrderedByRatioForGivenBrand(ctx context.Context, arg GetBranchUsersOrderedByRatioForGivenBrandParams) ([]GetBranchUsersOrderedByRatioForGivenBrandRow, error)
 	GetBranches(ctx context.Context) ([]Branch, error)
 	GetBranchesByBrandId(ctx context.Context, brandID int32) ([]GetBranchesByBrandIdRow, error)
+	GetBranchesSearch(ctx context.Context, arg GetBranchesSearchParams) ([]GetBranchesSearchRow, error)
 	// Replace with the desired period (from_date and to_date)
 	GetBrandOverallGoalByGivenDateRange(ctx context.Context, arg GetBrandOverallGoalByGivenDateRangeParams) (int64, error)
 	GetBrandSaleSumByGivenDateRange(ctx context.Context, arg GetBrandSaleSumByGivenDateRangeParams) (int64, error)

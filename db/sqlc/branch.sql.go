@@ -316,6 +316,49 @@ func (q *Queries) GetBranchesByBrandId(ctx context.Context, brandID int32) ([]Ge
 	return items, nil
 }
 
+const getBranchesSearch = `-- name: GetBranchesSearch :many
+select id, title, description
+from branches
+where (title || description) ilike '%' || $1::text || '%'
+order by case when $2::text = 'title' AND $3::text = 'asc' then title end asc,
+         case when $2::text = 'title' AND $3::text = 'desc' then title end desc
+`
+
+type GetBranchesSearchParams struct {
+	Search    string `json:"search"`
+	SortField string `json:"sort_field"`
+	SortType  string `json:"sort_type"`
+}
+
+type GetBranchesSearchRow struct {
+	ID          int32  `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) GetBranchesSearch(ctx context.Context, arg GetBranchesSearchParams) ([]GetBranchesSearchRow, error) {
+	rows, err := q.db.QueryContext(ctx, getBranchesSearch, arg.Search, arg.SortField, arg.SortType)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetBranchesSearchRow
+	for rows.Next() {
+		var i GetBranchesSearchRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getBrandOverallGoalByGivenDateRange = `-- name: GetBrandOverallGoalByGivenDateRange :one
 
 SELECT COALESCE(bg.value, 0) AS goal_amount

@@ -332,6 +332,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	updateBranchWithBrands := NewUpdateBranchWithBrandsFunc(ctx, store)
 	createBrandFunc := NewCreateBrandFunc(ctx, store)
 	updateBrandFunc := NewUpdateBrandFunc(ctx, store)
+	getBranchesFiltered := NewGetBranchesFiltered(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		authService,
@@ -350,6 +351,7 @@ func initDependencies(server *Server, ctx context.Context) {
 		getAllBranches,
 		createBranchWithBrands,
 		updateBranchWithBrands,
+		getBranchesFiltered,
 		allBrands,
 		addDisabledUserFunc,
 		getUserBrandsFunc,
