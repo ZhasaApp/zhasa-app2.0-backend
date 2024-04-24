@@ -34,6 +34,7 @@ type UserStore interface {
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error
 	UpdateUserBranchTX(ctx context.Context, userId int32, branch int32) error
 	DeleteUserBranchByUserId(ctx context.Context, userID int32) error
+	DeleteDisabledUsers(ctx context.Context, userIDs []int32) error
 }
 
 func (db *DBStore) CreateManagerTX(ctx context.Context, userId, branchId int32, brands []int32) error {

@@ -199,7 +199,7 @@ WITH Counted AS (
       AND (@role_keys::text[] IS NULL OR r.key = ANY(@role_keys))
       AND (@brand_ids::int[] IS NULL OR bs.id = ANY(@brand_ids))
       AND (@branch_ids::int[] IS NULL OR b.id = ANY(@branch_ids))
-      AND (du.user_id IS NULL)
+      AND (@show_deleted::boolean OR du.user_id IS NULL)
     GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
 )
 SELECT id,
@@ -243,3 +243,8 @@ WHERE user_id = $1;
 DELETE
 FROM branch_users
 WHERE user_id = $1;
+
+-- name: DeleteDisabledUsers :exec
+DELETE
+FROM disabled_users
+WHERE user_id = ANY($1::int[]);

@@ -32,6 +32,7 @@ type Querier interface {
 	DeleteBranchBrands(ctx context.Context, branchID int32) error
 	DeleteBranchUserByUserId(ctx context.Context, userID int32) error
 	DeleteComment(ctx context.Context, id int32) error
+	DeleteDisabledUsers(ctx context.Context, dollar_1 []int32) error
 	DeleteLike(ctx context.Context, arg DeleteLikeParams) error
 	DeletePost(ctx context.Context, id int32) error
 	DeleteSale(ctx context.Context, id int32) error

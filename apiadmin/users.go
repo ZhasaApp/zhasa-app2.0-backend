@@ -52,14 +52,15 @@ func (s *Server) GetAllUsersByRole(ctx *gin.Context) {
 }
 
 type GetAllUsersRequest struct {
-	Page      int32    `json:"page" form:"page"`
-	PageSize  int32    `json:"size" form:"size"`
-	Roles     []string `json:"role_keys" form:"role_keys"`
-	Brands    []int32  `json:"brand_ids" form:"brand_ids"`
-	Branches  []int32  `json:"branch_ids" form:"branch_ids"`
-	Search    string   `json:"search" form:"search"`
-	SortType  string   `json:"sort_type" form:"sort_type"`
-	SortField string   `json:"sort_field" form:"sort_field"`
+	Page        int32    `json:"page" form:"page"`
+	PageSize    int32    `json:"size" form:"size"`
+	Roles       []string `json:"role_keys" form:"role_keys"`
+	Brands      []int32  `json:"brand_ids" form:"brand_ids"`
+	Branches    []int32  `json:"branch_ids" form:"branch_ids"`
+	Search      string   `json:"search" form:"search"`
+	SortType    string   `json:"sort_type" form:"sort_type"`
+	SortField   string   `json:"sort_field" form:"sort_field"`
+	ShowDeleted bool     `json:"show_deleted" form:"show_deleted"`
 }
 
 type GetAllUsersResponse struct {
@@ -80,14 +81,15 @@ func (s *Server) GetAllUsers(ctx *gin.Context) {
 		PageSize: req.PageSize,
 	}
 	params := generated.GetFilteredUsersWithBranchRolesBrandsParams{
-		Search:    req.Search,
-		Limit:     pagination.PageSize,
-		Offset:    pagination.GetOffset(),
-		RoleKeys:  req.Roles,
-		BrandIds:  req.Brands,
-		BranchIds: req.Branches,
-		SortField: req.SortField,
-		SortType:  req.SortType,
+		Search:      req.Search,
+		Limit:       pagination.PageSize,
+		Offset:      pagination.GetOffset(),
+		RoleKeys:    req.Roles,
+		BrandIds:    req.Brands,
+		BranchIds:   req.Branches,
+		SortField:   req.SortField,
+		SortType:    req.SortType,
+		ShowDeleted: req.ShowDeleted,
 	}
 	users, total, err := s.getFilteredUsersWithBranchBrands(params)
 	if err != nil {
@@ -387,5 +389,27 @@ func (s *Server) AdminLogin(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, AdminLoginResponse{
 		Token: string(token),
+	})
+}
+
+type ActivateUsersRequest struct {
+	UserIds []int32 `form:"user_id" binding:"required"`
+}
+
+func (s *Server) ActivateUsers(ctx *gin.Context) {
+	var req ActivateUsersRequest
+	if err := ctx.ShouldBind(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err := s.removeDisabledUsersFunc(req.UserIds)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "user activated successfully",
 	})
 }

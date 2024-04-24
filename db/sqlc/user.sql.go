@@ -137,6 +137,17 @@ func (q *Queries) CreateUserCode(ctx context.Context, arg CreateUserCodeParams) 
 	return id, err
 }
 
+const deleteDisabledUsers = `-- name: DeleteDisabledUsers :exec
+DELETE
+FROM disabled_users
+WHERE user_id = ANY($1::int[])
+`
+
+func (q *Queries) DeleteDisabledUsers(ctx context.Context, dollar_1 []int32) error {
+	_, err := q.db.ExecContext(ctx, deleteDisabledUsers, pq.Array(dollar_1))
+	return err
+}
+
 const deleteUserAvatar = `-- name: DeleteUserAvatar :exec
 DELETE
 FROM users_avatars
@@ -210,7 +221,7 @@ WITH Counted AS (
       AND ($6::text[] IS NULL OR r.key = ANY($6))
       AND ($7::int[] IS NULL OR bs.id = ANY($7))
       AND ($8::int[] IS NULL OR b.id = ANY($8))
-      AND (du.user_id IS NULL)
+      AND ($9::boolean OR du.user_id IS NULL)
     GROUP BY u.id, u.first_name, u.last_name, b.title, du.user_id, r.key
 )
 SELECT id,
@@ -238,14 +249,15 @@ LIMIT $1 OFFSET $2
 `
 
 type GetFilteredUsersWithBranchRolesBrandsParams struct {
-	Limit     int32    `json:"limit"`
-	Offset    int32    `json:"offset"`
-	SortField string   `json:"sort_field"`
-	SortType  string   `json:"sort_type"`
-	Search    string   `json:"search"`
-	RoleKeys  []string `json:"role_keys"`
-	BrandIds  []int32  `json:"brand_ids"`
-	BranchIds []int32  `json:"branch_ids"`
+	Limit       int32    `json:"limit"`
+	Offset      int32    `json:"offset"`
+	SortField   string   `json:"sort_field"`
+	SortType    string   `json:"sort_type"`
+	Search      string   `json:"search"`
+	RoleKeys    []string `json:"role_keys"`
+	BrandIds    []int32  `json:"brand_ids"`
+	BranchIds   []int32  `json:"branch_ids"`
+	ShowDeleted bool     `json:"show_deleted"`
 }
 
 type GetFilteredUsersWithBranchRolesBrandsRow struct {
@@ -269,6 +281,7 @@ func (q *Queries) GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg
 		pq.Array(arg.RoleKeys),
 		pq.Array(arg.BrandIds),
 		pq.Array(arg.BranchIds),
+		arg.ShowDeleted,
 	)
 	if err != nil {
 		return nil, err
