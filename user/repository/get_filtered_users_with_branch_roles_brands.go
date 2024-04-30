@@ -27,6 +27,7 @@ func NewGetFilteredUsersWithBranchBrands(ctx context.Context, store generated.Us
 				BranchTitle: row.BranchTitle.String,
 				Brands:      strings.Split(string(row.Brands), ", "),
 				Role:        row.Role,
+				Deleted:     row.Deleted,
 			})
 			total = int32(row.TotalCount)
 		}

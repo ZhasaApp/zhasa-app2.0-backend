@@ -100,6 +100,7 @@ type UserWithBranchBrands struct {
 	BranchTitle string   `json:"branch_title"`
 	Brands      []string `json:"brands"`
 	Role        string   `json:"role"`
+	Deleted     bool     `json:"deleted"`
 }
 
 type BaseUser struct {

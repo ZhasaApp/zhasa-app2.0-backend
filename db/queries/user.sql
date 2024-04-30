@@ -186,7 +186,8 @@ WITH Counted AS (
            r.key                      AS role,
            b.title                    AS branch_title,
            STRING_AGG(bs.title, ', ') AS brands,
-           COUNT(*) OVER()            AS total_count
+           COUNT(*) OVER()            AS total_count,
+           (du.user_id IS NOT NULL)::boolean   AS deleted
     FROM users u
              JOIN user_roles ur ON u.id = ur.user_id
              JOIN roles r ON ur.role_id = r.id
@@ -209,7 +210,8 @@ SELECT id,
        role,
        branch_title,
        brands,
-       total_count
+       total_count,
+       deleted
 FROM Counted
 ORDER BY CASE WHEN @sort_field::text = 'fio' AND @sort_type::text = 'asc' THEN first_name END ASC,
     CASE WHEN @sort_field = 'fio' AND @sort_type = 'asc' THEN last_name
