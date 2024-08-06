@@ -239,14 +239,15 @@ CREATE TABLE awards
     id          SERIAL PRIMARY KEY,
     title       VARCHAR(255) NOT NULL,
     description TEXT         NOT NULL,
-    icon_url    TEXT         NOT NULL,
-    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+    icon_url    TEXT         NOT NULL
 );
 
 CREATE TABLE user_awards
 (
-    id       SERIAL PRIMARY KEY,
-    user_id  INTEGER REFERENCES users (id)  NOT NULL,
-    award_id INTEGER REFERENCES awards (id) NOT NULL,
-    UNIQUE (user_id, award_id)
+    id            SERIAL PRIMARY KEY,
+    user_id       INTEGER REFERENCES users (id)  NOT NULL,
+    award_id      INTEGER REFERENCES awards (id) NOT NULL,
+    award_details JSONB                          NOT NULL, -- Stores period and scope details
+    created_at    TIMESTAMP                      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, award_id, award_details)
 );
