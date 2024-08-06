@@ -217,3 +217,36 @@ CREATE TABLE branch_brand_users
     user_id         INTEGER REFERENCES users (id)         NOT NULL,
     UNIQUE (branch_brand_id, user_id)
 );
+
+CREATE TABLE models
+(
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(255) NOT NULL,
+    description TEXT         NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE brand_models
+(
+    id       SERIAL PRIMARY KEY,
+    brand_id INTEGER REFERENCES brands (id) NOT NULL,
+    model_id INTEGER REFERENCES models (id) NOT NULL,
+    UNIQUE (brand_id, model_id)
+);
+
+CREATE TABLE awards
+(
+    id          SERIAL PRIMARY KEY,
+    title       VARCHAR(255) NOT NULL,
+    description TEXT         NOT NULL,
+    icon_url    TEXT         NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE user_awards
+(
+    id       SERIAL PRIMARY KEY,
+    user_id  INTEGER REFERENCES users (id)  NOT NULL,
+    award_id INTEGER REFERENCES awards (id) NOT NULL,
+    UNIQUE (user_id, award_id)
+);
