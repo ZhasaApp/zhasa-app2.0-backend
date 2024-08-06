@@ -234,6 +234,13 @@ CREATE TABLE brand_models
     UNIQUE (brand_id, model_id)
 );
 
+CREATE TABLE sales_models(
+    id       SERIAL PRIMARY KEY,
+    sale_id  INTEGER REFERENCES sales (id) NOT NULL,
+    model_id INTEGER REFERENCES models (id) NOT NULL,
+    UNIQUE (sale_id)
+);
+
 CREATE TABLE awards
 (
     id          SERIAL PRIMARY KEY,
