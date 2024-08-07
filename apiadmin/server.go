@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	branchRepo "zhasa2.0/branch/repository"
 	"zhasa2.0/brand"
+	good "zhasa2.0/good/repository"
 	"zhasa2.0/user/repository"
 	"zhasa2.0/user/service"
 )
@@ -39,6 +40,9 @@ type Server struct {
 	getFilteredUsersWithBranchBrands repository.GetFilteredUsersWithBranchBrands
 	createBrandFunc                  brand.CreateBrandFunc
 	updateBrandFunc                  brand.UpdateBrandFunc
+	createGoodFunc                   good.CreateGoodFunc
+	addGoodToBrandFunc               good.AddGoodToBrandFunc
+	getGoodsByBrandIdFunc            good.GetGoodsByBrandIdFunc
 }
 
 func NewServer(
@@ -69,6 +73,9 @@ func NewServer(
 	createBrandFunc brand.CreateBrandFunc,
 	updateBrandFunc brand.UpdateBrandFunc,
 	removeDisabledUsersFunc repository.RemoveDisabledUsersFunc,
+	createGoodFunc good.CreateGoodFunc,
+	addGoodToBrandFunc good.AddGoodToBrandFunc,
+	getGoodsByBrandIdFunc good.GetGoodsByBrandIdFunc,
 ) *Server {
 	return &Server{
 		authService:                      authService,
@@ -98,6 +105,9 @@ func NewServer(
 		updateBrandFunc:                  updateBrandFunc,
 		getBranchesFiltered:              getBranchesFiltered,
 		removeDisabledUsersFunc:          removeDisabledUsersFunc,
+		createGoodFunc:                   createGoodFunc,
+		addGoodToBrandFunc:               addGoodToBrandFunc,
+		getGoodsByBrandIdFunc:            getGoodsByBrandIdFunc,
 	}
 }
 

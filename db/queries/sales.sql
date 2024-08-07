@@ -5,14 +5,12 @@ VALUES ($1, $2, $3, $4, $5) RETURNING *;
 
 -- name: EditSale :one
 UPDATE sales
-SET
-    user_id = $1,
-    sale_date = $2,
-    amount = $3,
+SET user_id      = $1,
+    sale_date    = $2,
+    amount       = $3,
     sale_type_id = $4,
-    description = $5
-WHERE id = $6
-    RETURNING *;
+    description  = $5
+WHERE id = $6 RETURNING *;
 
 
 -- name: AddSaleToBrand :one
@@ -23,6 +21,12 @@ UPDATE
     SET sale_id = EXCLUDED.sale_id, brand_id = EXCLUDED.brand_id
     RETURNING *;
 
+-- name: AddGoodToSale :exec
+INSERT INTO sales_goods (sale_id, good_id)
+VALUES ($1, $2) ON CONFLICT (sale_id)
+DO
+UPDATE
+    SET good_id = EXCLUDED.good_id;
 
 -- name: DeleteSale :exec
 DELETE

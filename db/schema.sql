@@ -218,7 +218,7 @@ CREATE TABLE branch_brand_users
     UNIQUE (branch_brand_id, user_id)
 );
 
-CREATE TABLE models
+CREATE TABLE goods
 (
     id          SERIAL PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,
@@ -226,18 +226,18 @@ CREATE TABLE models
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE brand_models
+CREATE TABLE brand_goods
 (
     id       SERIAL PRIMARY KEY,
     brand_id INTEGER REFERENCES brands (id) NOT NULL,
-    model_id INTEGER REFERENCES models (id) NOT NULL,
-    UNIQUE (brand_id, model_id)
+    good_id INTEGER REFERENCES goods (id) NOT NULL,
+    UNIQUE (brand_id, good_id)
 );
 
-CREATE TABLE sales_models(
+CREATE TABLE sales_goods(
     id       SERIAL PRIMARY KEY,
     sale_id  INTEGER REFERENCES sales (id) NOT NULL,
-    model_id INTEGER REFERENCES models (id) NOT NULL,
+    good_id INTEGER REFERENCES goods (id) NOT NULL,
     UNIQUE (sale_id)
 );
 
