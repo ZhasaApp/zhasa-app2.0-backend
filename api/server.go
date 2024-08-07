@@ -148,7 +148,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 
 	router.POST("admin/login", server.AdminLogin)
 
-	adminRoute := router.Group("admin/")
+	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
 	{
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
