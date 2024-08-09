@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 	"zhasa2.0/api/entities"
+	"zhasa2.0/sale/repository"
 	entities2 "zhasa2.0/statistic"
 )
 
@@ -34,7 +35,14 @@ func (server *Server) AddSale(ctx *gin.Context) {
 		return
 	}
 
-	id, err := server.saleAddFunc(requestBody.Value, parsedTime, userId, requestBody.BrandId, requestBody.TypeID, requestBody.Title)
+	id, err := server.saleAddFunc(repository.SaleAddBody{
+		SaleAmount:      requestBody.Value,
+		SaleDate:        parsedTime,
+		UserId:          userId,
+		BrandId:         requestBody.BrandId,
+		SaleTypeId:      requestBody.TypeID,
+		SaleDescription: requestBody.Title,
+	})
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

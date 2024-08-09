@@ -14,4 +14,5 @@ type SaleStore interface {
 	GetSumByUserIdBrandIdPeriodSaleTypeId(ctx context.Context, arg GetSumByUserIdBrandIdPeriodSaleTypeIdParams) (int64, error)
 	EditSale(ctx context.Context, arg EditSaleParams) (Sale, error)
 	GetBrandSaleSumByGivenDateRange(ctx context.Context, arg GetBrandSaleSumByGivenDateRangeParams) (int64, error)
+	AddGoodToSaleTx(ctx context.Context, saleId, goodId int32) error
 }

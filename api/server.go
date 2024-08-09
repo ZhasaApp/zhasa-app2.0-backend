@@ -63,6 +63,7 @@ type Server struct {
 	getSaleSumByUserBrandTypePeriodFunc           GetSaleSumByUserBrandTypePeriodFunc
 	salesByBrandUserFunc                          SalesByBrandUserFunc
 	saleAddFunc                                   SaleAddFunc
+	saleAddWithGoodFunc                           SaleAddWithGoodFunc
 	saleEditFunc                                  SaleEditFunc
 	ratedBranchesFunc                             RatedBranchesFunc
 	setBrandSaleTypeGoal                          SetBrandSaleTypeGoalFunc
@@ -191,6 +192,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 	router.DELETE("sales/delete", server.DeleteSale).Use(verifyToken(server.tokenService))
 	router.POST("sales-manager/sale/new", server.AddSale).Use(verifyToken(server.tokenService))
 	router.POST("sales/edit", server.EditSale).Use(verifyToken(server.tokenService))
+	router.POST("sale/good", server.AddGoodToSale).Use(verifyToken(server.tokenService))
 
 	directorRouter := router.Group("director/")
 	{
@@ -347,7 +349,9 @@ func initDependencies(server *Server, ctx context.Context) {
 	createGoodFunc := good.NewCreateGoodFunc(ctx, store)
 	addGoodToBrandFunc := good.NewAddGoodToBrandFunc(ctx, store)
 	getGoodsByBrandIdFunc := good.NewGetGoodsByBrandIdFunc(ctx, store)
+	saleAddWithGoodFunc := NewSaleAddWithGoodFunc(ctx, store)
 
+	server.saleAddWithGoodFunc = saleAddWithGoodFunc
 	server.getGoodByBrandFunc = getGoodsByBrandIdFunc
 
 	server.Server = *apiadmin.NewServer(
