@@ -133,6 +133,11 @@ type Department struct {
 	CreatedAt   time.Time `json:"created_at"`
 }
 
+type DisabledGood struct {
+	GoodID     int32     `json:"good_id"`
+	DisabledAt time.Time `json:"disabled_at"`
+}
+
 type DisabledUser struct {
 	UserID     int32     `json:"user_id"`
 	DisabledAt time.Time `json:"disabled_at"`

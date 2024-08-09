@@ -42,6 +42,7 @@ type Querier interface {
 	DeleteUserAvatar(ctx context.Context, userID int32) error
 	DeleteUserBranchByUserId(ctx context.Context, userID int32) error
 	DeleteUserBrandByUserId(ctx context.Context, userID int32) error
+	DisableGood(ctx context.Context, goodID int32) error
 	EditSale(ctx context.Context, arg EditSaleParams) (Sale, error)
 	// Replace with the desired period (from_date and to_date)
 	GetAllBranches(ctx context.Context) ([]Branch, error)
@@ -65,6 +66,7 @@ type Querier interface {
 	GetCommentsAndAuthorsByPostId(ctx context.Context, arg GetCommentsAndAuthorsByPostIdParams) ([]GetCommentsAndAuthorsByPostIdRow, error)
 	GetDisabledUser(ctx context.Context, userID int32) (int32, error)
 	GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg GetFilteredUsersWithBranchRolesBrandsParams) ([]GetFilteredUsersWithBranchRolesBrandsRow, error)
+	GetGoodBySaleId(ctx context.Context, saleID int32) (GetGoodBySaleIdRow, error)
 	GetGoodsByBrandId(ctx context.Context, brandID int32) ([]GetGoodsByBrandIdRow, error)
 	GetPostById(ctx context.Context, id int32) (Post, error)
 	GetPostLikedUsers(ctx context.Context, arg GetPostLikedUsersParams) ([]GetPostLikedUsersRow, error)

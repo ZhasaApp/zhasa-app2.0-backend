@@ -43,6 +43,7 @@ type Server struct {
 	createGoodFunc                   good.CreateGoodFunc
 	addGoodToBrandFunc               good.AddGoodToBrandFunc
 	getGoodsByBrandIdFunc            good.GetGoodsByBrandIdFunc
+	deleteGoodFunc                   good.DeleteGoodFunc
 }
 
 func NewServer(
@@ -76,6 +77,7 @@ func NewServer(
 	createGoodFunc good.CreateGoodFunc,
 	addGoodToBrandFunc good.AddGoodToBrandFunc,
 	getGoodsByBrandIdFunc good.GetGoodsByBrandIdFunc,
+	deleteGoodFunc good.DeleteGoodFunc,
 ) *Server {
 	return &Server{
 		authService:                      authService,
@@ -108,6 +110,7 @@ func NewServer(
 		createGoodFunc:                   createGoodFunc,
 		addGoodToBrandFunc:               addGoodToBrandFunc,
 		getGoodsByBrandIdFunc:            getGoodsByBrandIdFunc,
+		deleteGoodFunc:                   deleteGoodFunc,
 	}
 }
 

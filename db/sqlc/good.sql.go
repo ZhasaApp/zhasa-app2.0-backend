@@ -41,11 +41,46 @@ func (q *Queries) CreateGood(ctx context.Context, arg CreateGoodParams) (int32, 
 	return id, err
 }
 
+const disableGood = `-- name: DisableGood :exec
+INSERT INTO disabled_goods (good_id)
+VALUES ($1)
+`
+
+func (q *Queries) DisableGood(ctx context.Context, goodID int32) error {
+	_, err := q.db.ExecContext(ctx, disableGood, goodID)
+	return err
+}
+
+const getGoodBySaleId = `-- name: GetGoodBySaleId :one
+SELECT g.id, g.name, g.description
+FROM goods g
+         JOIN sales_goods sg ON g.id = sg.good_id
+WHERE sg.sale_id = $1
+`
+
+type GetGoodBySaleIdRow struct {
+	ID          int32  `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) GetGoodBySaleId(ctx context.Context, saleID int32) (GetGoodBySaleIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getGoodBySaleId, saleID)
+	var i GetGoodBySaleIdRow
+	err := row.Scan(&i.ID, &i.Name, &i.Description)
+	return i, err
+}
+
 const getGoodsByBrandId = `-- name: GetGoodsByBrandId :many
 SELECT m.id, m.name, m.description
 FROM goods m
          JOIN brand_goods bm ON m.id = bm.good_id
 WHERE bm.brand_id = $1
+  AND NOT EXISTS (
+    SELECT 1
+    FROM disabled_goods dg
+    WHERE dg.good_id = m.id
+)
 `
 
 type GetGoodsByBrandIdRow struct {

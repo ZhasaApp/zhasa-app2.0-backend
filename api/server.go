@@ -81,7 +81,8 @@ type Server struct {
 	checkDisabledUserFunc          CheckDisabledUserFunc
 
 	// good functions
-	getGoodByBrandFunc good.GetGoodsByBrandIdFunc
+	getGoodsByBrandFunc good.GetGoodsByBrandIdFunc
+	getGoodBySaleIdFunc good.GetGoodBySaleIdFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -149,7 +150,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 
 	router.POST("admin/login", server.AdminLogin)
 
-	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
+	adminRoute := router.Group("admin/")
 	{
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
@@ -172,9 +173,11 @@ func NewServer(ctx context.Context, environment string) *Server {
 
 		adminRoute.POST("/good", server.CreateGood)
 		adminRoute.POST("/good/brand", server.AddGoodToBrand)
+		adminRoute.DELETE("/good", server.DeleteGood)
 	}
 
-	router.GET("good", server.GetGoodsByBrand)
+	router.GET("good", server.GetGoodsByBrand).Use(verifyToken(server.tokenService))
+	router.GET("good/sale", server.GetGoodBySaleId).Use(verifyToken(server.tokenService))
 
 	smRoute := router.Group("sales-manager/")
 	smRoute.GET("/year-statistic", server.GetUserBrandYearStatistic).Use(verifyToken(server.tokenService))
@@ -352,7 +355,10 @@ func initDependencies(server *Server, ctx context.Context) {
 	saleAddWithGoodFunc := NewSaleAddWithGoodFunc(ctx, store)
 
 	server.saleAddWithGoodFunc = saleAddWithGoodFunc
-	server.getGoodByBrandFunc = getGoodsByBrandIdFunc
+	server.getGoodsByBrandFunc = getGoodsByBrandIdFunc
+	server.getGoodBySaleIdFunc = good.NewGoodBySaleIdFunc(ctx, store)
+
+	deleteGoodFunc := good.NewDeleteGoodFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		authService,
@@ -385,6 +391,7 @@ func initDependencies(server *Server, ctx context.Context) {
 		createGoodFunc,
 		addGoodToBrandFunc,
 		getGoodsByBrandIdFunc,
+		deleteGoodFunc,
 	)
 }
 

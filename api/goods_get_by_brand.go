@@ -26,7 +26,7 @@ func (server *Server) GetGoodsByBrand(ctx *gin.Context) {
 		return
 	}
 
-	goods, err := server.getGoodByBrandFunc(getGoodsByBrandRequest.BrandId)
+	goods, err := server.getGoodsByBrandFunc(getGoodsByBrandRequest.BrandId)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))

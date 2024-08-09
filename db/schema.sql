@@ -226,17 +226,25 @@ CREATE TABLE goods
     created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE disabled_goods
+(
+    good_id     INTEGER REFERENCES goods (id) ON DELETE CASCADE NOT NULL,
+    disabled_at TIMESTAMP                                       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (good_id)
+);
+
 CREATE TABLE brand_goods
 (
     id       SERIAL PRIMARY KEY,
     brand_id INTEGER REFERENCES brands (id) NOT NULL,
-    good_id INTEGER REFERENCES goods (id) NOT NULL,
+    good_id  INTEGER REFERENCES goods (id)  NOT NULL,
     UNIQUE (brand_id, good_id)
 );
 
-CREATE TABLE sales_goods(
-    id       SERIAL PRIMARY KEY,
-    sale_id  INTEGER REFERENCES sales (id) NOT NULL,
+CREATE TABLE sales_goods
+(
+    id      SERIAL PRIMARY KEY,
+    sale_id INTEGER REFERENCES sales (id) NOT NULL,
     good_id INTEGER REFERENCES goods (id) NOT NULL,
     UNIQUE (sale_id)
 );
