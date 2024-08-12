@@ -18,4 +18,4 @@ jobs:
           host: ${{ secrets.DEV_SERVER_IP }}
           username: ${{ secrets.DEV_SSH_USER }}
           password: ${{ secrets.DEV_SSH_PASSWORD }}
-          script: cd /root/backend && ./dev.restart.sh
+          script: cd /root/backend && chmod +x dev.restart.sh && ./dev.restart.sh
