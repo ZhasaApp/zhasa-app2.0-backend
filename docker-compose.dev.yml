@@ -1,0 +1,61 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    env_file: .env
+    volumes:
+      - images_vol:/app/images
+    networks:
+      - backend_network
+
+  db:
+    image: "postgres:13-alpine"
+    container_name: "postgres_container"
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - backend_network
+  
+  nginx:
+    image: nginx:1.27.0-alpine3.19-slim
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./nginx/conf/:/etc/nginx/conf.d/:ro
+      - ./certbot/www:/var/www/certbot/:ro
+      - ./certbot/conf/:/etc/nginx/ssl/:ro
+      - images_vol:/usr/share/nginx/html/images
+    networks:
+      - backend_network
+    depends_on:
+      - app
+
+  certbot:
+    image: certbot/certbot:v2.11.0
+    volumes:
+      - ./certbot/www/:/var/www/certbot/:rw
+      - ./certbot/conf/:/etc/letsencrypt/:rw
+    networks:
+      - backend_network
+
+volumes:
+  postgres_data:
+  images_vol:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./images
+
+networks:
+  backend_network:
+
