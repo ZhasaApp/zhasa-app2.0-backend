@@ -1,3 +1,3 @@
 git pull
-docker-compose -f docker-compose-nginx.yml build
-docker-compose -f docker-compose-nginx.yml up -d
+docker-compose -f docker-compose.dev.yml build
+docker-compose -f docker-compose.dev.yml up -d
