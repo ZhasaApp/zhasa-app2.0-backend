@@ -34,6 +34,7 @@ services:
       - ./certbot/www:/var/www/certbot/:ro
       - ./certbot/conf/:/etc/nginx/ssl/:ro
       - images_vol:/usr/share/nginx/html/images
+      - /root/admin/dist:/usr/share/nginx/dist
     networks:
       - backend_network
     depends_on:
