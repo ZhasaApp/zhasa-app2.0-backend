@@ -15,15 +15,15 @@ func main() {
 
 	serverAddress := os.Getenv("SERVER_ADDRESS")
 	fmt.Println(serverAddress)
+	
 	err := server.InitSuperUser()
-
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	fmt.Println("server starting...")
+	
 	err = server.Start(serverAddress)
-
-	fmt.Println("server started!")
-
 	if err != nil {
 		log.Fatal("cannot start server", err)
 	}
