@@ -18,3 +18,7 @@ env.production
 env.test
 .idea
 .env
+
+certbot
+images
+nginx

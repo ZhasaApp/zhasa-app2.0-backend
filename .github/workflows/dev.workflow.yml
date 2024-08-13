@@ -1,8 +1,9 @@
 name: Dev Workflow
 
 on:
-  push:
-    branches: [ "dev" ]
+  create:
+    branches:
+      - 'release-v*'
 
 jobs:
 
@@ -18,4 +19,4 @@ jobs:
           host: ${{ secrets.DEV_SERVER_IP }}
           username: ${{ secrets.DEV_SSH_USER }}
           password: ${{ secrets.DEV_SSH_PASSWORD }}
-          script: cd /root/zhasa-app2.0-backend && ./dev.restart.sh
+          script: cd /root/backend && chmod +x dev.restart.sh && git pull origin ${{ github.ref }} && /usr/libexec/docker/cli-plugins/docker-compose -f docker-compose.dev.yml up --build -d app
