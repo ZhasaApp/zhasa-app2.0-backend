@@ -244,8 +244,8 @@ CREATE TABLE brand_goods
 CREATE TABLE sales_goods
 (
     id      SERIAL PRIMARY KEY,
-    sale_id INTEGER REFERENCES sales (id) NOT NULL,
-    good_id INTEGER REFERENCES goods (id) NOT NULL,
+    sale_id INTEGER REFERENCES sales (id) ON DELETE CASCADE NOT NULL,
+    good_id INTEGER REFERENCES goods (id) ON DELETE CASCADE NOT NULL,
     UNIQUE (sale_id)
 );
 
@@ -254,7 +254,8 @@ CREATE TABLE awards
     id          SERIAL PRIMARY KEY,
     title       VARCHAR(255) NOT NULL,
     description TEXT         NOT NULL,
-    icon_url    TEXT         NOT NULL
+    icon_url    TEXT         NOT NULL,
+    type        VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE user_awards
