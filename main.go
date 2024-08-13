@@ -22,7 +22,7 @@ func main() {
 	}
 	err = server.Start(serverAddress)
 
-	fmt.Println("server started")
+	fmt.Println("server started!")
 
 	if err != nil {
 		log.Fatal("cannot start server", err)
