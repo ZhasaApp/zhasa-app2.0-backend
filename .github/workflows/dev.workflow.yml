@@ -1,8 +1,9 @@
 name: Dev Workflow
 
 on:
-  push:
-    branches: [ "dev" ]
+  create:
+    branches:
+      - 'release-v*'
 
 jobs:
 
