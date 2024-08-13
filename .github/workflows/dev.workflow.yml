@@ -19,4 +19,4 @@ jobs:
           host: ${{ secrets.DEV_SERVER_IP }}
           username: ${{ secrets.DEV_SSH_USER }}
           password: ${{ secrets.DEV_SSH_PASSWORD }}
-          script: cd /root/backend && chmod +x dev.restart.sh && git pull origin ${{ github.ref }} && ./dev.restart.sh
+          script: cd /root/backend && chmod +x dev.restart.sh && git pull origin ${{ github.ref }} && /usr/libexec/docker/cli-plugins/docker-compose -f docker-compose.dev.yml build && /usr/libexec/docker/cli-plugins/docker-compose -f docker-compose.dev.yml up -d
