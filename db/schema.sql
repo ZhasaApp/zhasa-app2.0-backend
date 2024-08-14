@@ -217,3 +217,53 @@ CREATE TABLE branch_brand_users
     user_id         INTEGER REFERENCES users (id)         NOT NULL,
     UNIQUE (branch_brand_id, user_id)
 );
+
+CREATE TABLE goods
+(
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(255) NOT NULL,
+    description TEXT         NOT NULL,
+    created_at  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE disabled_goods
+(
+    good_id     INTEGER REFERENCES goods (id) ON DELETE CASCADE NOT NULL,
+    disabled_at TIMESTAMP                                       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (good_id)
+);
+
+CREATE TABLE brand_goods
+(
+    id       SERIAL PRIMARY KEY,
+    brand_id INTEGER REFERENCES brands (id) NOT NULL,
+    good_id  INTEGER REFERENCES goods (id)  NOT NULL,
+    UNIQUE (brand_id, good_id)
+);
+
+CREATE TABLE sales_goods
+(
+    id      SERIAL PRIMARY KEY,
+    sale_id INTEGER REFERENCES sales (id) ON DELETE CASCADE NOT NULL,
+    good_id INTEGER REFERENCES goods (id) ON DELETE CASCADE NOT NULL,
+    UNIQUE (sale_id)
+);
+
+CREATE TABLE awards
+(
+    id          SERIAL PRIMARY KEY,
+    title       VARCHAR(255) NOT NULL,
+    description TEXT         NOT NULL,
+    icon_url    TEXT         NOT NULL,
+    type        VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE user_awards
+(
+    id            SERIAL PRIMARY KEY,
+    user_id       INTEGER REFERENCES users (id)  NOT NULL,
+    award_id      INTEGER REFERENCES awards (id) NOT NULL,
+    award_details JSONB                          NOT NULL, -- Stores period and scope details
+    created_at    TIMESTAMP                      NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (user_id, award_id, award_details)
+);

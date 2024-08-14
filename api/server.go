@@ -16,6 +16,7 @@ import (
 	. "zhasa2.0/brand/repository"
 	. "zhasa2.0/db/hand-made"
 	generated "zhasa2.0/db/sqlc"
+	good "zhasa2.0/good/repository"
 	. "zhasa2.0/news/repository"
 	. "zhasa2.0/owner/repository"
 	"zhasa2.0/rating"
@@ -62,6 +63,7 @@ type Server struct {
 	getSaleSumByUserBrandTypePeriodFunc           GetSaleSumByUserBrandTypePeriodFunc
 	salesByBrandUserFunc                          SalesByBrandUserFunc
 	saleAddFunc                                   SaleAddFunc
+	saleAddWithGoodFunc                           SaleAddWithGoodFunc
 	saleEditFunc                                  SaleEditFunc
 	ratedBranchesFunc                             RatedBranchesFunc
 	setBrandSaleTypeGoal                          SetBrandSaleTypeGoalFunc
@@ -77,6 +79,10 @@ type Server struct {
 	uploadAvatarFunc               UploadAvatarFunc
 	deleteAvatarFunc               DeleteAvatarFunc
 	checkDisabledUserFunc          CheckDisabledUserFunc
+
+	// good functions
+	getGoodsByBrandFunc good.GetGoodsByBrandIdFunc
+	getGoodBySaleIdFunc good.GetGoodBySaleIdFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -144,7 +150,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 
 	router.POST("admin/login", server.AdminLogin)
 
-	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
+	adminRoute := router.Group("admin/")
 	{
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
@@ -164,7 +170,14 @@ func NewServer(ctx context.Context, environment string) *Server {
 		adminRoute.POST("/branch", server.CreateBranchWithBrands)
 		adminRoute.PUT("/branch", server.UpdateBranchWithBrands)
 		adminRoute.GET("/sale-type/list", server.getSaleTypes)
+
+		adminRoute.POST("/good", server.CreateGood)
+		adminRoute.POST("/good/brand", server.AddGoodToBrand)
+		adminRoute.DELETE("/good", server.DeleteGood)
 	}
+
+	router.GET("good", server.GetGoodsByBrand).Use(verifyToken(server.tokenService))
+	router.GET("good/sale", server.GetGoodBySaleId).Use(verifyToken(server.tokenService))
 
 	smRoute := router.Group("sales-manager/")
 	smRoute.GET("/year-statistic", server.GetUserBrandYearStatistic).Use(verifyToken(server.tokenService))
@@ -182,6 +195,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 	router.DELETE("sales/delete", server.DeleteSale).Use(verifyToken(server.tokenService))
 	router.POST("sales-manager/sale/new", server.AddSale).Use(verifyToken(server.tokenService))
 	router.POST("sales/edit", server.EditSale).Use(verifyToken(server.tokenService))
+	router.POST("sale/good", server.AddGoodToSale).Use(verifyToken(server.tokenService))
 
 	directorRouter := router.Group("director/")
 	{
@@ -335,6 +349,16 @@ func initDependencies(server *Server, ctx context.Context) {
 	updateBrandFunc := NewUpdateBrandFunc(ctx, store)
 	getBranchesFiltered := NewGetBranchesFiltered(ctx, store)
 	removeDisabledUsersFunc := NewRemoveDisabledUsersFunc(ctx, store)
+	createGoodFunc := good.NewCreateGoodFunc(ctx, store)
+	addGoodToBrandFunc := good.NewAddGoodToBrandFunc(ctx, store)
+	getGoodsByBrandIdFunc := good.NewGetGoodsByBrandIdFunc(ctx, store)
+	saleAddWithGoodFunc := NewSaleAddWithGoodFunc(ctx, store)
+
+	server.saleAddWithGoodFunc = saleAddWithGoodFunc
+	server.getGoodsByBrandFunc = getGoodsByBrandIdFunc
+	server.getGoodBySaleIdFunc = good.NewGoodBySaleIdFunc(ctx, store)
+
+	deleteGoodFunc := good.NewDeleteGoodFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
 		authService,
@@ -364,6 +388,10 @@ func initDependencies(server *Server, ctx context.Context) {
 		createBrandFunc,
 		updateBrandFunc,
 		removeDisabledUsersFunc,
+		createGoodFunc,
+		addGoodToBrandFunc,
+		getGoodsByBrandIdFunc,
+		deleteGoodFunc,
 	)
 }
 

@@ -40,6 +40,17 @@ func (db *DBStore) execTx(ctx context.Context, fn func(*Queries) error) error {
 	return tx.Commit()
 }
 
+func (db *DBStore) AddGoodToSaleTx(ctx context.Context, saleId, goodId int32) error {
+	err := db.execTx(ctx, func(queries *Queries) error {
+		err := queries.AddGoodToSale(ctx, AddGoodToSaleParams{
+			SaleID: saleId,
+			GoodID: goodId,
+		})
+		return err
+	})
+	return err
+}
+
 func (db *DBStore) AddBrandSaleTx(ctx context.Context, params AddSaleOrReplaceParams, brandId int32) (*Sale, error) {
 	var sale *Sale
 
