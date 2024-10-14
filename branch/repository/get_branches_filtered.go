@@ -12,7 +12,7 @@ type GetBranchesFilteredAsc func(params generated.GetBranchesSearchAscParams) ([
 
 func NewGetBranchesFilteredAsc(ctx context.Context, store generated.BranchStore) GetBranchesFilteredAsc {
 	return func(params generated.GetBranchesSearchAscParams) ([]entities.Branch, error) {
-		params.Offset = (params.Offset - 1) * params.Limit
+		params.Offset = params.Offset * params.Limit
 		rows, err := store.GetBranchesSearchAsc(ctx, params)
 		if err != nil {
 			return nil, err
@@ -42,7 +42,7 @@ type GetBranchesFilteredDesc func(params generated.GetBranchesSearchDescParams) 
 
 func NewGetBranchesFilteredDesc(ctx context.Context, store generated.BranchStore) GetBranchesFilteredDesc {
 	return func(params generated.GetBranchesSearchDescParams) ([]entities.Branch, error) {
-		params.Offset = (params.Offset - 1) * params.Limit
+		params.Offset = params.Offset * params.Limit
 		rows, err := store.GetBranchesSearchDesc(ctx, params)
 		if err != nil {
 			return nil, err

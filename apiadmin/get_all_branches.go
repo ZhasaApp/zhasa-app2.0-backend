@@ -37,8 +37,8 @@ func (s *Server) GetAllBranches(ctx *gin.Context) {
 		req.PageSize = 10
 	}
 
-	if req.Page == 0 {
-		req.Page = 1
+	if req.Page < 0 {
+		req.Page = 0
 	}
 
 	var branches []entities.Branch
