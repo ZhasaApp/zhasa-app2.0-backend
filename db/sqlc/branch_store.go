@@ -20,7 +20,9 @@ type BranchStore interface {
 	UpdateBranch(ctx context.Context, arg UpdateBranchParams) error
 	UpdateBranchWithBrandsTX(ctx context.Context, branch entities.BranchWithBrands) error
 	DeleteBranchBrands(ctx context.Context, branchID int32) error
-	GetBranchesSearch(ctx context.Context, arg GetBranchesSearchParams) ([]GetBranchesSearchRow, error)
+	GetBranchesSearchAsc(ctx context.Context, arg GetBranchesSearchAscParams) ([]GetBranchesSearchAscRow, error)
+	GetBranchesSearchDesc(ctx context.Context, arg GetBranchesSearchDescParams) ([]GetBranchesSearchDescRow, error)
+	GetBranchesSearchCount(ctx context.Context, search string) (int64, error)
 }
 
 func (db *DBStore) AddBranchWithBrandsTX(ctx context.Context, branch entities.BranchWithBrands) error {

@@ -3,6 +3,7 @@ package apiadmin
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"zhasa2.0/branch/entities"
 	generated "zhasa2.0/db/sqlc"
 )
 
@@ -19,27 +20,60 @@ type GetAllBranchesRequest struct {
 }
 
 type BranchesResponse struct {
-	Result []BranchItem `json:"result"`
+	Result  []BranchItem `json:"result"`
+	HasNext bool         `json:"has_next"`
+	Count   int64        `json:"count"`
 }
 
 func (s *Server) GetAllBranches(ctx *gin.Context) {
 	var req GetAllUsersRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-
-	branches, err := s.getBranchesFiltered(
-		generated.GetBranchesSearchParams{
-			Search:    req.Search,
-			SortType:  req.SortType,
-			SortField: req.SortField,
-		})
+	err := ctx.ShouldBindQuery(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	var response BranchesResponse
+
+	if req.PageSize == 0 {
+		req.PageSize = 10
+	}
+
+	if req.Page == 0 {
+		req.Page = 1
+	}
+
+	var branches []entities.Branch
+
+	switch req.SortType {
+	case "asc":
+		branches, err = s.getBranchesFilteredAsc(generated.GetBranchesSearchAscParams{
+			Search: req.Search,
+			Limit:  req.PageSize,
+			Offset: req.Page,
+		})
+	default:
+		branches, err = s.getBranchesFilteredDesc(generated.GetBranchesSearchDescParams{
+			Search: req.Search,
+			Limit:  req.PageSize,
+			Offset: req.Page,
+		})
+	}
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	count, err := s.getBranchesFilteredCount(req.Search)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	response := BranchesResponse{
+		Result:  make([]BranchItem, 0, len(branches)),
+		HasNext: int64(req.Page*req.PageSize) < count,
+		Count:   count,
+	}
+
 	for _, branch := range branches {
 		response.Result = append(response.Result, BranchItem{
 			Id:          branch.BranchId,

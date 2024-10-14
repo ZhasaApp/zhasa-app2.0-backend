@@ -107,9 +107,21 @@ DELETE
 FROM branch_brands
 WHERE branch_id = $1;
 
--- name: GetBranchesSearch :many
+-- name: GetBranchesSearchDesc :many
 select id, title, description
 from branches
 where (title || description) ilike '%' || @search::text || '%'
-order by case when @sort_field::text = 'title' AND @sort_type::text = 'asc' then title end asc,
-         case when @sort_field::text = 'title' AND @sort_type::text = 'desc' then title end desc;
+order by title desc
+limit $1 offset $2;
+
+-- name: GetBranchesSearchAsc :many
+select id, title, description
+from branches
+where (title || description) ilike '%' || @search::text || '%'
+order by title asc
+limit $1 offset $2;
+
+-- name: GetBranchesSearchCount :one
+select count(*)
+from branches
+where (title || description) ilike '%' || @search::text || '%';

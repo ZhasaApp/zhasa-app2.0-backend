@@ -30,7 +30,9 @@ type Server struct {
 	removeDisabledUsersFunc  repository.RemoveDisabledUsersFunc
 
 	getAllBranchesFunc         branchRepo.GetAllBranches
-	getBranchesFiltered        branchRepo.GetBranchesFiltered
+	getBranchesFilteredAsc     branchRepo.GetBranchesFilteredAsc
+	getBranchesFilteredDesc    branchRepo.GetBranchesFilteredDesc
+	getBranchesFilteredCount   branchRepo.GetBranchesFilteredCount
 	createBranchWithBrandsFunc branchRepo.CreateBranchWithBrandsFunc
 	updateBranchWithBrandsFunc branchRepo.UpdateBranchWithBrandsFunc
 
@@ -58,7 +60,9 @@ func NewServer(
 	branchesFunc branchRepo.GetAllBranches,
 	createBranchWithBrandsFunc branchRepo.CreateBranchWithBrandsFunc,
 	updateBranchWithBrandsFunc branchRepo.UpdateBranchWithBrandsFunc,
-	getBranchesFiltered branchRepo.GetBranchesFiltered,
+	getBranchesFilteredAsc branchRepo.GetBranchesFilteredAsc,
+	getBranchesFilteredDesc branchRepo.GetBranchesFilteredDesc,
+	getBranchesFilteredCount branchRepo.GetBranchesFilteredCount,
 	brandsFunc brand.GetAllBrandsFunc,
 	addDisabledUserFunc repository.AddDisabledUserFunc,
 	getUserBrandsFunc brand.GetUserBrandsFunc,
@@ -96,7 +100,9 @@ func NewServer(
 		updateBranchWithBrandsFunc:       updateBranchWithBrandsFunc,
 		createBrandFunc:                  createBrandFunc,
 		updateBrandFunc:                  updateBrandFunc,
-		getBranchesFiltered:              getBranchesFiltered,
+		getBranchesFilteredAsc:           getBranchesFilteredAsc,
+		getBranchesFilteredDesc:          getBranchesFilteredDesc,
+		getBranchesFilteredCount:         getBranchesFilteredCount,
 		removeDisabledUsersFunc:          removeDisabledUsersFunc,
 	}
 }

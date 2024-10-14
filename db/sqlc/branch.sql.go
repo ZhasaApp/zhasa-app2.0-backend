@@ -316,35 +316,91 @@ func (q *Queries) GetBranchesByBrandId(ctx context.Context, brandID int32) ([]Ge
 	return items, nil
 }
 
-const getBranchesSearch = `-- name: GetBranchesSearch :many
+const getBranchesSearchAsc = `-- name: GetBranchesSearchAsc :many
 select id, title, description
 from branches
-where (title || description) ilike '%' || $1::text || '%'
-order by case when $2::text = 'title' AND $3::text = 'asc' then title end asc,
-         case when $2::text = 'title' AND $3::text = 'desc' then title end desc
+where (title || description) ilike '%' || $3::text || '%'
+order by title asc
+limit $1 offset $2
 `
 
-type GetBranchesSearchParams struct {
-	Search    string `json:"search"`
-	SortField string `json:"sort_field"`
-	SortType  string `json:"sort_type"`
+type GetBranchesSearchAscParams struct {
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+	Search string `json:"search"`
 }
 
-type GetBranchesSearchRow struct {
+type GetBranchesSearchAscRow struct {
 	ID          int32  `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
-func (q *Queries) GetBranchesSearch(ctx context.Context, arg GetBranchesSearchParams) ([]GetBranchesSearchRow, error) {
-	rows, err := q.db.QueryContext(ctx, getBranchesSearch, arg.Search, arg.SortField, arg.SortType)
+func (q *Queries) GetBranchesSearchAsc(ctx context.Context, arg GetBranchesSearchAscParams) ([]GetBranchesSearchAscRow, error) {
+	rows, err := q.db.QueryContext(ctx, getBranchesSearchAsc, arg.Limit, arg.Offset, arg.Search)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetBranchesSearchRow
+	var items []GetBranchesSearchAscRow
 	for rows.Next() {
-		var i GetBranchesSearchRow
+		var i GetBranchesSearchAscRow
+		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getBranchesSearchCount = `-- name: GetBranchesSearchCount :one
+select count(*)
+from branches
+where (title || description) ilike '%' || $1::text || '%'
+`
+
+func (q *Queries) GetBranchesSearchCount(ctx context.Context, search string) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getBranchesSearchCount, search)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const getBranchesSearchDesc = `-- name: GetBranchesSearchDesc :many
+select id, title, description
+from branches
+where (title || description) ilike '%' || $3::text || '%'
+order by title desc
+limit $1 offset $2
+`
+
+type GetBranchesSearchDescParams struct {
+	Limit  int32  `json:"limit"`
+	Offset int32  `json:"offset"`
+	Search string `json:"search"`
+}
+
+type GetBranchesSearchDescRow struct {
+	ID          int32  `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+}
+
+func (q *Queries) GetBranchesSearchDesc(ctx context.Context, arg GetBranchesSearchDescParams) ([]GetBranchesSearchDescRow, error) {
+	rows, err := q.db.QueryContext(ctx, getBranchesSearchDesc, arg.Limit, arg.Offset, arg.Search)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetBranchesSearchDescRow
+	for rows.Next() {
+		var i GetBranchesSearchDescRow
 		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
 			return nil, err
 		}

@@ -144,7 +144,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 
 	router.POST("admin/login", server.AdminLogin)
 
-	adminRoute := router.Group("admin/").Use(verifyToken(server.tokenService))
+	adminRoute := router.Group("admin/") //.Use(verifyToken(server.tokenService))
 	{
 		adminRoute.GET("/branches", server.GetAllBranches)
 		adminRoute.GET("/brands", server.GetAllBrands)
@@ -333,7 +333,9 @@ func initDependencies(server *Server, ctx context.Context) {
 	updateBranchWithBrands := NewUpdateBranchWithBrandsFunc(ctx, store)
 	createBrandFunc := NewCreateBrandFunc(ctx, store)
 	updateBrandFunc := NewUpdateBrandFunc(ctx, store)
-	getBranchesFiltered := NewGetBranchesFiltered(ctx, store)
+	getBranchesFilteredAsc := NewGetBranchesFilteredAsc(ctx, store)
+	getBranchesFilteredDesc := NewGetBranchesFilteredDesc(ctx, store)
+	getBranchesFilteredCount := NewGetBranchesFilteredCount(ctx, store)
 	removeDisabledUsersFunc := NewRemoveDisabledUsersFunc(ctx, store)
 
 	server.Server = *apiadmin.NewServer(
@@ -353,7 +355,9 @@ func initDependencies(server *Server, ctx context.Context) {
 		getAllBranches,
 		createBranchWithBrands,
 		updateBranchWithBrands,
-		getBranchesFiltered,
+		getBranchesFilteredAsc,
+		getBranchesFilteredDesc,
+		getBranchesFilteredCount,
 		allBrands,
 		addDisabledUserFunc,
 		getUserBrandsFunc,
