@@ -16,7 +16,8 @@ func verifyToken(tokenService service.TokenService) gin.HandlerFunc {
 		token := service.Token(ctx.GetHeader("Authorization"))
 		userData, err := tokenService.VerifyToken(token)
 		if err != nil {
-			_ = ctx.AbortWithError(http.StatusUnauthorized, errors.New("invalid token"))
+			ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("invalid token")))
+			ctx.Abort()
 			return
 		}
 
