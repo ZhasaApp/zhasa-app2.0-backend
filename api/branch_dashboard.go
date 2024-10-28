@@ -27,14 +27,13 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 
 	branchInfo, err := server.getBranchByIdFunc(request.BranchId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.New("branch not found"))
+		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("branch not found")))
 		return
 	}
 
 	saleTypes, err := server.saleTypeRepo.GetSaleTypes()
-
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errors.New("sale types not found"))
+		ctx.JSON(http.StatusInternalServerError, errorResponse(errors.New("sale types not found")))
 		return
 	}
 
@@ -107,7 +106,6 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 			FullName: director[0].GetFullName(),
 		},
 	})
-
 }
 
 type GetBranchesRequest struct {
