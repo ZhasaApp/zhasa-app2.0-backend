@@ -76,7 +76,7 @@ func (server *Server) BranchDashboard(ctx *gin.Context) {
 
 	if director != nil && len(director) == 0 {
 		fmt.Println("director not found")
-		ctx.JSON(http.StatusBadRequest, errors.New("director not found"))
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("director not found")))
 		return
 	}
 
