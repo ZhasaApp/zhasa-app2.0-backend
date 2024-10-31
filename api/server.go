@@ -106,6 +106,7 @@ func corsHandler(h gin.HandlerFunc) gin.HandlerFunc {
 		if c.Request.Method == http.MethodOptions {
 			c.Status(http.StatusOK)
 			c.Header("Access-Control-Allow-Origin", "http://doschamp.doscar.kz")
+			c.Header("Vary", "Origin")
 			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			c.Header("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 			return
