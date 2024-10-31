@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"log"
+	"net/http"
 	"os"
 	"zhasa2.0/apiadmin"
 	. "zhasa2.0/branch/repository"
@@ -100,6 +101,16 @@ func (server *Server) InitSuperUser() error {
 	return nil
 }
 
+func corsHandler(h gin.HandlerFunc) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if c.Request.Method == http.MethodOptions {
+			c.Status(http.StatusOK)
+			return
+		}
+		h(c)
+	}
+}
+
 func NewServer(ctx context.Context, environment string) *Server {
 	server := &Server{
 		environment: environment,
@@ -151,7 +162,8 @@ func NewServer(ctx context.Context, environment string) *Server {
 		adminRoute.POST("/brand", server.CreateBrand)
 		adminRoute.PUT("/brand", server.UpdateBrand)
 
-		adminRoute.GET("/users", server.GetAllUsers)
+		adminRoute.GET("/users", corsHandler(server.GetAllUsers))
+		adminRoute.OPTIONS("/users", corsHandler(server.GetAllUsers))
 		adminRoute.POST("/user", server.CreateUser)
 		adminRoute.DELETE("/users", server.DeleteUsers)
 		adminRoute.PUT("/users/activate", server.ActivateUsers)
