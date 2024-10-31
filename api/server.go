@@ -159,25 +159,25 @@ func NewServer(ctx context.Context, environment string) *Server {
 
 	adminRoute := router.Group("admin/") //.Use(verifyToken(server.tokenService))
 	{
-		adminRoute.GET("/branches", server.GetAllBranches)
-		adminRoute.GET("/brands", server.GetAllBrands)
-		adminRoute.POST("/brand", server.CreateBrand)
-		adminRoute.PUT("/brand", server.UpdateBrand)
+		adminRoute.GET("/branches", corsHandler(server.GetAllBranches))
+		adminRoute.GET("/brands", corsHandler(server.GetAllBrands))
+		adminRoute.POST("/brand", corsHandler(server.CreateBrand))
+		adminRoute.PUT("/brand", corsHandler(server.UpdateBrand))
 
 		adminRoute.GET("/users", corsHandler(server.GetAllUsers))
 		adminRoute.OPTIONS("/users", corsHandler(server.GetAllUsers))
-		adminRoute.POST("/user", server.CreateUser)
-		adminRoute.DELETE("/users", server.DeleteUsers)
-		adminRoute.PUT("/users/activate", server.ActivateUsers)
-		adminRoute.PUT("/update-user", server.UpdateUser)
+		adminRoute.POST("/user", corsHandler(server.CreateUser))
+		adminRoute.DELETE("/users", corsHandler(server.DeleteUsers))
+		adminRoute.PUT("/users/activate", corsHandler(server.ActivateUsers))
+		adminRoute.PUT("/update-user", corsHandler(server.UpdateUser))
 
-		adminRoute.PUT("/change-users-role", server.ChangeUsersRole)
-		adminRoute.PUT("/change-users-brands", server.ChangeUsersBrands)
-		adminRoute.PUT("/change-users-branch", server.ChangeUsersBranch)
+		adminRoute.PUT("/change-users-role", corsHandler(server.ChangeUsersRole))
+		adminRoute.PUT("/change-users-brands", corsHandler(server.ChangeUsersBrands))
+		adminRoute.PUT("/change-users-branch", corsHandler(server.ChangeUsersBranch))
 
-		adminRoute.POST("/branch", server.CreateBranchWithBrands)
-		adminRoute.PUT("/branch", server.UpdateBranchWithBrands)
-		adminRoute.GET("/sale-type/list", server.getSaleTypes)
+		adminRoute.POST("/branch", corsHandler(server.CreateBranchWithBrands))
+		adminRoute.PUT("/branch", corsHandler(server.UpdateBranchWithBrands))
+		adminRoute.GET("/sale-type/list", corsHandler(server.getSaleTypes))
 	}
 
 	smRoute := router.Group("sales-manager/")
