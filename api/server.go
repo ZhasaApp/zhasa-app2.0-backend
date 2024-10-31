@@ -107,6 +107,7 @@ func corsHandler(h gin.HandlerFunc) gin.HandlerFunc {
 			c.Status(http.StatusOK)
 			c.Header("Access-Control-Allow-Origin", "*")
 			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+			c.Header("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 			return
 		}
 		h(c)
