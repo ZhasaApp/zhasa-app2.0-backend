@@ -105,8 +105,7 @@ func corsHandler(h gin.HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.Method == http.MethodOptions {
 			c.Status(http.StatusOK)
-			fmt.Println(c.Request.Header.Get("Origin"))
-			c.Header("Access-Control-Allow-Origin", c.Request.Header.Get("Origin"))
+			c.Header("Access-Control-Allow-Origin", "*")
 			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			c.Header("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
 			return
@@ -122,10 +121,27 @@ func NewServer(ctx context.Context, environment string) *Server {
 	initDependencies(server, ctx)
 
 	router := gin.Default()
-	corsConfig := cors.DefaultConfig()
-	corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
-	corsConfig.AllowAllOrigins = true
-	router.Use(cors.New(corsConfig))
+	//corsConfig := cors.DefaultConfig()
+	//corsConfig.AllowHeaders = append(corsConfig.AllowHeaders, "Authorization")
+	//corsConfig.AllowAllOrigins = true
+	config := cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:3000",
+			"https://localhost:3000",
+			"http://localhost:3001",
+			"https://localhost:3001",
+			"https://localhost:8080",
+			"https://localhost:8081",
+
+			"http://doschamp.doscar.kz",
+			"https://doschamp.doscar.kz",
+		},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"X-Content-Type, Content-Length", "Content-Type", "Authorization", "Accept"},
+		AllowCredentials: true,
+	}
+
+	router.Use(cors.New(config))
 	router.LoadHTMLGlob("templates/*")
 
 	router.POST("/image/avatar/upload", verifyToken(server.tokenService), server.HandleAvatarUpload)
