@@ -105,6 +105,8 @@ func corsHandler(h gin.HandlerFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.Request.Method == http.MethodOptions {
 			c.Status(http.StatusOK)
+			c.Header("Access-Control-Allow-Origin", "*")
+			c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			return
 		}
 		h(c)
