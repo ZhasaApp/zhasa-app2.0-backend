@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strings"
 	"zhasa2.0/branch/entities"
 	generated "zhasa2.0/db/sqlc"
 )
@@ -32,6 +33,7 @@ func NewGetBranchesFilteredAsc(ctx context.Context, store generated.BranchStore)
 				BranchId:    row.ID,
 				Title:       row.Title,
 				Description: row.Description,
+				Brands:      strings.TrimLeft(strings.TrimRight(row.Brands, "}"), "{"),
 			})
 		}
 		return branches, nil
@@ -62,6 +64,7 @@ func NewGetBranchesFilteredDesc(ctx context.Context, store generated.BranchStore
 				BranchId:    row.ID,
 				Title:       row.Title,
 				Description: row.Description,
+				Brands:      strings.TrimLeft(strings.TrimRight(row.Brands, "}"), "{"),
 			})
 		}
 		return branches, nil

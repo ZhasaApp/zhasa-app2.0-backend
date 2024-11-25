@@ -317,11 +317,22 @@ func (q *Queries) GetBranchesByBrandId(ctx context.Context, brandID int32) ([]Ge
 }
 
 const getBranchesSearchAsc = `-- name: GetBranchesSearchAsc :many
-select id, title, description
-from branches
-where (title || description) ilike '%' || $3::text || '%'
-order by title asc
-limit $1 offset $2
+SELECT
+    b.id,
+    b.title,
+    b.description,
+    COALESCE(array_agg(DISTINCT br.title), '{}')::text AS brands
+FROM
+    branches b
+        LEFT JOIN branch_brands bb ON bb.branch_id = b.id
+        LEFT JOIN brands br ON br.id = bb.brand_id
+WHERE
+    (b.title || b.description) ILIKE '%' || $3::text || '%'
+GROUP BY
+    b.id, b.title, b.description
+ORDER BY
+    b.title ASC
+    LIMIT $1 OFFSET $2
 `
 
 type GetBranchesSearchAscParams struct {
@@ -334,6 +345,7 @@ type GetBranchesSearchAscRow struct {
 	ID          int32  `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Brands      string `json:"brands"`
 }
 
 func (q *Queries) GetBranchesSearchAsc(ctx context.Context, arg GetBranchesSearchAscParams) ([]GetBranchesSearchAscRow, error) {
@@ -345,7 +357,12 @@ func (q *Queries) GetBranchesSearchAsc(ctx context.Context, arg GetBranchesSearc
 	var items []GetBranchesSearchAscRow
 	for rows.Next() {
 		var i GetBranchesSearchAscRow
-		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.Brands,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -373,11 +390,22 @@ func (q *Queries) GetBranchesSearchCount(ctx context.Context, search string) (in
 }
 
 const getBranchesSearchDesc = `-- name: GetBranchesSearchDesc :many
-select id, title, description
-from branches
-where (title || description) ilike '%' || $3::text || '%'
-order by title desc
-limit $1 offset $2
+SELECT
+    b.id,
+    b.title,
+    b.description,
+    COALESCE(array_agg(DISTINCT br.title), '{}')::text AS brands
+FROM
+    branches b
+        LEFT JOIN branch_brands bb ON bb.branch_id = b.id
+        LEFT JOIN brands br ON br.id = bb.brand_id
+WHERE
+    (b.title || b.description) ILIKE '%' || $3::text || '%'
+GROUP BY
+    b.id, b.title, b.description
+ORDER BY
+    b.title DESC
+    LIMIT $1 OFFSET $2
 `
 
 type GetBranchesSearchDescParams struct {
@@ -390,6 +418,7 @@ type GetBranchesSearchDescRow struct {
 	ID          int32  `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Brands      string `json:"brands"`
 }
 
 func (q *Queries) GetBranchesSearchDesc(ctx context.Context, arg GetBranchesSearchDescParams) ([]GetBranchesSearchDescRow, error) {
@@ -401,7 +430,12 @@ func (q *Queries) GetBranchesSearchDesc(ctx context.Context, arg GetBranchesSear
 	var items []GetBranchesSearchDescRow
 	for rows.Next() {
 		var i GetBranchesSearchDescRow
-		if err := rows.Scan(&i.ID, &i.Title, &i.Description); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Description,
+			&i.Brands,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

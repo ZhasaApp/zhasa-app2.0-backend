@@ -8,6 +8,7 @@ type Branch struct {
 	Description     string
 	Key             string
 	GoalAchievement float32
+	Brands          string
 }
 
 type CreateBranchRequest struct {

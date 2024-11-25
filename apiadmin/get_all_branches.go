@@ -11,6 +11,7 @@ type BranchItem struct {
 	Id          int32  `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
+	Brands      string `json:"brands"`
 }
 
 type GetAllBranchesRequest struct {
@@ -79,6 +80,7 @@ func (s *Server) GetAllBranches(ctx *gin.Context) {
 			Id:          branch.BranchId,
 			Title:       branch.Title,
 			Description: branch.Description,
+			Brands:      branch.Brands,
 		})
 	}
 	ctx.JSON(http.StatusOK, response)

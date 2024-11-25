@@ -108,18 +108,42 @@ FROM branch_brands
 WHERE branch_id = $1;
 
 -- name: GetBranchesSearchDesc :many
-select id, title, description
-from branches
-where (title || description) ilike '%' || @search::text || '%'
-order by title desc
-limit $1 offset $2;
+SELECT
+    b.id,
+    b.title,
+    b.description,
+    COALESCE(array_agg(DISTINCT br.title), '{}')::text AS brands
+FROM
+    branches b
+        LEFT JOIN branch_brands bb ON bb.branch_id = b.id
+        LEFT JOIN brands br ON br.id = bb.brand_id
+WHERE
+    (b.title || b.description) ILIKE '%' || @search::text || '%'
+GROUP BY
+    b.id, b.title, b.description
+ORDER BY
+    b.title DESC
+    LIMIT $1 OFFSET $2;
+
 
 -- name: GetBranchesSearchAsc :many
-select id, title, description
-from branches
-where (title || description) ilike '%' || @search::text || '%'
-order by title asc
-limit $1 offset $2;
+SELECT
+    b.id,
+    b.title,
+    b.description,
+    COALESCE(array_agg(DISTINCT br.title), '{}')::text AS brands
+FROM
+    branches b
+        LEFT JOIN branch_brands bb ON bb.branch_id = b.id
+        LEFT JOIN brands br ON br.id = bb.brand_id
+WHERE
+    (b.title || b.description) ILIKE '%' || @search::text || '%'
+GROUP BY
+    b.id, b.title, b.description
+ORDER BY
+    b.title ASC
+    LIMIT $1 OFFSET $2;
+
 
 -- name: GetBranchesSearchCount :one
 select count(*)
