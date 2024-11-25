@@ -33,7 +33,7 @@ func NewGetBranchesFilteredAsc(ctx context.Context, store generated.BranchStore)
 				BranchId:    row.ID,
 				Title:       row.Title,
 				Description: row.Description,
-				Brands:      strings.TrimLeft(strings.TrimRight(row.Brands, "}"), "{"),
+				Brands:      strings.Split(strings.TrimLeft(strings.TrimRight(row.Brands, "}"), "{"), ","),
 			})
 		}
 		return branches, nil
@@ -64,7 +64,7 @@ func NewGetBranchesFilteredDesc(ctx context.Context, store generated.BranchStore
 				BranchId:    row.ID,
 				Title:       row.Title,
 				Description: row.Description,
-				Brands:      strings.TrimLeft(strings.TrimRight(row.Brands, "}"), "{"),
+				Brands:      strings.Split(strings.TrimLeft(strings.TrimRight(row.Brands, "}"), "{"), ","),
 			})
 		}
 		return branches, nil
