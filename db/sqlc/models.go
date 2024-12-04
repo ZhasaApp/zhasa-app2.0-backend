@@ -183,14 +183,16 @@ type User struct {
 	LastName  string         `json:"last_name"`
 	CreatedAt time.Time      `json:"created_at"`
 	Password  sql.NullString `json:"password"`
+	About     sql.NullString `json:"about"`
 }
 
 type UserAvatarView struct {
-	ID        int32  `json:"id"`
-	Phone     string `json:"phone"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	AvatarUrl string `json:"avatar_url"`
+	ID        int32          `json:"id"`
+	Phone     string         `json:"phone"`
+	FirstName string         `json:"first_name"`
+	LastName  string         `json:"last_name"`
+	AvatarUrl string         `json:"avatar_url"`
+	About     sql.NullString `json:"about"`
 }
 
 type UserBrand struct {

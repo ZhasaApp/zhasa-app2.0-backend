@@ -176,7 +176,8 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 				FirstName: row.FirstName,
 				LastName:  row.LastName,
 			},
-			CreatedDate: row.CreatedAt,
+			CreatedDate:  row.CreatedAt,
+			LikesByOwner: row.LikesByOwner,
 		})
 	}
 

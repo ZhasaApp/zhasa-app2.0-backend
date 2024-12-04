@@ -6,6 +6,7 @@ package generated
 
 import (
 	"context"
+	"database/sql"
 )
 
 type Querier interface {
@@ -95,12 +96,14 @@ type Querier interface {
 	GetUsersWithoutRoles(ctx context.Context, search string) ([]GetUsersWithoutRolesRow, error)
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	ListPosts(ctx context.Context) ([]Post, error)
+	SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]SearchUsersRow, error)
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
 	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
 	UpdateBranch(ctx context.Context, arg UpdateBranchParams) error
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
+	UpdateUserAbout(ctx context.Context, arg UpdateUserAboutParams) error
 	UpdateUserBranch(ctx context.Context, arg UpdateUserBranchParams) error
 	UpdateUserRole(ctx context.Context, arg UpdateUserRoleParams) error
 	UploadUserAvatar(ctx context.Context, arg UploadUserAvatarParams) error

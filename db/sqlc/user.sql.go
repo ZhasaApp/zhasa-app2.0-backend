@@ -339,7 +339,7 @@ func (q *Queries) GetUserBranch(ctx context.Context, id int32) (GetUserBranchRow
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT u.id, phone, first_name, last_name, avatar_url, ur.id, user_id, role_id, r.id, title, key, description, created_at
+SELECT u.id, phone, first_name, last_name, avatar_url, about, ur.id, user_id, role_id, r.id, title, key, description, created_at
 FROM user_avatar_view u
          JOIN user_roles ur on u.id = ur.user_id
          JOIN roles r on ur.role_id = r.id
@@ -347,19 +347,20 @@ WHERE u.id = $1
 `
 
 type GetUserByIdRow struct {
-	ID          int32     `json:"id"`
-	Phone       string    `json:"phone"`
-	FirstName   string    `json:"first_name"`
-	LastName    string    `json:"last_name"`
-	AvatarUrl   string    `json:"avatar_url"`
-	ID_2        int32     `json:"id_2"`
-	UserID      int32     `json:"user_id"`
-	RoleID      int32     `json:"role_id"`
-	ID_3        int32     `json:"id_3"`
-	Title       string    `json:"title"`
-	Key         string    `json:"key"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID          int32          `json:"id"`
+	Phone       string         `json:"phone"`
+	FirstName   string         `json:"first_name"`
+	LastName    string         `json:"last_name"`
+	AvatarUrl   string         `json:"avatar_url"`
+	About       sql.NullString `json:"about"`
+	ID_2        int32          `json:"id_2"`
+	UserID      int32          `json:"user_id"`
+	RoleID      int32          `json:"role_id"`
+	ID_3        int32          `json:"id_3"`
+	Title       string         `json:"title"`
+	Key         string         `json:"key"`
+	Description string         `json:"description"`
+	CreatedAt   time.Time      `json:"created_at"`
 }
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (GetUserByIdRow, error) {
@@ -371,6 +372,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (GetUserByIdRow, er
 		&i.FirstName,
 		&i.LastName,
 		&i.AvatarUrl,
+		&i.About,
 		&i.ID_2,
 		&i.UserID,
 		&i.RoleID,
@@ -388,7 +390,8 @@ SELECT u.id,
        u.phone,
        u.first_name,
        u.last_name,
-       u.avatar_url
+       u.avatar_url,
+       u.about
 FROM user_avatar_view u
 WHERE u.phone = $1
 `
@@ -402,6 +405,7 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (UserAvatarV
 		&i.FirstName,
 		&i.LastName,
 		&i.AvatarUrl,
+		&i.About,
 	)
 	return i, err
 }
@@ -691,6 +695,54 @@ func (q *Queries) GetUsersWithoutRoles(ctx context.Context, search string) ([]Ge
 	return items, nil
 }
 
+const searchUsers = `-- name: SearchUsers :many
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       u.phone,
+       u.avatar_url
+FROM user_avatar_view u
+WHERE (u.last_name || ' ' || u.first_name) ILIKE '%' || $1 || '%'
+LIMIT 10
+`
+
+type SearchUsersRow struct {
+	ID        int32  `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Phone     string `json:"phone"`
+	AvatarUrl string `json:"avatar_url"`
+}
+
+func (q *Queries) SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]SearchUsersRow, error) {
+	rows, err := q.db.QueryContext(ctx, searchUsers, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchUsersRow
+	for rows.Next() {
+		var i SearchUsersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FirstName,
+			&i.LastName,
+			&i.Phone,
+			&i.AvatarUrl,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setUserBrandGoal = `-- name: SetUserBrandGoal :exec
 INSERT INTO user_brand_sale_type_goals (user_id, brand_id, sale_type_id, value, from_date, to_date)
 VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, brand_id, sale_type_id, from_date, to_date) DO
@@ -741,6 +793,22 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 		arg.Phone,
 		arg.ID,
 	)
+	return err
+}
+
+const updateUserAbout = `-- name: UpdateUserAbout :exec
+UPDATE users
+SET about = $1
+WHERE id = $2
+`
+
+type UpdateUserAboutParams struct {
+	About sql.NullString `json:"about"`
+	ID    int32          `json:"id"`
+}
+
+func (q *Queries) UpdateUserAbout(ctx context.Context, arg UpdateUserAboutParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserAbout, arg.About, arg.ID)
 	return err
 }
 

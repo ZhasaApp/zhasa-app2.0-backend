@@ -16,12 +16,17 @@ func NewGetUserByIdFunc(ctx context.Context, store generated.UserStore) GetUserB
 			fmt.Println(err)
 			return nil, err
 		}
+		var about *string
+		if row.About.Valid {
+			about = &row.About.String
+		}
 		return &User{
 			Id:        row.ID,
 			Phone:     Phone(row.Phone),
 			Avatar:    row.AvatarUrl,
 			FirstName: row.FirstName,
 			LastName:  row.LastName,
+			About:     about,
 			UserRole: UserRole{
 				Id:  row.RoleID,
 				Key: row.Key,
