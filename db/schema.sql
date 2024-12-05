@@ -5,7 +5,8 @@ CREATE TABLE users
     first_name VARCHAR(255)        NOT NULL,
     last_name  VARCHAR(255)        NOT NULL,
     created_at TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    password   VARCHAR(255)
+    password   VARCHAR(255),
+    about      TEXT
 );
 
 CREATE TABLE disabled_users
@@ -206,7 +207,8 @@ SELECT u.id                        AS id,
        u.phone                     AS phone,
        u.first_name                AS first_name,
        u.last_name                 AS last_name,
-       COALESCE(ua.avatar_url, '') AS avatar_url
+       COALESCE(ua.avatar_url, '') AS avatar_url,
+       u.about                     AS about
 FROM users u
          LEFT JOIN users_avatars ua ON u.id = ua.user_id;
 

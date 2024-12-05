@@ -13,6 +13,7 @@ type Post struct {
 	Title         string
 	Body          string
 	IsLiked       bool
+	LikesByOwner  int32
 	Author        User
 	CreatedDate   time.Time
 }

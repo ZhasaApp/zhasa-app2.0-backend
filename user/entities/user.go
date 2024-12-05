@@ -19,6 +19,7 @@ type User struct {
 	FirstName string
 	LastName  string
 	UserRole  UserRole
+	About     *string
 }
 
 type AuthUser struct {

@@ -20,7 +20,16 @@ SELECT p.id, p.title, p.body, p.user_id, p.created_at,
        u.id                                                                    AS user_id,
        u.first_name,
        u.last_name,
-       u.avatar_url
+       u.avatar_url,
+       COALESCE(
+               (SELECT COUNT(*)
+                FROM likes l
+                         JOIN user_roles ur ON l.user_id = ur.user_id
+                         JOIN roles r ON ur.role_id = r.id
+                WHERE l.post_id = p.id
+                  AND r.key = 'owner'),
+               0
+       )                                                                        AS likes_by_owner
 FROM (SELECT id, title, body, user_id, created_at FROM posts ORDER BY created_at DESC LIMIT $2 OFFSET $3) p
          LEFT JOIN
          (SELECT post_id, COUNT(*) AS likes_count FROM likes GROUP BY post_id) lc ON lc.post_id = p.id
@@ -51,6 +60,7 @@ type GetPostsAndPostAuthorsRow struct {
 	FirstName     string         `json:"first_name"`
 	LastName      string         `json:"last_name"`
 	AvatarUrl     string         `json:"avatar_url"`
+	LikesByOwner  int32          `json:"likes_by_owner"`
 }
 
 func (q DBCustomQuerier) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error) {
@@ -76,6 +86,7 @@ func (q DBCustomQuerier) GetPostsAndPostAuthors(ctx context.Context, arg GetPost
 			&i.FirstName,
 			&i.LastName,
 			&i.AvatarUrl,
+			&i.LikesByOwner,
 		); err != nil {
 			return nil, err
 		}

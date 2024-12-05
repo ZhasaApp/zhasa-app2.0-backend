@@ -78,6 +78,8 @@ type Server struct {
 	uploadAvatarFunc               UploadAvatarFunc
 	deleteAvatarFunc               DeleteAvatarFunc
 	checkDisabledUserFunc          CheckDisabledUserFunc
+	searchUsersFunc                SearchUsersFunc
+	updateUserProfileAbout         UpdateUserProfileAbout
 }
 
 func (server *Server) InitSuperUser() error {
@@ -249,6 +251,10 @@ func NewServer(ctx context.Context, environment string) *Server {
 	router.GET("owner/goal", verifyToken(server.tokenService), server.GetOwnerGoal)
 	router.GET("owner/year-statistic", verifyToken(server.tokenService), server.GetOwnerYearStatistic)
 
+	router.GET("/users/search", server.SearchUsers)
+	router.GET("/users", server.GetUser)
+	router.PUT("/users/about", server.UpdateUserAbout)
+
 	server.router = router
 	return server
 }
@@ -343,6 +349,8 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getUserByIdFunc = NewGetUserByIdFunc(ctx, store)
 	server.uploadAvatarFunc = NewUploadAvatarFunc(ctx, store)
 	server.deleteAvatarFunc = NewDeleteAvatarFunc(ctx, store)
+	server.searchUsersFunc = NewSearchUsersFunc(ctx, store)
+	server.updateUserProfileAbout = NewUpdateUserProfileAbout(ctx, store)
 
 	getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
 	createUserFunc := NewCreateUserFunc(ctx, store)

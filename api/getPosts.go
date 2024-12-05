@@ -7,15 +7,16 @@ import (
 )
 
 type NewsListItem struct {
-	ID       int32    `json:"id"`
-	Author   Author   `json:"author"`
-	Images   []string `json:"images"`
-	Title    string   `json:"title"`
-	Body     string   `json:"body"`
-	Date     string   `json:"date"`
-	IsLiked  bool     `json:"is_liked"`
-	Likes    int32    `json:"likes"`
-	Comments int32    `json:"comments"`
+	ID            int32    `json:"id"`
+	Author        Author   `json:"author"`
+	Images        []string `json:"images"`
+	Title         string   `json:"title"`
+	Body          string   `json:"body"`
+	Date          string   `json:"date"`
+	IsLiked       bool     `json:"is_liked"`
+	LikesByOwners int32    `json:"likes_by_owner"`
+	Likes         int32    `json:"likes"`
+	Comments      int32    `json:"comments"`
 }
 
 type NewsListItemResponse struct {
@@ -62,13 +63,14 @@ func (server *Server) GetPosts(ctx *gin.Context) {
 				Avatar:   post.Author.AvatarPointer(),
 				FullName: post.Author.GetFullName(),
 			},
-			Images:   post.Images,
-			Title:    post.Title,
-			Body:     post.Body,
-			Date:     post.CreatedDate.Format("2006-01-02 15:04:05"),
-			IsLiked:  post.IsLiked,
-			Likes:    post.LikesCount,
-			Comments: post.CommentsCount,
+			Images:        post.Images,
+			Title:         post.Title,
+			Body:          post.Body,
+			Date:          post.CreatedDate.Format("2006-01-02 15:04:05"),
+			IsLiked:       post.IsLiked,
+			LikesByOwners: post.LikesByOwner,
+			Likes:         post.LikesCount,
+			Comments:      post.CommentsCount,
 		})
 	}
 

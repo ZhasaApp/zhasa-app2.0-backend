@@ -1,6 +1,9 @@
 package generated
 
-import "context"
+import (
+	"context"
+	"database/sql"
+)
 
 type UserStore interface {
 	GetUserBranch(ctx context.Context, userID int32) (GetUserBranchRow, error)
@@ -25,6 +28,7 @@ type UserStore interface {
 	CreateManagerTX(ctx context.Context, userId, branchId int32, brands []int32) error
 	UpdateUserBrandsTX(ctx context.Context, userId int32, brands []int32) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error
+	UpdateUserAbout(ctx context.Context, arg UpdateUserAboutParams) error
 	UpdateUserBranch(ctx context.Context, params UpdateUserBranchParams) error
 	AddDisabledUser(ctx context.Context, userID int32) error
 	GetDisabledUser(ctx context.Context, userID int32) (int32, error)
@@ -35,6 +39,7 @@ type UserStore interface {
 	UpdateUserBranchTX(ctx context.Context, userId int32, branch int32) error
 	DeleteUserBranchByUserId(ctx context.Context, userID int32) error
 	DeleteDisabledUsers(ctx context.Context, userIDs []int32) error
+	SearchUsers(ctx context.Context, arg sql.NullString) ([]SearchUsersRow, error)
 }
 
 func (db *DBStore) CreateManagerTX(ctx context.Context, userId, branchId int32, brands []int32) error {

@@ -10,7 +10,8 @@ SELECT u.id,
        u.phone,
        u.first_name,
        u.last_name,
-       u.avatar_url
+       u.avatar_url,
+       u.about
 FROM user_avatar_view u
 WHERE u.phone = $1;
 
@@ -250,3 +251,18 @@ WHERE user_id = $1;
 DELETE
 FROM disabled_users
 WHERE user_id = ANY($1::int[]);
+
+-- name: SearchUsers :many
+SELECT u.id,
+       u.first_name,
+       u.last_name,
+       u.phone,
+       u.avatar_url
+FROM user_avatar_view u
+WHERE (u.last_name || ' ' || u.first_name) ILIKE '%' || $1 || '%'
+LIMIT 10;
+
+-- name: UpdateUserAbout :exec
+UPDATE users
+SET about = $1
+WHERE id = $2;

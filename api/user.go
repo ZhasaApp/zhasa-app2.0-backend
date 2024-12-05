@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"strconv"
 	. "zhasa2.0/api/entities"
 	. "zhasa2.0/user/entities"
 	"zhasa2.0/user/service"
@@ -62,6 +63,7 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 		Avatar:   user.AvatarPointer(),
 		FullName: user.GetFullName(),
 		Phone:    string(user.Phone),
+		About:    user.About,
 		Branch:   branchResponse,
 		Role:     user.UserRole.Key,
 		Branches: nil,
@@ -123,4 +125,125 @@ func (server *Server) requestAuthCode(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, response)
+}
+
+type SearchUsersRequest struct {
+	Search string `json:"search" form:"search"`
+}
+
+type SearchUserItem struct {
+	Id       int32   `json:"id"`
+	Avatar   *string `json:"avatar"`
+	FullName string  `json:"full_name"`
+}
+
+type SearchUsersResponse struct {
+	Result []SearchUserItem `json:"result"`
+}
+
+func (server *Server) SearchUsers(ctx *gin.Context) {
+	var request SearchUsersRequest
+	if err := ctx.ShouldBindQuery(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	users, err := server.searchUsersFunc(request.Search)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	response := SearchUsersResponse{
+		Result: make([]SearchUserItem, 0),
+	}
+	for _, user := range users {
+		response.Result = append(response.Result, SearchUserItem{
+			Id:       user.Id,
+			Avatar:   user.AvatarPointer(),
+			FullName: user.GetFullName(),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+type GetUserResponse struct {
+	Id       int32           `json:"id"`
+	Avatar   *string         `json:"avatar"`
+	FullName string          `json:"full_name"`
+	Branch   *BranchResponse `json:"branch"`
+}
+
+func (server *Server) GetUser(ctx *gin.Context) {
+	idRaw := ctx.Query("id")
+
+	id, err := strconv.ParseInt(idRaw, 10, 32)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(errors.New("invalid id")))
+		return
+	}
+
+	user, err := server.getUserByIdFunc(int32(id))
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	branch, err := server.getUserBranchFunc(user.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	var branchResponse *BranchResponse
+	if branch != nil {
+		brands, err := server.getBranchBrands(branch.ID)
+		if err != nil {
+			fmt.Println(err)
+			log.Fatal("no brands for branch")
+		}
+		branchResponse = &BranchResponse{
+			Id:          branch.ID,
+			Description: branch.Title,
+			Brands:      BrandItemsFromBrands(brands),
+		}
+	}
+
+	response := GetUserResponse{
+		Id:       user.Id,
+		Avatar:   user.AvatarPointer(),
+		FullName: user.GetFullName(),
+		Branch:   branchResponse,
+	}
+
+	ctx.JSON(http.StatusOK, response)
+}
+
+type UpdateUserAboutRequest struct {
+	About *string `json:"about"`
+}
+
+func (server *Server) UpdateUserAbout(ctx *gin.Context) {
+	userIDRaw, exists := ctx.Get("user_id")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, errorResponse(errors.New("user not found")))
+		return
+	}
+
+	userID := userIDRaw.(int)
+
+	var request UpdateUserAboutRequest
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	err := server.updateUserProfileAbout(int32(userID), request.About)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	ctx.JSON(http.StatusOK, nil)
 }
