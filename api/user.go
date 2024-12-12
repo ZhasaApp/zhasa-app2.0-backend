@@ -1,6 +1,7 @@
 package api
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -195,7 +196,7 @@ func (server *Server) GetUser(ctx *gin.Context) {
 	}
 
 	branch, err := server.getUserBranchFunc(user.Id)
-	if err != nil {
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
