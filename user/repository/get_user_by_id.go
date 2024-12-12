@@ -31,6 +31,7 @@ func NewGetUserByIdFunc(ctx context.Context, store generated.UserStore) GetUserB
 				Id:  row.RoleID,
 				Key: row.Key,
 			},
+			CreatedAt: row.WorkStartDate,
 		}, err
 	}
 }

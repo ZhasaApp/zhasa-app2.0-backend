@@ -11,7 +11,8 @@ SELECT u.id,
        u.first_name,
        u.last_name,
        u.avatar_url,
-       u.about
+       u.about,
+       u.work_start_date
 FROM user_avatar_view u
 WHERE u.phone = $1;
 
@@ -260,7 +261,7 @@ SELECT u.id,
        u.avatar_url
 FROM user_avatar_view u
 WHERE (u.last_name || ' ' || u.first_name) ILIKE '%' || $1 || '%'
-LIMIT 10;
+LIMIT 20;
 
 -- name: UpdateUserAbout :exec
 UPDATE users

@@ -187,12 +187,13 @@ type User struct {
 }
 
 type UserAvatarView struct {
-	ID        int32          `json:"id"`
-	Phone     string         `json:"phone"`
-	FirstName string         `json:"first_name"`
-	LastName  string         `json:"last_name"`
-	AvatarUrl string         `json:"avatar_url"`
-	About     sql.NullString `json:"about"`
+	ID            int32          `json:"id"`
+	Phone         string         `json:"phone"`
+	FirstName     string         `json:"first_name"`
+	LastName      string         `json:"last_name"`
+	AvatarUrl     string         `json:"avatar_url"`
+	About         sql.NullString `json:"about"`
+	WorkStartDate time.Time      `json:"work_start_date"`
 }
 
 type UserBrand struct {

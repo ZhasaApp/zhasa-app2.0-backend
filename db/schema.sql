@@ -208,7 +208,8 @@ SELECT u.id                        AS id,
        u.first_name                AS first_name,
        u.last_name                 AS last_name,
        COALESCE(ua.avatar_url, '') AS avatar_url,
-       u.about                     AS about
+       u.about                     AS about,
+       u.created_at                AS work_start_date
 FROM users u
          LEFT JOIN users_avatars ua ON u.id = ua.user_id;
 

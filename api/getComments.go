@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"time"
 	"zhasa2.0/base"
 )
 
@@ -36,7 +37,6 @@ func (server *Server) GetComments(ctx *gin.Context) {
 		PageSize: req.PageSize,
 		Page:     req.Page,
 	})
-
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
@@ -53,7 +53,7 @@ func (server *Server) GetComments(ctx *gin.Context) {
 			},
 			Id:      row.Id,
 			Message: row.Message,
-			Date:    row.CreatedDate.Format("2006-01-02 15:04:05"),
+			Date:    row.CreatedDate.Add(time.Hour * 5).Format("2006-01-02 15:04:05"),
 		})
 	}
 

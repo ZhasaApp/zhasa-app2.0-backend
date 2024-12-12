@@ -26,14 +26,15 @@ type BranchResponse struct {
 }
 
 type UserProfileResponse struct {
-	Id       int32             `json:"id"`
-	Avatar   *string           `json:"avatar"`
-	FullName string            `json:"full_name"`
-	About    *string           `json:"about"`
-	Phone    string            `json:"phone"`
-	Branch   *BranchResponse   `json:"branch"`
-	Role     string            `json:"role"`
-	Branches *[]BranchResponse `json:"branches"`
+	Id            int32             `json:"id"`
+	Avatar        *string           `json:"avatar"`
+	FullName      string            `json:"full_name"`
+	About         *string           `json:"about"`
+	Phone         string            `json:"phone"`
+	Branch        *BranchResponse   `json:"branch"`
+	Role          string            `json:"role"`
+	Branches      *[]BranchResponse `json:"branches"`
+	WorkStartDate string            `json:"work_start_date"`
 }
 
 type AuthResponse struct {

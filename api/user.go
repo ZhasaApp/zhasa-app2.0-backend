@@ -59,14 +59,15 @@ func (server *Server) getUserProfile(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, UserProfileResponse{
-		Id:       user.Id,
-		Avatar:   user.AvatarPointer(),
-		FullName: user.GetFullName(),
-		Phone:    string(user.Phone),
-		About:    user.About,
-		Branch:   branchResponse,
-		Role:     user.UserRole.Key,
-		Branches: nil,
+		Id:            user.Id,
+		Avatar:        user.AvatarPointer(),
+		FullName:      user.GetFullName(),
+		Phone:         string(user.Phone),
+		About:         user.About,
+		Branch:        branchResponse,
+		Role:          user.UserRole.Key,
+		Branches:      nil,
+		WorkStartDate: user.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
@@ -169,10 +170,13 @@ func (server *Server) SearchUsers(ctx *gin.Context) {
 }
 
 type GetUserResponse struct {
-	Id       int32           `json:"id"`
-	Avatar   *string         `json:"avatar"`
-	FullName string          `json:"full_name"`
-	Branch   *BranchResponse `json:"branch"`
+	Id            int32           `json:"id"`
+	Avatar        *string         `json:"avatar"`
+	FullName      string          `json:"full_name"`
+	Branch        *BranchResponse `json:"branch"`
+	About         string          `json:"about"`
+	Role          string          `json:"role"`
+	WorkStartDate string          `json:"work_start_date"`
 }
 
 func (server *Server) GetUser(ctx *gin.Context) {
@@ -211,10 +215,16 @@ func (server *Server) GetUser(ctx *gin.Context) {
 	}
 
 	response := GetUserResponse{
-		Id:       user.Id,
-		Avatar:   user.AvatarPointer(),
-		FullName: user.GetFullName(),
-		Branch:   branchResponse,
+		Id:            user.Id,
+		Avatar:        user.AvatarPointer(),
+		FullName:      user.GetFullName(),
+		Branch:        branchResponse,
+		Role:          user.UserRole.Key,
+		WorkStartDate: user.CreatedAt.Format("2006-01-02 15:04:05"),
+	}
+
+	if user.About != nil {
+		response.About = *user.About
 	}
 
 	ctx.JSON(http.StatusOK, response)

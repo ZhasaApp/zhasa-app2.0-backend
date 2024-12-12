@@ -339,7 +339,7 @@ func (q *Queries) GetUserBranch(ctx context.Context, id int32) (GetUserBranchRow
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT u.id, phone, first_name, last_name, avatar_url, about, ur.id, user_id, role_id, r.id, title, key, description, created_at
+SELECT u.id, phone, first_name, last_name, avatar_url, about, work_start_date, ur.id, user_id, role_id, r.id, title, key, description, created_at
 FROM user_avatar_view u
          JOIN user_roles ur on u.id = ur.user_id
          JOIN roles r on ur.role_id = r.id
@@ -347,20 +347,21 @@ WHERE u.id = $1
 `
 
 type GetUserByIdRow struct {
-	ID          int32          `json:"id"`
-	Phone       string         `json:"phone"`
-	FirstName   string         `json:"first_name"`
-	LastName    string         `json:"last_name"`
-	AvatarUrl   string         `json:"avatar_url"`
-	About       sql.NullString `json:"about"`
-	ID_2        int32          `json:"id_2"`
-	UserID      int32          `json:"user_id"`
-	RoleID      int32          `json:"role_id"`
-	ID_3        int32          `json:"id_3"`
-	Title       string         `json:"title"`
-	Key         string         `json:"key"`
-	Description string         `json:"description"`
-	CreatedAt   time.Time      `json:"created_at"`
+	ID            int32          `json:"id"`
+	Phone         string         `json:"phone"`
+	FirstName     string         `json:"first_name"`
+	LastName      string         `json:"last_name"`
+	AvatarUrl     string         `json:"avatar_url"`
+	About         sql.NullString `json:"about"`
+	WorkStartDate time.Time      `json:"work_start_date"`
+	ID_2          int32          `json:"id_2"`
+	UserID        int32          `json:"user_id"`
+	RoleID        int32          `json:"role_id"`
+	ID_3          int32          `json:"id_3"`
+	Title         string         `json:"title"`
+	Key           string         `json:"key"`
+	Description   string         `json:"description"`
+	CreatedAt     time.Time      `json:"created_at"`
 }
 
 func (q *Queries) GetUserById(ctx context.Context, id int32) (GetUserByIdRow, error) {
@@ -373,6 +374,7 @@ func (q *Queries) GetUserById(ctx context.Context, id int32) (GetUserByIdRow, er
 		&i.LastName,
 		&i.AvatarUrl,
 		&i.About,
+		&i.WorkStartDate,
 		&i.ID_2,
 		&i.UserID,
 		&i.RoleID,
@@ -391,7 +393,8 @@ SELECT u.id,
        u.first_name,
        u.last_name,
        u.avatar_url,
-       u.about
+       u.about,
+       u.work_start_date
 FROM user_avatar_view u
 WHERE u.phone = $1
 `
@@ -406,6 +409,7 @@ func (q *Queries) GetUserByPhone(ctx context.Context, phone string) (UserAvatarV
 		&i.LastName,
 		&i.AvatarUrl,
 		&i.About,
+		&i.WorkStartDate,
 	)
 	return i, err
 }
@@ -703,7 +707,7 @@ SELECT u.id,
        u.avatar_url
 FROM user_avatar_view u
 WHERE (u.last_name || ' ' || u.first_name) ILIKE '%' || $1 || '%'
-LIMIT 10
+LIMIT 20
 `
 
 type SearchUsersRow struct {

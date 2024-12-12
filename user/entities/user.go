@@ -20,6 +20,7 @@ type User struct {
 	LastName  string
 	UserRole  UserRole
 	About     *string
+	CreatedAt time.Time
 }
 
 type AuthUser struct {
