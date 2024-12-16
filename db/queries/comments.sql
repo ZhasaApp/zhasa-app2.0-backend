@@ -16,7 +16,7 @@ FROM comments c
          JOIN user_avatar_view u
               ON c.user_id = u.id
 WHERE c.post_id = $1
-ORDER BY created_at LIMIT $2
+ORDER BY created_at DESC LIMIT $2
 OFFSET $3;
 
 -- name: CreateComment :one

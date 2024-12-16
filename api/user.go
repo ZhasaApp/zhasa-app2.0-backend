@@ -175,7 +175,7 @@ type GetUserResponse struct {
 	Avatar        *string         `json:"avatar"`
 	FullName      string          `json:"full_name"`
 	Branch        *BranchResponse `json:"branch"`
-	About         string          `json:"about"`
+	About         string          `json:"about,omitempty"`
 	Role          string          `json:"role"`
 	WorkStartDate string          `json:"work_start_date"`
 }

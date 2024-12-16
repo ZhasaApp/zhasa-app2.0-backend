@@ -260,6 +260,7 @@ SELECT u.id,
        u.phone,
        u.avatar_url
 FROM user_avatar_view u
+JOIN user_roles ur ON u.id = ur.user_id
 WHERE (u.last_name || ' ' || u.first_name) ILIKE '%' || $1 || '%'
 LIMIT 20;
 
