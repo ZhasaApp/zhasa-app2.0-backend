@@ -44,7 +44,7 @@ func (server *Server) GetPosts(ctx *gin.Context) {
 	}
 
 	userId := int32(ctx.GetInt("user_id"))
-	posts, err := server.postRepository.GetPosts(userId, Pagination{
+	posts, count, err := server.postRepository.GetPosts(userId, Pagination{
 		PageSize: req.PageSize,
 		Page:     req.Page,
 	})
@@ -74,13 +74,11 @@ func (server *Server) GetPosts(ctx *gin.Context) {
 		})
 	}
 
-	count := int32(len(news))
-
-	hasNext := count > req.PageSize*(req.Page+1)
+	hasNext := int32(count) > req.PageSize*(req.Page+1)
 
 	ctx.JSON(http.StatusOK, NewsListItemResponse{
 		Result:  news,
 		HasNext: hasNext,
-		Count:   count,
+		Count:   int32(count),
 	})
 }

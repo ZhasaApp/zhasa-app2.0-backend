@@ -163,6 +163,17 @@ func (q *Queries) GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPos
 	return items, nil
 }
 
+const getPostsAndPostAuthorsCount = `-- name: GetPostsAndPostAuthorsCount :one
+select count(*) from posts
+`
+
+func (q *Queries) GetPostsAndPostAuthorsCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getPostsAndPostAuthorsCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const listPosts = `-- name: ListPosts :many
 SELECT id, title, body, user_id, created_at
 FROM posts

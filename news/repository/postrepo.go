@@ -15,7 +15,7 @@ type PostRepository interface {
 	CreatePost(postTitle, postBody string, authorId int32, imageUrls []string) error
 	CreateComment(userId int32, postId int32, message string) error
 	GetPostComments(postId int32, pagination Pagination) ([]Comment, error)
-	GetPosts(userId int32, pagination Pagination) ([]Post, error)
+	GetPosts(userId int32, pagination Pagination) ([]Post, int64, error)
 	AddLike(userId int32, postId int32) error
 	DeleteLike(userId int32, postId int32) error
 	IsUserLikedPost(userId int32, postId int32) (bool, error)
@@ -143,7 +143,7 @@ func (db DBPostRepository) IsUserLikedPost(userId int32, postId int32) (bool, er
 	return true, nil
 }
 
-func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post, error) {
+func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post, int64, error) {
 	rows, err := db.customQ.GetPostsAndPostAuthors(db.ctx, GetPostsAndPostAuthorsParams{
 		UserID: userId,
 		Limit:  pagination.PageSize,
@@ -153,12 +153,12 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 	posts := make([]Post, 0)
 
 	if err == sql.ErrNoRows {
-		return posts, nil
+		return posts, 0, nil
 	}
 
 	if err != nil {
 		fmt.Println(err)
-		return nil, err
+		return nil, 0, err
 	}
 
 	for _, row := range rows {
@@ -181,7 +181,13 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 		})
 	}
 
-	return posts, nil
+	count, err := db.customQ.GetPostsAndPostAuthorsCount(db.ctx)
+	if err != nil {
+		fmt.Println(err)
+		return nil, 0, err
+	}
+
+	return posts, count, nil
 }
 
 func (db DBPostRepository) CreatePost(postTitle, postBody string, authorId int32, imageUrls []string) error {

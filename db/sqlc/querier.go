@@ -69,6 +69,7 @@ type Querier interface {
 	GetPostLikedUsers(ctx context.Context, arg GetPostLikedUsersParams) ([]GetPostLikedUsersRow, error)
 	GetPostLikesCount(ctx context.Context, postID int32) (int64, error)
 	GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error)
+	GetPostsAndPostAuthorsCount(ctx context.Context) (int64, error)
 	GetSaleBrandBySaleId(ctx context.Context, saleID int32) (GetSaleBrandBySaleIdRow, error)
 	// Assuming you also have a sales table as previously discussed.
 	// Assuming you also have a sales table as previously discussed.

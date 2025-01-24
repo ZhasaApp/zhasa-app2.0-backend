@@ -45,3 +45,5 @@ FROM (SELECT * FROM posts ORDER BY created_at DESC LIMIT $2 OFFSET $3) p
      user_avatar_view u ON p.user_id = u.id
 ORDER BY p.created_at DESC;
 
+-- name: GetPostsAndPostAuthorsCount :one
+select count(*) from posts;

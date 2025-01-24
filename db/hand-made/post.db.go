@@ -100,3 +100,14 @@ func (q DBCustomQuerier) GetPostsAndPostAuthors(ctx context.Context, arg GetPost
 	}
 	return items, nil
 }
+
+const getPostsAndPostAuthorsCount = `-- name: GetPostsAndPostAuthorsCount :one
+select count(*) from posts
+`
+
+func (q DBCustomQuerier) GetPostsAndPostAuthorsCount(ctx context.Context) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getPostsAndPostAuthorsCount)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
