@@ -101,6 +101,7 @@ type Querier interface {
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
 	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
+	SetUserBrandGoalV2(ctx context.Context, arg SetUserBrandGoalV2Params) error
 	UpdateBranch(ctx context.Context, arg UpdateBranchParams) error
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error

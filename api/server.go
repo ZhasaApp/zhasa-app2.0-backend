@@ -57,6 +57,7 @@ type Server struct {
 	getBranchesByBrandFunc                        GetBranchesByBrandFunc
 	setBranchBrandSaleTypeGoal                    SetBranchBrandSaleTypeGoal
 	setUserBrandGoalRequest                       SetUserBrandSaleTypeGoalFunc
+	setUserBrandGoalV2Request                     SetUserBrandGoalFunc // SetUserBrandSaleTypeGoalFunc v2
 	getUserByBranchBrandRoleFunc                  GetUserByBranchBrandRoleFunc
 	getBranchBrandMonthlyYearStatisticFunc        GetBranchBrandMonthlyYearStatisticFunc
 	getUsersByBranchBrandRoleFunc                 GetUsersByBranchBrandRoleFunc
@@ -122,6 +123,8 @@ func NewServer(ctx context.Context, environment string) *Server {
 		environment: environment,
 	}
 	initDependencies(server, ctx)
+
+	v2Router := gin.New().Group("/api/v2")
 
 	router := gin.Default()
 	//corsConfig := cors.DefaultConfig()
@@ -221,6 +224,14 @@ func NewServer(ctx context.Context, environment string) *Server {
 	directorRouter := router.Group("director/")
 	{
 		directorRouter.POST("sales-manager/goal", server.SetUserBrandGoal).Use(verifyToken(server.tokenService))
+		directorRouter.GET("sales-manager/goal", server.GetSmGoal).Use(verifyToken(server.tokenService))
+		directorRouter.POST("branch/goal", server.SetBranchGoal).Use(verifyToken(server.tokenService))
+		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
+	}
+
+	directorRouterV2 := v2Router.Group("director/")
+	{
+		directorRouterV2.POST("sales-manager/goal", server.SetUserBrandGoalV2) //.Use(verifyToken(server.tokenService))
 		directorRouter.GET("sales-manager/goal", server.GetSmGoal).Use(verifyToken(server.tokenService))
 		directorRouter.POST("branch/goal", server.SetBranchGoal).Use(verifyToken(server.tokenService))
 		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))

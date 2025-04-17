@@ -8,4 +8,5 @@ type UserBrandStore interface {
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	GetUserRank(ctx context.Context, arg GetUserRankParams) (int64, error)
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
+	SetUserBrandGoalV2(ctx context.Context, arg SetUserBrandGoalV2Params) error
 }

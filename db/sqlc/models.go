@@ -113,6 +113,12 @@ type Comment struct {
 }
 
 type Department struct {
+	ID        int32        `json:"id"`
+	Title     string       `json:"title"`
+	CreatedAt sql.NullTime `json:"created_at"`
+}
+
+type Department struct {
 	ID          int32     `json:"id"`
 	Title       string    `json:"title"`
 	Description string    `json:"description"`
@@ -122,6 +128,28 @@ type Department struct {
 type DisabledUser struct {
 	UserID     int32     `json:"user_id"`
 	DisabledAt time.Time `json:"disabled_at"`
+}
+
+type Goal struct {
+	ID            int32         `json:"id"`
+	Value         int64         `json:"value"`
+	LeadMeasureID int32         `json:"lead_measure_id"`
+	UserID        sql.NullInt32 `json:"user_id"`
+	DepartmentID  sql.NullInt32 `json:"department_id"`
+	BrandID       sql.NullInt32 `json:"brand_id"`
+	BranchID      sql.NullInt32 `json:"branch_id"`
+	DateFrom      time.Time     `json:"date_from"`
+	DateTo        time.Time     `json:"date_to"`
+	CreatedAt     time.Time     `json:"created_at"`
+}
+
+type LeadMeasure struct {
+	ID          int32          `json:"id"`
+	Title       string         `json:"title"`
+	Description sql.NullString `json:"description"`
+	Color       sql.NullString `json:"color"`
+	Gravity     sql.NullInt32  `json:"gravity"`
+	ValueType   sql.NullString `json:"value_type"`
 }
 
 type Like struct {
@@ -218,6 +246,11 @@ type UserBrandSaleTypeGoal struct {
 	Value      int64     `json:"value"`
 	FromDate   time.Time `json:"from_date"`
 	ToDate     time.Time `json:"to_date"`
+}
+
+type UserDepartment struct {
+	UserID       int32 `json:"user_id"`
+	DepartmentID int32 `json:"department_id"`
 }
 
 type UserRole struct {

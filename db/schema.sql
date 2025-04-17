@@ -220,3 +220,36 @@ CREATE TABLE branch_brand_users
     user_id         INTEGER REFERENCES users (id)         NOT NULL,
     UNIQUE (branch_brand_id, user_id)
 );
+
+create table department (
+    id serial primary key,
+    title varchar not null,
+    created_at timestamp default now()
+);
+
+create table user_department (
+    user_id int not null references users(id),
+    department_id int not null references department(id)
+);
+
+create table lead_measure (
+    id serial primary key,
+    title varchar not null,
+    description text,
+    color varchar(7),
+    gravity int,
+    value_type varchar(10)
+);
+
+create table goals (
+    id serial primary key,
+    value bigint not null,
+    lead_measure_id int not null references lead_measure(id),
+    user_id int null references users(id),
+    department_id int null references department(id),
+    brand_id int null references brands(id),
+    branch_id int null references branches(id),
+    date_from timestamp default now() not null,
+    date_to timestamp default now() not null,
+    created_at timestamp default now() not null
+);
