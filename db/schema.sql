@@ -31,14 +31,6 @@ CREATE TABLE brands
     created_at  TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE departments
-(
-    id          SERIAL PRIMARY KEY,
-    title       VARCHAR(255) UNIQUE NOT NULL,
-    description TEXT                NOT NULL,
-    created_at  TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TYPE value_type AS ENUM ('amount', 'count');
 
 CREATE TABLE sale_types
@@ -244,6 +236,7 @@ create table lead_measure (
 create table goals (
     id serial primary key,
     value bigint not null,
+    type varchar(255) not null default '',
     lead_measure_id int not null references lead_measure(id),
     user_id int null references users(id),
     department_id int null references department(id),

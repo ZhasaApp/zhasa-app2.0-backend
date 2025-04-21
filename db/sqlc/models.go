@@ -118,13 +118,6 @@ type Department struct {
 	CreatedAt sql.NullTime `json:"created_at"`
 }
 
-type Department struct {
-	ID          int32     `json:"id"`
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-}
-
 type DisabledUser struct {
 	UserID     int32     `json:"user_id"`
 	DisabledAt time.Time `json:"disabled_at"`
@@ -133,6 +126,7 @@ type DisabledUser struct {
 type Goal struct {
 	ID            int32         `json:"id"`
 	Value         int64         `json:"value"`
+	Type          string        `json:"type"`
 	LeadMeasureID int32         `json:"lead_measure_id"`
 	UserID        sql.NullInt32 `json:"user_id"`
 	DepartmentID  sql.NullInt32 `json:"department_id"`

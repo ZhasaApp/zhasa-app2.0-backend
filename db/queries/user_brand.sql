@@ -7,6 +7,16 @@ WHERE goals.user_id = $1
   AND goals.from_date = $4
   AND goals.to_date = $5;
 
+-- name: GetUserBrandGoalV2 :one
+SELECT COALESCE(g.value, 0)
+FROM  goals g
+WHERE g.type = $1
+  AND g.user_id = $2
+  AND g.brand_id = $3
+  AND g.lead_measure_id = $4
+  AND g.date_from = $5
+  AND g.date_to = $6;
+
 -- name: GetUserBrand :one
 SELECT ub.id AS user_brand
 FROM user_brands ub

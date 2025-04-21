@@ -777,10 +777,8 @@ func (q *Queries) SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalPara
 }
 
 const setUserBrandGoalV2 = `-- name: SetUserBrandGoalV2 :exec
-INSERT INTO goals (value, date_from, date_to, user_id, brand_id, lead_measure_id)
-VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, brand_id, lead_measure_id, date_from, date_to) DO
-UPDATE
-    SET value = $1
+INSERT INTO goals (value, date_from, date_to, user_id, brand_id, lead_measure_id, type)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 `
 
 type SetUserBrandGoalV2Params struct {
@@ -790,6 +788,7 @@ type SetUserBrandGoalV2Params struct {
 	UserID        sql.NullInt32 `json:"user_id"`
 	BrandID       sql.NullInt32 `json:"brand_id"`
 	LeadMeasureID int32         `json:"lead_measure_id"`
+	Type          string        `json:"type"`
 }
 
 func (q *Queries) SetUserBrandGoalV2(ctx context.Context, arg SetUserBrandGoalV2Params) error {
@@ -800,6 +799,7 @@ func (q *Queries) SetUserBrandGoalV2(ctx context.Context, arg SetUserBrandGoalV2
 		arg.UserID,
 		arg.BrandID,
 		arg.LeadMeasureID,
+		arg.Type,
 	)
 	return err
 }

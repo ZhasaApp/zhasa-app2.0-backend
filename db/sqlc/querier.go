@@ -83,6 +83,7 @@ type Querier interface {
 	GetUserBranch(ctx context.Context, id int32) (GetUserBranchRow, error)
 	GetUserBrand(ctx context.Context, arg GetUserBrandParams) (int32, error)
 	GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalParams) (int64, error)
+	GetUserBrandGoalV2(ctx context.Context, arg GetUserBrandGoalV2Params) (int64, error)
 	GetUserBrands(ctx context.Context, userID int32) ([]GetUserBrandsRow, error)
 	GetUserById(ctx context.Context, id int32) (GetUserByIdRow, error)
 	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)

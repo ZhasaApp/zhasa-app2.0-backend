@@ -40,6 +40,7 @@ type Server struct {
 	directorRepo                                  BranchDirectorRepository
 	saleRepo                                      SaleRepository
 	userBrandGoal                                 UserBrandGoalFunc
+	userBrandGoalV2                               UserBrandGoalV2Func
 	getUserBrandFunc                              GetUserBrandFunc
 	updateUserBrandRatio                          UpdateUserBrandRatioFunc
 	getUserRatingFunc                             rating.GetUserRatingFunc
@@ -123,8 +124,6 @@ func NewServer(ctx context.Context, environment string) *Server {
 		environment: environment,
 	}
 	initDependencies(server, ctx)
-
-	v2Router := gin.New().Group("/api/v2")
 
 	router := gin.Default()
 	//corsConfig := cors.DefaultConfig()
@@ -229,12 +228,12 @@ func NewServer(ctx context.Context, environment string) *Server {
 		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
 	}
 
-	directorRouterV2 := v2Router.Group("director/")
+	directorRouterV2 := router.Group("v2/director/")
 	{
-		directorRouterV2.POST("sales-manager/goal", server.SetUserBrandGoalV2) //.Use(verifyToken(server.tokenService))
-		directorRouter.GET("sales-manager/goal", server.GetSmGoal).Use(verifyToken(server.tokenService))
-		directorRouter.POST("branch/goal", server.SetBranchGoal).Use(verifyToken(server.tokenService))
-		directorRouter.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
+		directorRouterV2.POST("sales-manager/goal", server.SetUserBrandGoalV2).Use(verifyToken(server.tokenService))
+		directorRouterV2.GET("sales-manager/goal", server.GetSmGoalV2).Use(verifyToken(server.tokenService))
+		//directorRouterV2.POST("branch/goal", server.SetBranchGoal).Use(verifyToken(server.tokenService))
+		//directorRouterV2.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
 	}
 
 	router.GET("sales-manager/dashboard", server.SMDashboard).Use(verifyToken(server.tokenService))
@@ -307,6 +306,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	)
 
 	brandGoal := NewUserGoalFunc(ctx, store)
+	brandGoalV2 := NewUserGoalV2Func(ctx, store)
 	userSaleSum := NewGetSaleSumByUserBrandTypePeriodFunc(ctx, store)
 	saleRepo := NewSaleRepo(ctx, store, saleTypeRepo, brandGoal, userSaleSum)
 	allBrands := NewGetAllBrandsFunc(ctx, store)
@@ -322,6 +322,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.saleRepo = saleRepo
 	server.saleTypeRepo = saleTypeRepo
 	server.userBrandGoal = brandGoal
+	server.userBrandGoalV2 = brandGoalV2
 	server.getUserBrandFunc = NewGetUserBrandFunc(ctx, store)
 	server.updateUserBrandRatio = NewUpdateUserBrandRatioFunc(ctx, store)
 	server.getUserRatingFunc = rating.NewGetUserRatingFunc(ctx, store)
@@ -339,6 +340,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getBranchesByBrandFunc = NewGetBranchesByBrandFunc(ctx, store)
 	server.setBranchBrandSaleTypeGoal = NewSetBranchGoalFunc(ctx, store)
 	server.setUserBrandGoalRequest = NewSetUserBrandSaleTypeGoalFunc(ctx, store)
+	server.setUserBrandGoalV2Request = NewSetUserBrandGoalFunc(ctx, store)
 	server.getUserByBranchBrandRoleFunc = NewGetUserByBranchBrandRoleFunc(ctx, store)
 	server.getBranchBrandMonthlyYearStatisticFunc = NewGetBranchBrandMonthlyYearStatisticFunc(saleTypeRepo, server.getBranchBrandGoalFunc, server.getBranchBrandFunc, server.getBranchBrandSaleSumFunc)
 	server.getUsersByBranchBrandRoleFunc = NewGetUsersByBranchBrandRoleFunc(ctx, store)
