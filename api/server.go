@@ -52,11 +52,13 @@ type Server struct {
 	getBranchBrandFunc                            GetBranchBrandFunc
 	getBranchBrandSaleSumFunc                     GetBranchBrandSaleSumFunc
 	getBranchBrandGoalFunc                        GetBranchBrandGoalFunc
+	getBranchBrandGoalV2Func                      GetBranchBrandGoalV2Func
 	getUsersOrderedByRatioForGivenBrandFunc       GetUsersOrderedByRatioForGivenBrandFunc
 	getBranchUsersOrderedByRatioForGivenBrandFunc GetBranchUsersOrderedByRatioForGivenBrandFunc
 	getBranchByIdFunc                             GetBranchByIdFunc
 	getBranchesByBrandFunc                        GetBranchesByBrandFunc
 	setBranchBrandSaleTypeGoal                    SetBranchBrandSaleTypeGoal
+	setBranchBrandSaleTypeGoalV2                  SetBranchBrandSaleTypeGoalV2
 	setUserBrandGoalRequest                       SetUserBrandSaleTypeGoalFunc
 	setUserBrandGoalV2Request                     SetUserBrandGoalFunc // SetUserBrandSaleTypeGoalFunc v2
 	getUserByBranchBrandRoleFunc                  GetUserByBranchBrandRoleFunc
@@ -232,8 +234,8 @@ func NewServer(ctx context.Context, environment string) *Server {
 	{
 		directorRouterV2.POST("sales-manager/goal", server.SetUserBrandGoalV2).Use(verifyToken(server.tokenService))
 		directorRouterV2.GET("sales-manager/goal", server.GetSmGoalV2).Use(verifyToken(server.tokenService))
-		//directorRouterV2.POST("branch/goal", server.SetBranchGoal).Use(verifyToken(server.tokenService))
-		//directorRouterV2.GET("branch/goal", server.GetBranchGoal).Use(verifyToken(server.tokenService))
+		directorRouterV2.POST("branch/goal", server.SetBranchGoalV2).Use(verifyToken(server.tokenService))
+		directorRouterV2.GET("branch/goal", server.GetBranchGoalV2).Use(verifyToken(server.tokenService))
 	}
 
 	router.GET("sales-manager/dashboard", server.SMDashboard).Use(verifyToken(server.tokenService))
@@ -334,11 +336,13 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.getBranchBrandFunc = NewGetBranchBrand(ctx, store)
 	server.getBranchBrandSaleSumFunc = NewGetBranchBrandSaleSumFunc(ctx, store)
 	server.getBranchBrandGoalFunc = NewGetBranchBrandGoalFunc(ctx, store)
+	server.getBranchBrandGoalV2Func = NewGetBranchBrandGoalV2Func(ctx, store)
 	server.getUsersOrderedByRatioForGivenBrandFunc = NewGetUsersOrderedByRatioForGivenBrandFunc(ctx, store)
 	server.getBranchUsersOrderedByRatioForGivenBrandFunc = NewGetUsersOrderedBYRatioForGivenBrandAndBranchFunc(ctx, store)
 	server.getBranchByIdFunc = NewGetBranchByIdFunc(ctx, store)
 	server.getBranchesByBrandFunc = NewGetBranchesByBrandFunc(ctx, store)
 	server.setBranchBrandSaleTypeGoal = NewSetBranchGoalFunc(ctx, store)
+	server.setBranchBrandSaleTypeGoalV2 = NewSetBranchGoalV2Func(ctx, store)
 	server.setUserBrandGoalRequest = NewSetUserBrandSaleTypeGoalFunc(ctx, store)
 	server.setUserBrandGoalV2Request = NewSetUserBrandGoalFunc(ctx, store)
 	server.getUserByBranchBrandRoleFunc = NewGetUserByBranchBrandRoleFunc(ctx, store)

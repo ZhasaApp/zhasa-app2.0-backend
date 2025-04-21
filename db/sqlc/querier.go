@@ -46,6 +46,7 @@ type Querier interface {
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchBrand(ctx context.Context, arg GetBranchBrandParams) (int32, error)
 	GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error)
+	GetBranchBrandGoalByGivenDateRangeV2(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeV2Params) (int64, error)
 	GetBranchBrandSaleSumByGivenDateRange(ctx context.Context, arg GetBranchBrandSaleSumByGivenDateRangeParams) (int64, error)
 	GetBranchBrandUserByRole(ctx context.Context, arg GetBranchBrandUserByRoleParams) ([]GetBranchBrandUserByRoleRow, error)
 	GetBranchBrands(ctx context.Context, branchID int32) ([]GetBranchBrandsRow, error)
@@ -100,6 +101,7 @@ type Querier interface {
 	ListPosts(ctx context.Context) ([]Post, error)
 	SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]SearchUsersRow, error)
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
+	SetBranchBrandGoalV2(ctx context.Context, arg SetBranchBrandGoalV2Params) error
 	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
 	SetUserBrandGoalV2(ctx context.Context, arg SetUserBrandGoalV2Params) error
