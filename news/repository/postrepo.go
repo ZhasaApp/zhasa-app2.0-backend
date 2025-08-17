@@ -12,7 +12,7 @@ import (
 )
 
 type PostRepository interface {
-	CreatePost(postTitle, postBody string, authorId int32, imageUrls []string) error
+	CreatePost(postTitle, postBody string, authorId int32, imageUrls []string) (int, error)
 	CreateComment(userId int32, postId int32, message string) error
 	GetPostComments(postId int32, pagination Pagination) ([]Comment, error)
 	GetPosts(userId int32, pagination Pagination) ([]Post, int64, error)
@@ -190,7 +190,7 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 	return posts, count, nil
 }
 
-func (db DBPostRepository) CreatePost(postTitle, postBody string, authorId int32, imageUrls []string) error {
+func (db DBPostRepository) CreatePost(postTitle, postBody string, authorId int32, imageUrls []string) (int, error) {
 	post, err := db.querier.CreatePost(db.ctx, generated.CreatePostParams{
 		Title:  postTitle,
 		Body:   postBody,
@@ -198,7 +198,7 @@ func (db DBPostRepository) CreatePost(postTitle, postBody string, authorId int32
 	})
 	if err != nil {
 		fmt.Println(err)
-		return err
+		return 0, err
 	}
 
 	for _, url := range imageUrls {
@@ -211,7 +211,7 @@ func (db DBPostRepository) CreatePost(postTitle, postBody string, authorId int32
 		}
 	}
 
-	return nil
+	return int(post.ID), nil
 }
 
 func NewPostRepository(ctx context.Context, querier generated.Querier, customQuerier CustomQuerier) PostRepository {

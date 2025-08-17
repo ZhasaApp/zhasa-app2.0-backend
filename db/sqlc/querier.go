@@ -23,6 +23,7 @@ type Querier interface {
 	AddUserBranch(ctx context.Context, arg AddUserBranchParams) error
 	AddUserRole(ctx context.Context, arg AddUserRoleParams) error
 	AddUserToBranch(ctx context.Context, arg AddUserToBranchParams) error
+	AddUserToken(ctx context.Context, arg AddUserTokenParams) error
 	CreateBranch(ctx context.Context, arg CreateBranchParams) error
 	CreateComment(ctx context.Context, arg CreateCommentParams) (Comment, error)
 	CreatePost(ctx context.Context, arg CreatePostParams) (Post, error)

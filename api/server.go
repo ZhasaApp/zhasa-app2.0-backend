@@ -19,6 +19,7 @@ import (
 	generated "zhasa2.0/db/sqlc"
 	. "zhasa2.0/news/repository"
 	. "zhasa2.0/owner/repository"
+	"zhasa2.0/pkg/notify"
 	"zhasa2.0/rating"
 	. "zhasa2.0/sale/repository"
 	. "zhasa2.0/statistic/repository"
@@ -29,6 +30,7 @@ import (
 
 type Server struct {
 	router      *gin.Engine
+	fbClient    notify.Client
 	environment string
 	apiadmin.Server
 	tokenService                                  service.TokenService
@@ -80,6 +82,7 @@ type Server struct {
 	checkDisabledUserFunc          CheckDisabledUserFunc
 	searchUsersFunc                SearchUsersFunc
 	updateUserProfileAbout         UpdateUserProfileAbout
+	addUserTokenFunc               AddUserTokenFunc
 }
 
 func (server *Server) InitSuperUser() error {
@@ -151,6 +154,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 	router.POST("/image/news/upload", verifyToken(server.tokenService), server.HandleNewsUpload)
 
 	router.POST("/user/avatar", verifyToken(server.tokenService), server.UploadUserAvatar)
+	router.POST("/user/token", verifyToken(server.tokenService), server.AddUserToken)
 	router.DELETE("/user/avatar", verifyToken(server.tokenService), server.DeleteAvatar)
 	router.DELETE("/user", verifyToken(server.tokenService), server.deleteAccount)
 	router.POST("auth/signup", server.signup)
@@ -259,6 +263,10 @@ func NewServer(ctx context.Context, environment string) *Server {
 	return server
 }
 
+func (server *Server) SetFBClient(client notify.Client) {
+	server.fbClient = client
+}
+
 func initDependencies(server *Server, ctx context.Context) {
 	dbDriver := os.Getenv("DB_DRIVER")
 	dbSource := os.Getenv("DATA_BASE_URL")
@@ -351,6 +359,7 @@ func initDependencies(server *Server, ctx context.Context) {
 	server.deleteAvatarFunc = NewDeleteAvatarFunc(ctx, store)
 	server.searchUsersFunc = NewSearchUsersFunc(ctx, store)
 	server.updateUserProfileAbout = NewUpdateUserProfileAbout(ctx, store)
+	server.addUserTokenFunc = NewAddUserTokenFunc(ctx, store)
 
 	getUserByPhoneFunc = NewGetUserByPhoneFunc(ctx, store)
 	createUserFunc := NewCreateUserFunc(ctx, store)

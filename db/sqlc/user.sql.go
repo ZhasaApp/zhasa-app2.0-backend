@@ -99,6 +99,22 @@ func (q *Queries) AddUserToBranch(ctx context.Context, arg AddUserToBranchParams
 	return err
 }
 
+const addUserToken = `-- name: AddUserToken :exec
+INSERT INTO user_tokens (user_id, token)
+VALUES ($1, $2) ON CONFLICT (token)
+DO UPDATE SET user_id = excluded.user_id
+`
+
+type AddUserTokenParams struct {
+	UserID int32  `json:"user_id"`
+	Token  string `json:"token"`
+}
+
+func (q *Queries) AddUserToken(ctx context.Context, arg AddUserTokenParams) error {
+	_, err := q.db.ExecContext(ctx, addUserToken, arg.UserID, arg.Token)
+	return err
+}
+
 const createUser = `-- name: CreateUser :one
 INSERT INTO users (phone, first_name, last_name)
 VALUES ($1, $2, $3) ON CONFLICT (phone)
