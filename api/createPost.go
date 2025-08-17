@@ -29,7 +29,7 @@ func (server *Server) CreatePost(ctx *gin.Context) {
 	}
 
 	err = server.fbClient.SendPushNotification(ctx, notify.Message{
-		Heading: "Опубликована новость",
+		Heading: "Новости DOSCAR",
 		Message: req.Title,
 		Payload: map[string]string{
 			"deeplink": "doschamp://news?id=" + fmt.Sprintf("%d", id),
