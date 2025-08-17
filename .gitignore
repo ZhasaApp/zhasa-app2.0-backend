@@ -22,3 +22,4 @@ env.test
 certbot
 images
 nginx
+config/firebase.json
