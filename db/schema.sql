@@ -9,6 +9,12 @@ CREATE TABLE users
     about      TEXT
 );
 
+create table user_tokens (
+    id         SERIAL PRIMARY KEY,
+    user_id    INTEGER REFERENCES users (id) ON DELETE CASCADE NOT NULL,
+    token      VARCHAR(255) UNIQUE NOT NULL
+);
+
 CREATE TABLE disabled_users
 (
     user_id     INTEGER REFERENCES users (id) ON DELETE CASCADE NOT NULL,

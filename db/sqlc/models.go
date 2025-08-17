@@ -226,6 +226,12 @@ type UserRole struct {
 	RoleID int32 `json:"role_id"`
 }
 
+type UserToken struct {
+	ID     int32  `json:"id"`
+	UserID int32  `json:"user_id"`
+	Token  string `json:"token"`
+}
+
 type UsersAvatar struct {
 	UserID    int32  `json:"user_id"`
 	AvatarUrl string `json:"avatar_url"`

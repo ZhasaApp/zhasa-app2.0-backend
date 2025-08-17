@@ -268,3 +268,8 @@ LIMIT 20;
 UPDATE users
 SET about = $1
 WHERE id = $2;
+
+-- name: AddUserToken :exec
+INSERT INTO user_tokens (user_id, token)
+VALUES ($1, $2) ON CONFLICT (token)
+DO UPDATE SET user_id = excluded.user_id;

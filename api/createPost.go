@@ -1,8 +1,10 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"zhasa2.0/pkg/notify"
 )
 
 type createPostRequest struct {
@@ -20,10 +22,24 @@ func (server *Server) CreatePost(ctx *gin.Context) {
 
 	userId := ctx.GetInt("user_id")
 
-	err := server.postRepository.CreatePost(req.Title, req.Body, int32(userId), req.ImageUrls)
+	id, err := server.postRepository.CreatePost(req.Title, req.Body, int32(userId), req.ImageUrls)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	}
+
+	err = server.fbClient.SendPushNotification(ctx, notify.Message{
+		Heading: "Опубликована новость",
+		Message: req.Title,
+		Payload: map[string]string{
+			"deeplink": "doschamp://news?id=" + fmt.Sprintf("%d", id),
+		},
+	}, "news-topic")
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Failed to send push notification",
+		})
+		return
 	}
 
 	ctx.Status(http.StatusNoContent)
