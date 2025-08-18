@@ -82,3 +82,44 @@ func (server *Server) GetPosts(ctx *gin.Context) {
 		Count:   int32(count),
 	})
 }
+
+type GetPostRequest struct {
+	Id int32 `json:"id" form:"id"`
+}
+
+func (server *Server) GetPost(ctx *gin.Context) {
+	var req *GetPostRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	userId := int32(ctx.GetInt("user_id"))
+	post, err := server.postRepository.GetPost(userId, req.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+		return
+	}
+
+	if post == nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, NewsListItem{
+		ID: req.Id,
+		Author: Author{
+			Id:       post.Author.Id,
+			Avatar:   post.Author.AvatarPointer(),
+			FullName: post.Author.GetFullName(),
+		},
+		Images:        post.Images,
+		Title:         post.Title,
+		Body:          post.Body,
+		Date:          post.CreatedDate.Format("2006-01-02 15:04:05"),
+		IsLiked:       post.IsLiked,
+		LikesByOwners: post.LikesByOwner,
+		Likes:         post.LikesCount,
+		Comments:      post.CommentsCount,
+	})
+}

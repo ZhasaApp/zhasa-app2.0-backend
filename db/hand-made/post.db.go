@@ -111,3 +111,89 @@ func (q DBCustomQuerier) GetPostsAndPostAuthorsCount(ctx context.Context) (int64
 	err := row.Scan(&count)
 	return count, err
 }
+
+const getPostAndAuthorByID = `-- name: GetPostAndAuthorByID :one
+SELECT p.id,
+       p.title,
+       p.body,
+       p.user_id,
+       p.created_at,
+       EXISTS(
+           SELECT 1
+           FROM likes l
+           WHERE l.post_id = p.id AND l.user_id = $1
+       ) AS is_liked,
+       COALESCE(lc.likes_count, 0)       AS likes_count,
+       COALESCE(cc.comments_count, 0)    AS comments_count,
+       COALESCE(
+           (SELECT ARRAY_AGG(p_i.image_url)
+            FROM post_images p_i
+            WHERE p_i.post_id = p.id),
+           ARRAY[]::text[]
+       ) AS image_urls,
+       u.id            AS user_id_2,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       COALESCE(
+           (SELECT COUNT(*)
+            FROM likes l
+                     JOIN user_roles ur ON l.user_id = ur.user_id
+                     JOIN roles r ON ur.role_id = r.id
+            WHERE l.post_id = p.id
+              AND r.key = 'owner'),
+           0
+       ) AS likes_by_owner
+FROM posts p
+         LEFT JOIN (SELECT post_id, COUNT(*) AS likes_count FROM likes GROUP BY post_id) lc
+                   ON lc.post_id = p.id
+         LEFT JOIN (SELECT post_id, COUNT(*) AS comments_count FROM comments GROUP BY post_id) cc
+                   ON cc.post_id = p.id
+         JOIN user_avatar_view u ON p.user_id = u.id
+WHERE p.id = $2;
+`
+
+type GetPostAndAuthorByIDParams struct {
+	UserID int32 `json:"user_id"` // текущий пользователь (для is_liked)
+	PostID int32 `json:"post_id"`
+}
+
+type GetPostAndAuthorByIDRow struct {
+	ID            int32          `json:"id"`
+	Title         string         `json:"title"`
+	Body          string         `json:"body"`
+	UserID        int32          `json:"user_id"`
+	CreatedAt     time.Time      `json:"created_at"`
+	IsLiked       bool           `json:"is_liked"`
+	LikesCount    int64          `json:"likes_count"`
+	CommentsCount int64          `json:"comments_count"`
+	ImageUrls     pq.StringArray `json:"image_urls"`
+	UserID_2      int32          `json:"user_id_2"`
+	FirstName     string         `json:"first_name"`
+	LastName      string         `json:"last_name"`
+	AvatarUrl     string         `json:"avatar_url"`
+	LikesByOwner  int32          `json:"likes_by_owner"`
+}
+
+func (q DBCustomQuerier) GetPostAndAuthorByID(ctx context.Context, arg GetPostAndAuthorByIDParams) (GetPostAndAuthorByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getPostAndAuthorByID, arg.UserID, arg.PostID)
+
+	var i GetPostAndAuthorByIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.Title,
+		&i.Body,
+		&i.UserID,
+		&i.CreatedAt,
+		&i.IsLiked,
+		&i.LikesCount,
+		&i.CommentsCount,
+		&i.ImageUrls,
+		&i.UserID_2,
+		&i.FirstName,
+		&i.LastName,
+		&i.AvatarUrl,
+		&i.LikesByOwner,
+	)
+	return i, err
+}

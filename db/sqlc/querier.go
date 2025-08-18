@@ -66,6 +66,7 @@ type Querier interface {
 	GetCommentsAndAuthorsByPostId(ctx context.Context, arg GetCommentsAndAuthorsByPostIdParams) ([]GetCommentsAndAuthorsByPostIdRow, error)
 	GetDisabledUser(ctx context.Context, userID int32) (int32, error)
 	GetFilteredUsersWithBranchRolesBrands(ctx context.Context, arg GetFilteredUsersWithBranchRolesBrandsParams) ([]GetFilteredUsersWithBranchRolesBrandsRow, error)
+	GetPostByID(ctx context.Context, arg GetPostByIDParams) (GetPostByIDRow, error)
 	GetPostById(ctx context.Context, id int32) (Post, error)
 	GetPostLikedUsers(ctx context.Context, arg GetPostLikedUsersParams) ([]GetPostLikedUsersRow, error)
 	GetPostLikesCount(ctx context.Context, postID int32) (int64, error)

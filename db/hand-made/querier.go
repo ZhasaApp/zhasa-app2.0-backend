@@ -11,6 +11,7 @@ type CustomQuerier interface {
 	GetBranchSumByType(ctx context.Context, arg GetBranchSumByTypeParams) (GetBranchSumByTypeRow, error)
 	GetPostsAndPostAuthors(ctx context.Context, arg GetPostsAndPostAuthorsParams) ([]GetPostsAndPostAuthorsRow, error)
 	GetPostsAndPostAuthorsCount(ctx context.Context) (int64, error)
+	GetPostAndAuthorByID(ctx context.Context, arg GetPostAndAuthorByIDParams) (GetPostAndAuthorByIDRow, error)
 }
 
 func NewCustomQuerier(db *sql.DB) CustomQuerier {

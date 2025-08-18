@@ -237,6 +237,7 @@ func NewServer(ctx context.Context, environment string) *Server {
 	router.GET("rating/managers", server.GetOrderedUsers).Use(verifyToken(server.tokenService))
 
 	router.GET("news", verifyToken(server.tokenService), server.GetPosts)
+	router.GET("news/by-id", verifyToken(server.tokenService), server.GetPost)
 	router.POST("news/new", verifyToken(server.tokenService), server.CreatePost)
 	router.DELETE("news/delete", verifyToken(server.tokenService), server.DeletePost)
 	router.POST("news/like-toggle", verifyToken(server.tokenService), server.ToggleLike)
