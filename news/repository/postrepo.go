@@ -16,6 +16,7 @@ type PostRepository interface {
 	CreateComment(userId int32, postId int32, message string) error
 	GetPostComments(postId int32, pagination Pagination) ([]Comment, error)
 	GetPosts(userId int32, pagination Pagination) ([]Post, int64, error)
+	GetPost(userId int32, postId int32) (*Post, error)
 	AddLike(userId int32, postId int32) error
 	DeleteLike(userId int32, postId int32) error
 	IsUserLikedPost(userId int32, postId int32) (bool, error)
@@ -188,6 +189,38 @@ func (db DBPostRepository) GetPosts(userId int32, pagination Pagination) ([]Post
 	}
 
 	return posts, count, nil
+}
+
+func (db DBPostRepository) GetPost(userId int32, postId int32) (*Post, error) {
+	row, err := db.customQ.GetPostAndAuthorByID(db.ctx, GetPostAndAuthorByIDParams{
+		PostID: postId,
+		UserID: userId,
+	})
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return &Post{
+		Id:            row.ID,
+		Images:        row.ImageUrls,
+		LikesCount:    int32(row.LikesCount),
+		CommentsCount: int32(row.CommentsCount),
+		Title:         row.Title,
+		Body:          row.Body,
+		IsLiked:       row.IsLiked,
+		Author: User{
+			Id:        row.UserID,
+			Avatar:    row.AvatarUrl,
+			FirstName: row.FirstName,
+			LastName:  row.LastName,
+		},
+		CreatedDate:  row.CreatedAt,
+		LikesByOwner: row.LikesByOwner,
+	}, nil
 }
 
 func (db DBPostRepository) CreatePost(postTitle, postBody string, authorId int32, imageUrls []string) (int, error) {

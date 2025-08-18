@@ -45,5 +45,45 @@ FROM (SELECT * FROM posts ORDER BY created_at DESC LIMIT $2 OFFSET $3) p
      user_avatar_view u ON p.user_id = u.id
 ORDER BY p.created_at DESC;
 
+-- name: GetPostByID :one
+SELECT p.id,
+       p.title,
+       p.body,
+       p.user_id,
+       p.created_at,
+       EXISTS(
+           SELECT 1
+           FROM likes l
+           WHERE l.post_id = p.id AND l.user_id = $1
+       ) AS is_liked,
+       COALESCE(lc.likes_count, 0)        AS likes_count,
+       COALESCE(cc.comments_count, 0)     AS comments_count,
+       COALESCE(
+               (SELECT ARRAY_AGG(p_i.image_url)
+                FROM post_images p_i
+                WHERE p_i.post_id = p.id),
+               ARRAY[]::text[]
+       )                                  AS image_urls,
+       u.id                               AS user_id,
+       u.first_name,
+       u.last_name,
+       u.avatar_url,
+       COALESCE(
+               (SELECT COUNT(*)
+                FROM likes l
+                         JOIN user_roles ur ON l.user_id = ur.user_id
+                         JOIN roles r ON ur.role_id = r.id
+                WHERE l.post_id = p.id
+                  AND r.key = 'owner'),
+               0
+       )                                  AS likes_by_owner
+FROM posts p
+         LEFT JOIN (SELECT post_id, COUNT(*) AS likes_count FROM likes GROUP BY post_id) lc
+                   ON lc.post_id = p.id
+         LEFT JOIN (SELECT post_id, COUNT(*) AS comments_count FROM comments GROUP BY post_id) cc
+                   ON cc.post_id = p.id
+         JOIN user_avatar_view u ON p.user_id = u.id
+WHERE p.id = $2;
+
 -- name: GetPostsAndPostAuthorsCount :one
 select count(*) from posts;
