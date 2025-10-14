@@ -7,6 +7,7 @@ package generated
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -64,6 +65,40 @@ func (q *Queries) GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalPara
 		arg.SaleTypeID,
 		arg.FromDate,
 		arg.ToDate,
+	)
+	var value int64
+	err := row.Scan(&value)
+	return value, err
+}
+
+const getUserBrandGoalV2 = `-- name: GetUserBrandGoalV2 :one
+SELECT COALESCE(g.value, 0)
+FROM  goals g
+WHERE g.type = $1
+  AND g.user_id = $2
+  AND g.brand_id = $3
+  AND g.lead_measure_id = $4
+  AND g.date_from = $5
+  AND g.date_to = $6
+`
+
+type GetUserBrandGoalV2Params struct {
+	Type          string        `json:"type"`
+	UserID        sql.NullInt32 `json:"user_id"`
+	BrandID       sql.NullInt32 `json:"brand_id"`
+	LeadMeasureID int32         `json:"lead_measure_id"`
+	DateFrom      time.Time     `json:"date_from"`
+	DateTo        time.Time     `json:"date_to"`
+}
+
+func (q *Queries) GetUserBrandGoalV2(ctx context.Context, arg GetUserBrandGoalV2Params) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getUserBrandGoalV2,
+		arg.Type,
+		arg.UserID,
+		arg.BrandID,
+		arg.LeadMeasureID,
+		arg.DateFrom,
+		arg.DateTo,
 	)
 	var value int64
 	err := row.Scan(&value)

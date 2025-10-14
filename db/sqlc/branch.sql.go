@@ -7,6 +7,7 @@ package generated
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -129,6 +130,40 @@ func (q *Queries) GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg Ge
 		arg.FromDate,
 		arg.ToDate,
 		arg.SaleTypeID,
+	)
+	var goal_amount int64
+	err := row.Scan(&goal_amount)
+	return goal_amount, err
+}
+
+const getBranchBrandGoalByGivenDateRangeV2 = `-- name: GetBranchBrandGoalByGivenDateRangeV2 :one
+SELECT COALESCE(g.value, 0) AS goal_amount
+FROM goals g
+WHERE g.type = $1
+  AND g.branch_id = $2
+  AND g.brand_id = $3
+  AND g.date_from = $4
+  AND g.date_to = $5
+  AND g.lead_measure_id = $6
+`
+
+type GetBranchBrandGoalByGivenDateRangeV2Params struct {
+	Type          string        `json:"type"`
+	BranchID      sql.NullInt32 `json:"branch_id"`
+	BrandID       sql.NullInt32 `json:"brand_id"`
+	DateFrom      time.Time     `json:"date_from"`
+	DateTo        time.Time     `json:"date_to"`
+	LeadMeasureID int32         `json:"lead_measure_id"`
+}
+
+func (q *Queries) GetBranchBrandGoalByGivenDateRangeV2(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeV2Params) (int64, error) {
+	row := q.db.QueryRowContext(ctx, getBranchBrandGoalByGivenDateRangeV2,
+		arg.Type,
+		arg.BranchID,
+		arg.BrandID,
+		arg.DateFrom,
+		arg.DateTo,
+		arg.LeadMeasureID,
 	)
 	var goal_amount int64
 	err := row.Scan(&goal_amount)
@@ -532,6 +567,34 @@ func (q *Queries) SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoal
 		arg.Value,
 		arg.FromDate,
 		arg.ToDate,
+	)
+	return err
+}
+
+const setBranchBrandGoalV2 = `-- name: SetBranchBrandGoalV2 :exec
+INSERT INTO goals (type, branch_id, brand_id, lead_measure_id, value, date_from, date_to)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+`
+
+type SetBranchBrandGoalV2Params struct {
+	Type          string        `json:"type"`
+	BranchID      sql.NullInt32 `json:"branch_id"`
+	BrandID       sql.NullInt32 `json:"brand_id"`
+	LeadMeasureID int32         `json:"lead_measure_id"`
+	Value         int64         `json:"value"`
+	DateFrom      time.Time     `json:"date_from"`
+	DateTo        time.Time     `json:"date_to"`
+}
+
+func (q *Queries) SetBranchBrandGoalV2(ctx context.Context, arg SetBranchBrandGoalV2Params) error {
+	_, err := q.db.ExecContext(ctx, setBranchBrandGoalV2,
+		arg.Type,
+		arg.BranchID,
+		arg.BrandID,
+		arg.LeadMeasureID,
+		arg.Value,
+		arg.DateFrom,
+		arg.DateTo,
 	)
 	return err
 }

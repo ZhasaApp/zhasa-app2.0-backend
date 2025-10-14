@@ -16,6 +16,16 @@ WHERE bg.branch_id = $1
   AND bg.to_date = $4
   AND bg.sale_type_id = $5;
 
+-- name: GetBranchBrandGoalByGivenDateRangeV2 :one
+SELECT COALESCE(g.value, 0) AS goal_amount
+FROM goals g
+WHERE g.type = $1
+  AND g.branch_id = $2
+  AND g.brand_id = $3
+  AND g.date_from = $4
+  AND g.date_to = $5
+  AND g.lead_measure_id = $6;
+
 -- name: GetBranches :many
 SELECT *
 FROM branches;
@@ -31,6 +41,10 @@ INSERT INTO branch_brand_sale_type_goals (branch_id, brand_id, sale_type_id, val
 VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (branch_id, brand_id, sale_type_id, from_date, to_date) DO
 UPDATE
     SET value = $4;
+
+-- name: SetBranchBrandGoalV2 :exec
+INSERT INTO goals (type, branch_id, brand_id, lead_measure_id, value, date_from, date_to)
+VALUES ($1, $2, $3, $4, $5, $6, $7);
 
 -- name: GetBranchBrandUserByRole :many
 SELECT u.id,

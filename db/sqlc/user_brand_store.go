@@ -4,8 +4,10 @@ import "context"
 
 type UserBrandStore interface {
 	GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalParams) (int64, error)
+	GetUserBrandGoalV2(ctx context.Context, arg GetUserBrandGoalV2Params) (int64, error)
 	GetUserBrand(ctx context.Context, arg GetUserBrandParams) (int32, error)
 	InsertUserBrandRatio(ctx context.Context, arg InsertUserBrandRatioParams) error
 	GetUserRank(ctx context.Context, arg GetUserRankParams) (int64, error)
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
+	SetUserBrandGoalV2(ctx context.Context, arg SetUserBrandGoalV2Params) error
 }

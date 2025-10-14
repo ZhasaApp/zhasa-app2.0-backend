@@ -66,6 +66,9 @@ VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (user_id, brand_id, sale_type_id, fr
 UPDATE
     SET value = $4;
 
+-- name: SetUserBrandGoalV2 :exec
+INSERT INTO goals (value, date_from, date_to, user_id, brand_id, lead_measure_id, type)
+VALUES ($1, $2, $3, $4, $5, $6, $7);
 
 -- name: GetUsersByBranchBrandRole :many
 SELECT u.id,

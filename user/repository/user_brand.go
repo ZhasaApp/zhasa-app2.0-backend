@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	. "zhasa2.0/db/sqlc"
 	"zhasa2.0/statistic"
+	"zhasa2.0/user/entities"
 )
 
 // UserBrandGoalFunc UserGoalFunc zero if goal is missing
@@ -19,6 +21,26 @@ func NewUserGoalFunc(ctx context.Context, store UserBrandStore) UserBrandGoalFun
 			SaleTypeID: saleTypeId,
 			FromDate:   from,
 			ToDate:     to,
+		})
+		if err != nil {
+			fmt.Println(err)
+		}
+		return goal
+	}
+}
+
+type UserBrandGoalV2Func func(userId int32, brandId int32, leadMeasureID int32, period statistic.Period) int64
+
+func NewUserGoalV2Func(ctx context.Context, store UserBrandStore) UserBrandGoalV2Func {
+	return func(userId int32, brandId int32, leadMeasureID int32, period statistic.Period) int64 {
+		from, to := period.ConvertToTime()
+		goal, err := store.GetUserBrandGoalV2(ctx, GetUserBrandGoalV2Params{
+			UserID:        sql.NullInt32{Int32: userId, Valid: true},
+			BrandID:       sql.NullInt32{Int32: brandId, Valid: true},
+			LeadMeasureID: leadMeasureID,
+			DateFrom:      from,
+			DateTo:        to,
+			Type:          string(entities.GoalTypeUserBrand),
 		})
 		if err != nil {
 			fmt.Println(err)

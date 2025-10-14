@@ -48,3 +48,41 @@ func (server *Server) GetBranchGoal(ctx *gin.Context) {
 		Value: &(goal),
 	})
 }
+
+type GetBranchGoalV2Request struct {
+	BranchId      int32 `json:"branch_id" form:"branch_id"`
+	BrandId       int32 `json:"brand_id" form:"brand_id"`
+	Month         int32 `json:"month" form:"month"`
+	Year          int32 `json:"year" form:"year"`
+	LeadMeasureID int32 `json:"lead_measure_id" form:"lead_measure_id"`
+}
+
+func (server *Server) GetBranchGoalV2(ctx *gin.Context) {
+	var request GetBranchGoalV2Request
+	if err := ctx.ShouldBindQuery(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	period := statistic.MonthPeriod{
+		MonthNumber: request.Month,
+		Year:        request.Year,
+	}
+
+	goal, err := server.getBranchBrandGoalV2Func(request.BranchId, request.BrandId, request.LeadMeasureID, period)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	if goal == 0 {
+		ctx.JSON(http.StatusOK, GetBranchGoalResponse{
+			Value: nil,
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, GetBranchGoalResponse{
+		Value: &(goal),
+	})
+}

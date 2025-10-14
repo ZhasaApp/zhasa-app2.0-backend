@@ -47,6 +47,7 @@ type Querier interface {
 	GetAuthCodeById(ctx context.Context, id int32) (UsersCode, error)
 	GetBranchBrand(ctx context.Context, arg GetBranchBrandParams) (int32, error)
 	GetBranchBrandGoalByGivenDateRange(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeParams) (int64, error)
+	GetBranchBrandGoalByGivenDateRangeV2(ctx context.Context, arg GetBranchBrandGoalByGivenDateRangeV2Params) (int64, error)
 	GetBranchBrandSaleSumByGivenDateRange(ctx context.Context, arg GetBranchBrandSaleSumByGivenDateRangeParams) (int64, error)
 	GetBranchBrandUserByRole(ctx context.Context, arg GetBranchBrandUserByRoleParams) ([]GetBranchBrandUserByRoleRow, error)
 	GetBranchBrands(ctx context.Context, branchID int32) ([]GetBranchBrandsRow, error)
@@ -85,6 +86,7 @@ type Querier interface {
 	GetUserBranch(ctx context.Context, id int32) (GetUserBranchRow, error)
 	GetUserBrand(ctx context.Context, arg GetUserBrandParams) (int32, error)
 	GetUserBrandGoal(ctx context.Context, arg GetUserBrandGoalParams) (int64, error)
+	GetUserBrandGoalV2(ctx context.Context, arg GetUserBrandGoalV2Params) (int64, error)
 	GetUserBrands(ctx context.Context, userID int32) ([]GetUserBrandsRow, error)
 	GetUserById(ctx context.Context, id int32) (GetUserByIdRow, error)
 	GetUserByPhone(ctx context.Context, phone string) (UserAvatarView, error)
@@ -101,8 +103,10 @@ type Querier interface {
 	ListPosts(ctx context.Context) ([]Post, error)
 	SearchUsers(ctx context.Context, dollar_1 sql.NullString) ([]SearchUsersRow, error)
 	SetBranchBrandGoal(ctx context.Context, arg SetBranchBrandGoalParams) error
+	SetBranchBrandGoalV2(ctx context.Context, arg SetBranchBrandGoalV2Params) error
 	SetBrandSaleTypeGoal(ctx context.Context, arg SetBrandSaleTypeGoalParams) error
 	SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalParams) error
+	SetUserBrandGoalV2(ctx context.Context, arg SetUserBrandGoalV2Params) error
 	UpdateBranch(ctx context.Context, arg UpdateBranchParams) error
 	UpdateBrand(ctx context.Context, arg UpdateBrandParams) error
 	UpdateUser(ctx context.Context, arg UpdateUserParams) error

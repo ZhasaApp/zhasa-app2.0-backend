@@ -792,6 +792,34 @@ func (q *Queries) SetUserBrandGoal(ctx context.Context, arg SetUserBrandGoalPara
 	return err
 }
 
+const setUserBrandGoalV2 = `-- name: SetUserBrandGoalV2 :exec
+INSERT INTO goals (value, date_from, date_to, user_id, brand_id, lead_measure_id, type)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+`
+
+type SetUserBrandGoalV2Params struct {
+	Value         int64         `json:"value"`
+	DateFrom      time.Time     `json:"date_from"`
+	DateTo        time.Time     `json:"date_to"`
+	UserID        sql.NullInt32 `json:"user_id"`
+	BrandID       sql.NullInt32 `json:"brand_id"`
+	LeadMeasureID int32         `json:"lead_measure_id"`
+	Type          string        `json:"type"`
+}
+
+func (q *Queries) SetUserBrandGoalV2(ctx context.Context, arg SetUserBrandGoalV2Params) error {
+	_, err := q.db.ExecContext(ctx, setUserBrandGoalV2,
+		arg.Value,
+		arg.DateFrom,
+		arg.DateTo,
+		arg.UserID,
+		arg.BrandID,
+		arg.LeadMeasureID,
+		arg.Type,
+	)
+	return err
+}
+
 const updateUser = `-- name: UpdateUser :exec
 UPDATE users
 SET first_name = $1,

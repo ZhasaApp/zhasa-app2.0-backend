@@ -36,3 +36,34 @@ func (server *Server) SetBranchGoal(ctx *gin.Context) {
 
 	ctx.Status(http.StatusNoContent)
 }
+
+type SetBranchGoalV2Request struct {
+	BranchId      int32 `json:"branch_id"`
+	BrandId       int32 `json:"brand_id"`
+	Value         int64 `json:"value"`
+	Month         int32 `json:"month"`
+	Year          int32 `json:"year"`
+	LeadMeasureID int32 `json:"lead_measure_id"`
+}
+
+func (server *Server) SetBranchGoalV2(ctx *gin.Context) {
+	var request SetBranchGoalV2Request
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	period := statistic.MonthPeriod{
+		MonthNumber: request.Month,
+		Year:        request.Year,
+	}
+
+	err := server.setBranchBrandSaleTypeGoalV2(request.BranchId, request.BrandId, request.LeadMeasureID, request.Value, period)
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
